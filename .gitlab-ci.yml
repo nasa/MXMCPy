@@ -26,4 +26,5 @@ pytest:
   - pip install pytest-cov
   - pip install pytest-mock
   - pip install -r requirements.txt
-  - pytest --cov=mxmc --cov-report=term-missing
+  - export PYTHONPATH=$PYTHONPATH:`pwd`
+  - pytest --cov=mxmc --cov-report=term-missing tests/
