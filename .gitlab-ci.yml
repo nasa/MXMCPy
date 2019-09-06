@@ -26,4 +26,4 @@ pytest:
   - pip install pytest-cov
   - pip install pytest-mock
   - pip install -r requirements.txt
-  - pytest tests
+  - pytest --cov=mxmc --cov-report=term-missing
