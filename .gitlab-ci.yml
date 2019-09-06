@@ -2,15 +2,15 @@ image: python
 
 before_script:
   - lsb_release -a
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-  - bash ~/miniconda.sh -b -p $HOME/miniconda
+#  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+#  - bash ~/miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
-  - conda install pylint
-  - conda install pytest
-  - conda install pytest-cov
-  - conda install pytest-mock
+#  - conda install pylint
+#  - conda install pytest
+#  - conda install pytest-cov
+#  - conda install pytest-mock
   - pip install -r requirements.txt
 
 stages:
