@@ -5,22 +5,26 @@ before_script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
-  - which pip
 #  - pip install virtualenv
   - python -m venv tmp_env
   - source tmp_env/bin/activate
   - pip install pylint
-#  - conda install pylint
-#  - conda install pytest
-#  - conda install pytest-cov
-#  - conda install pytest-mock
-#  - pip install -r requirements.txt
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install pytest-mock
+  - pip install -r requirements.txt
 
 stages:
   - Static Analysis
+  - Test
 
 pylint:
   stage: Static Analysis
   script:
   - which python
   - pylint mxmc
+  
+pytest:
+  stage: Test
+  script:
+  - pytest tests
