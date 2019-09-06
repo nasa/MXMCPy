@@ -5,6 +5,7 @@ before_script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
+  - pip install virtualenv
   - venv mxmc_env
   - source mxmc_env/bin/activate
 #  - conda install pylint
