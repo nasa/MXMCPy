@@ -7,8 +7,8 @@ before_script:
   - which python
   - which pip
 #  - pip install virtualenv
-  - python -m venv mxmc_env
-  - source mxmc_env/bin/activate
+  - python -m venv tmp_env
+  - source tmp_env/bin/activate
   - pip install pylint
 #  - conda install pylint
 #  - conda install pytest
@@ -24,8 +24,3 @@ pylint:
   script:
   - which python
   - pylint mxmc
-  
-after_script:
-  - which python
-  - deactivate
-  - rm -rf mxmc_env
