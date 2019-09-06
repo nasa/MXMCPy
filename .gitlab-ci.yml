@@ -7,7 +7,10 @@ before_script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
-  - pip install pylint
+  - conda install pylint
+  - conda install pytest
+  - conda install pytest-cov
+  - conda install pytest-mock
   - pip install -r requirements.txt
 
 stages:
