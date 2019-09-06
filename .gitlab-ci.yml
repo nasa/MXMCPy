@@ -1,6 +1,7 @@
 image: python
 
 before_script:
+  - lsb_release -a
   - python --version
   - which python
   - pip install -r requirements.txt
