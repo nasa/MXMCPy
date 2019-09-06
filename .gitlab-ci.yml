@@ -7,6 +7,7 @@ before_script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
+  - pip install pylint
   - pip install -r requirements.txt
 
 stages:
