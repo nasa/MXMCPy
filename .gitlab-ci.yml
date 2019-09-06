@@ -18,6 +18,12 @@ pylint:
   script:
   - pip install pylint
   - pylint mxmc
+
+flake8:
+  stage: Static Analysis
+  script:
+  - pip install flake8
+  - flake8 mxmc/
   
 pytest:
   stage: Test
