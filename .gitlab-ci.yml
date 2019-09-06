@@ -2,6 +2,7 @@ image: python
 
 before_script:
   - lsb_release -a
+  - yum install rh-python36
   - python --version
   - which python
   - pip install -r requirements.txt
