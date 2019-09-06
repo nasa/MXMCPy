@@ -13,7 +13,7 @@ before_script:
 #  - conda install pytest
 #  - conda install pytest-cov
 #  - conda install pytest-mock
-  - pip install -r requirements.txt
+#  - pip install -r requirements.txt
 
 stages:
   - Static Analysis
@@ -24,5 +24,6 @@ pylint:
   - pylint mxmc
   
 after_script:
+  - which python
   - deactivate
   - rm -rf mxmc_env
