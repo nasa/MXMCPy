@@ -6,7 +6,7 @@ from mxmc.mfmc import MFMC
 
 @pytest.fixture
 def mfmc_optimizer():
-    covariance = np.array([[1, 0.0], [0.0, 1]])
+    covariance = np.array([[1, 0.9], [0.9, 1]])
     model_costs = np.array([1, 2])
     return MFMC(covariance, model_costs)
 
@@ -40,12 +40,16 @@ def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
                                          np.array([[0, 1, 1, 1]], dtype=int))
 
 
-def test_optimize_with_hifi_fastest(mfmc_optimizer):
-    opt_result = mfmc_optimizer.optimize(target_cost=30)
+def test_optimize_with_hifi_fastest():
+    covariance = np.array([[1, 0.0], [0.0, 1]])
+    model_costs = np.array([1, 2])
+    mfmc = MFMC(covariance, model_costs)
+    opt_result = mfmc.optimize(target_cost=30)
     assert opt_result.cost == 30
     assert opt_result.variance == pytest.approx(0.1)
     np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         np.array([[10, 1, 1, 1]], dtype=int))
+                                         np.array([[10, 1, 1, 1],
+                                                   [0, 1, 1, 1]], dtype=int))
 
 
 def test_case_mfmc():
@@ -63,8 +67,7 @@ def test_case_mfmc():
 
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_opt_results_are_correct_sizes(num_models):
-    covariance = np.random.random((num_models, num_models))
-    covariance = covariance + covariance.transpose()
+    covariance = np.eye(num_models)
     model_costs = np.ones(num_models)
     mfmc = MFMC(covariance, model_costs)
     opt_result = mfmc.optimize(10)
