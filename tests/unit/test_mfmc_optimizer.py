@@ -40,6 +40,7 @@ def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
                                          np.array([[0, 1, 1, 1]], dtype=int))
 
 
+# TODO: What do we want to happen here?
 def test_optimize_with_hifi_fastest():
     covariance = np.array([[1, 0.0], [0.0, 1]])
     model_costs = np.array([1, 2])
@@ -52,19 +53,26 @@ def test_optimize_with_hifi_fastest():
                                                    [0, 1, 1, 1]], dtype=int))
 
 
-def test_case_mfmc():
-    covariance = np.array([[1, 0.5], [0.5, 1]])
+# TODO: I parametrized this one to do more test cases
+@pytest.mark.parametrize("target_cost_multiplier", [1, 4])
+@pytest.mark.parametrize("covariance_multiplier", [1, 4])
+def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
+    covariance = np.array([[1, 0.5], [0.5, 1]])*covariance_multiplier
     model_costs = np.array([48, 4])
     mfmc = MFMC(covariance, model_costs)
-    opt_result = mfmc.optimize(target_cost=168)
+    target_cost = 168 * target_cost_multiplier
+    opt_result = mfmc.optimize(target_cost)
 
-    assert opt_result.cost == pytest.approx(168)
-    assert opt_result.variance == pytest.approx(7/24)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         np.array([[3, 1, 1, 1],
-                                                   [3, 0, 0, 1]], dtype=int))
+    assert opt_result.cost == pytest.approx(168 * target_cost_multiplier)
+    assert opt_result.variance == pytest.approx(7/24 * covariance_multiplier
+                                                / target_cost_multiplier)
+    np.testing.assert_array_almost_equal(
+            opt_result.sample_array,
+            np.array([[3 * target_cost_multiplier, 1, 1, 1],
+                      [3 * target_cost_multiplier, 0, 0, 1]], dtype=int))
 
 
+# TODO: Are we allowing mfmc to be used with just 1 model?
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_opt_results_are_correct_sizes(num_models):
     covariance = np.eye(num_models)
