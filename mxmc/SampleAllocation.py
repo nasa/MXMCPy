@@ -21,6 +21,15 @@ class SampleAllocation:
                 samples_per_model[i] = np.sum(temp_sums)
         return samples_per_model
 
+    def get_sample_indices_for_model(self, model):
+        if model == 0:
+            return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
+        else:
+            temp_sums = self.expanded_allocation[[str(model) + '_1', str(model) + '_2']].sum(axis=1).values
+            for i, n in enumerate(temp_sums):
+                if n == 2:
+                    temp_sums[i] = 1
+            return list(temp_sums.nonzero()[0])
 
     def _expand_allocation(self):
         expanded_allocation_data_frames = []
