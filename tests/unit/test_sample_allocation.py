@@ -67,4 +67,4 @@ def test_expand_allocation(sample_allocation, expanded_allocation_dataframe):
 
 
 def test_get_number_of_samples_per_model(sample_allocation):
-    assert sample_allocation.get_number_of_samples_per_model() == np.array([1, 6, 15])
+    assert np.array_equal(sample_allocation.get_number_of_samples_per_model(), np.array([1, 6, 15]))

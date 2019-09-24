@@ -10,6 +10,17 @@ class SampleAllocation:
 
     def get_number_of_samples_per_model(self):
         samples_per_model = np.zeros(self.num_models)
+        for i in range(self.num_models):
+            if i == 0:
+                samples_per_model[i] = self.expanded_allocation[['0']].sum(axis=0).values[0]
+            else:
+                temp_sums = self.expanded_allocation[[str(i)+'_1', str(i)+'_2']].sum(axis=1).values
+                for j, n in enumerate(temp_sums):
+                    if n == 2:
+                        temp_sums[j] = 1
+                samples_per_model[i] = np.sum(temp_sums)
+        return samples_per_model
+
 
     def _expand_allocation(self):
         expanded_allocation_data_frames = []
