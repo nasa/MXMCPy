@@ -7,6 +7,7 @@ class SampleAllocation:
         self.compressed_allocation = compressed_allocation.tolist()
         self.num_models = self._calculate_num_models()
         self.expanded_allocation = self._expand_allocation()
+        self.samples = pd.DataFrame.empty
 
     def get_total_number_of_samples(self):
         return len(self.expanded_allocation)
@@ -17,7 +18,7 @@ class SampleAllocation:
             if i == 0:
                 samples_per_model[i] = self.expanded_allocation[['0']].sum(axis=0).values[0]
             else:
-                temp_sums = self.expanded_allocation[[str(i)+'_1', str(i)+'_2']].sum(axis=1).values
+                temp_sums = self.expanded_allocation[[str(i) + '_1', str(i) + '_2']].sum(axis=1).values
                 for j, n in enumerate(temp_sums):
                     if n == 2:
                         temp_sums[j] = 1
@@ -33,6 +34,12 @@ class SampleAllocation:
                 if n == 2:
                     temp_sums[i] = 1
             return list(temp_sums.nonzero()[0])
+
+    def generate_samples(self, input_generator):
+        self.samples = input_generator.generate_samples(self.get_total_number_of_samples())
+
+    def get_samples_for_model(self, model):
+        return self.samples.iloc[self.get_sample_indices_for_model(model), :]
 
     def _expand_allocation(self):
         expanded_allocation_data_frames = []
