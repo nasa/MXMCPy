@@ -31,7 +31,7 @@ def test_covariance_is_symmetric():
         MFMC(covariance, model_costs)
 
 
-@pytest.mark.parametrize("target_cost", [-1., 0, 2.5])
+@pytest.mark.parametrize("target_cost", [-1., 0, 0.5])
 def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
     opt_result = mfmc_optimizer.optimize(target_cost)
     assert opt_result.cost == 0
@@ -47,13 +47,11 @@ def test_optimize_with_hifi_fastest():
     mfmc = MFMC(covariance, model_costs)
     opt_result = mfmc.optimize(target_cost=30)
     assert opt_result.cost == 30
-    assert opt_result.variance == pytest.approx(0.1)
+    assert opt_result.variance == pytest.approx(1/30)
     np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         np.array([[10, 1, 1, 1],
-                                                   [0, 1, 1, 1]], dtype=int))
+                                         np.array([[30, 1, 0, 0]], dtype=int))
 
 
-# TODO: I parametrized this one to do more test cases
 @pytest.mark.parametrize("target_cost_multiplier", [1, 4])
 @pytest.mark.parametrize("covariance_multiplier", [1, 4])
 def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
@@ -72,7 +70,6 @@ def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
                       [3 * target_cost_multiplier, 0, 0, 1]], dtype=int))
 
 
-# TODO: Are we allowing mfmc to be used with just 1 model?
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_opt_results_are_correct_sizes(num_models):
     covariance = np.eye(num_models)
@@ -80,3 +77,6 @@ def test_opt_results_are_correct_sizes(num_models):
     mfmc = MFMC(covariance, model_costs)
     opt_result = mfmc.optimize(10)
     assert opt_result.sample_array.shape[1] == num_models*2
+
+
+# TODO: Are we allowing mfmc to be used with just 1 model?
