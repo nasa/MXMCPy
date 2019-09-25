@@ -1,13 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-
 from mxmc.SampleAllocation import SampleAllocation
-
-
-# def test_init():
-#    sample_allocation_object = SampleAllocation(np.array([[]]))
-#    assert sample_allocation_object.compressed_allocation == [[]]
 
 
 @pytest.fixture
@@ -69,11 +63,18 @@ def test_expand_allocation(sample_allocation, expanded_allocation_dataframe):
 def test_get_number_of_samples_per_model(sample_allocation):
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(), np.array([1, 6, 15]))
 
+
 def test_get_sample_indices_for_model_0(sample_allocation):
     assert sample_allocation.get_sample_indices_for_model(0) == [0]
 
+
 def test_get_sample_indices_for_model_1(sample_allocation):
-    assert sample_allocation.get_sample_indices_for_model(1) == [0,1,2,3,4,5]
+    assert sample_allocation.get_sample_indices_for_model(1) == [0, 1, 2, 3, 4, 5]
+
 
 def test_get_sample_indices_for_model_2(sample_allocation):
-    assert sample_allocation.get_sample_indices_for_model(2) == [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    assert sample_allocation.get_sample_indices_for_model(2) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+
+def test_get_total_number_of_samples(sample_allocation):
+    assert sample_allocation.get_total_number_of_samples() == 16

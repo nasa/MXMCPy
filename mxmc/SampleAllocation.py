@@ -8,6 +8,9 @@ class SampleAllocation:
         self.num_models = self._calculate_num_models()
         self.expanded_allocation = self._expand_allocation()
 
+    def get_total_number_of_samples(self):
+        return len(self.expanded_allocation)
+
     def get_number_of_samples_per_model(self):
         samples_per_model = np.zeros(self.num_models)
         for i in range(self.num_models):
