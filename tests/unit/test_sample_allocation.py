@@ -120,14 +120,20 @@ def test_input_generator_init(input_dataframe, input_generator_with_array):
     assert pd.DataFrame.equals(input_dataframe, input_generator_with_array.input_dataframe)
 
 
-def test_input_generator_generate(input_generator_with_array, input_dataframe):
+def test_input_generator_generate_samples(input_generator_with_array, input_dataframe):
     assert pd.DataFrame.equals(input_dataframe,
                                input_generator_with_array.generate_samples(16))
 
 
-def test_input_generator_generate_subset(input_generator_with_array, input_dataframe):
+def test_input_generator_generate_subset_of_samples(input_generator_with_array, input_dataframe):
     assert pd.DataFrame.equals(input_dataframe[:5],
                                input_generator_with_array.generate_samples(5))
+
+
+def test_input_generator_generate_too_many_samples_requested(input_generator_with_array,
+                                                             input_dataframe):
+    with pytest.raises(ValueError):
+        input_generator_with_array.generate_samples(17)
 
 
 def test_sample_allocation_generate_samples(input_generator_with_array,
