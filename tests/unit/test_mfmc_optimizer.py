@@ -8,7 +8,7 @@ from mxmc.mfmc import MFMC
 def mfmc_optimizer():
     covariance = np.array([[1, 0.9], [0.9, 1]])
     model_costs = np.array([1, 2])
-    return MFMC(covariance, model_costs)
+    return MFMC(model_costs, covariance)
 
 
 def test_optimizer_returns_tuple_with(mfmc_optimizer):
@@ -21,14 +21,14 @@ def test_non_matching_covariance_and_costs_lengths():
     covariance = np.random.random((3, 3))
     model_costs = np.array([1, 1])
     with pytest.raises(ValueError):
-        MFMC(covariance, model_costs)
+        MFMC(model_costs, covariance)
 
 
 def test_covariance_is_symmetric():
     covariance = np.array([[0, 2], [1, 0]])
     model_costs = np.array([1, 1, 1])
     with pytest.raises(ValueError):
-        MFMC(covariance, model_costs)
+        MFMC(model_costs, covariance)
 
 
 @pytest.mark.parametrize("target_cost", [-1., 0, 0.5])
@@ -44,7 +44,7 @@ def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
 def test_optimize_with_hifi_fastest():
     covariance = np.array([[1, 0.0], [0.0, 1]])
     model_costs = np.array([1, 2])
-    mfmc = MFMC(covariance, model_costs)
+    mfmc = MFMC(model_costs, covariance)
     opt_result = mfmc.optimize(target_cost=30)
     assert opt_result.cost == 30
     assert opt_result.variance == pytest.approx(1/30)
@@ -57,7 +57,7 @@ def test_optimize_with_hifi_fastest():
 def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
     covariance = np.array([[1, 0.5], [0.5, 1]])*covariance_multiplier
     model_costs = np.array([4800, 4])
-    mfmc = MFMC(covariance, model_costs)
+    mfmc = MFMC(model_costs, covariance)
     target_cost = 14640 * target_cost_multiplier
     opt_result = mfmc.optimize(target_cost)
 
@@ -75,6 +75,12 @@ def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
 def test_opt_results_are_correct_sizes(num_models):
     covariance = np.eye(num_models)
     model_costs = np.ones(num_models)
-    mfmc = MFMC(covariance, model_costs)
+    mfmc = MFMC(model_costs, covariance)
     opt_result = mfmc.optimize(10)
     assert opt_result.sample_array.shape[1] == num_models*2
+
+
+def test_mfmc_can_initialize_with_extra_inputs():
+    covariance = np.array([[1, 0.5], [0.5, 1]])
+    model_costs = np.array([4800, 4])
+    _ = MFMC(model_costs, covariance, 0, abc=0)
