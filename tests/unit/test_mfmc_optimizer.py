@@ -56,18 +56,19 @@ def test_optimize_with_hifi_fastest():
 @pytest.mark.parametrize("covariance_multiplier", [1, 4])
 def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
     covariance = np.array([[1, 0.5], [0.5, 1]])*covariance_multiplier
-    model_costs = np.array([48, 4])
+    model_costs = np.array([4800, 4])
     mfmc = MFMC(covariance, model_costs)
-    target_cost = 168 * target_cost_multiplier
+    target_cost = 14640 * target_cost_multiplier
     opt_result = mfmc.optimize(target_cost)
 
-    assert opt_result.cost == pytest.approx(168 * target_cost_multiplier)
-    assert opt_result.variance == pytest.approx(7/24 * covariance_multiplier
+    print(opt_result.sample_array)
+    assert opt_result.cost == pytest.approx(14640 * target_cost_multiplier)
+    assert opt_result.variance == pytest.approx(61/240 * covariance_multiplier
                                                 / target_cost_multiplier)
     np.testing.assert_array_almost_equal(
             opt_result.sample_array,
             np.array([[3 * target_cost_multiplier, 1, 1, 1],
-                      [3 * target_cost_multiplier, 0, 0, 1]], dtype=int))
+                      [57 * target_cost_multiplier, 0, 0, 1]], dtype=int))
 
 
 @pytest.mark.parametrize("num_models", range(1, 4))
@@ -77,6 +78,3 @@ def test_opt_results_are_correct_sizes(num_models):
     mfmc = MFMC(covariance, model_costs)
     opt_result = mfmc.optimize(10)
     assert opt_result.sample_array.shape[1] == num_models*2
-
-
-# TODO: Are we allowing mfmc to be used with just 1 model?

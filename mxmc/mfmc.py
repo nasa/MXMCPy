@@ -30,7 +30,6 @@ class MFMC:
         for indices in lofi_model_indices_sets:
             indices += [0]
             indices.sort(key=lambda x: self._correlations[x], reverse=True)
-            print(indices)
 
             if not self._model_indices_are_consistent(indices):
                 continue
@@ -53,7 +52,7 @@ class MFMC:
         estimator_variance = self._calculate_estimator_variance(sample_nums, correlations, stdevs)
 
         actual_cost = np.dot(model_costs, sample_nums)
-        allocation = self._make_allocation(sample_nums, len(best_indices))
+        allocation = self._make_allocation(sample_nums, best_indices)
         return OptimizationResult(actual_cost, estimator_variance, allocation)
 
     def _model_indices_are_consistent(self, indices):
@@ -74,7 +73,8 @@ class MFMC:
         return sample_nums
 
     def _calculate_sample_ratios(self, correlations, model_costs):
-        print(correlations)
+        if len(correlations) == 1:
+            return np.array([1])
         corr_i = correlations[1:]
         corr_i_plus_1 = correlations[2:]
         corr_i_plus_1 = np.append(corr_i_plus_1, 0)
@@ -101,14 +101,17 @@ class MFMC:
                           range(1, len(correlations))]
         return alpha_star
 
-    def _make_allocation(self, sample_nums, num_models):
-        allocation = np.zeros((num_models, 2 * num_models),
-                              dtype=int)
+    def _make_allocation(self, sample_nums, indices):
+        allocation = np.zeros((len(sample_nums), 2 * self._num_models), dtype=int)
         allocation[0, 0] = sample_nums[0]
         allocation[1:, 0] = [sample_nums[i] - sum(sample_nums[:i])
-                             for i in range(1, num_models)]
-        for i in range(num_models):
-            allocation[i, 1 + 2 * i:] = 1
+                             for i in range(1, len(sample_nums))]
+
+        for i in range(len(sample_nums)):
+            for k, j in enumerate(indices[i:]):
+                allocation[i, 1 + 2 * j] = 1
+                if k > 0:
+                    allocation[i, 2 * j] = 1
         return allocation
 
     @staticmethod
