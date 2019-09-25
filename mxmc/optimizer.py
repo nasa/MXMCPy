@@ -23,3 +23,8 @@ class Optimizer(metaclass=ABCMeta):
     @abstractmethod
     def optimize(self, target_cost):
         raise NotImplementedError
+
+    def _make_invalid_result(self):
+        allocation = np.ones((1, 2 * self._num_models))
+        allocation[0, 0] = 0
+        return OptimizationResult(0, np.inf, allocation)
