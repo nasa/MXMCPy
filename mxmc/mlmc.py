@@ -12,6 +12,8 @@ class MLMC(Optimizer):
         if mlmc_variances is None:
             raise ValueError("Must specify mlmc_variances")
         self._mlmc_variances = mlmc_variances
+        if model_costs[0] !=  np.max(model_costs):
+            raise ValueError("First model must have highest cost for MLMC")
         self._level_costs = self._get_level_costs(model_costs)
 
     def _get_level_costs(self, model_costs):

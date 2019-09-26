@@ -148,6 +148,18 @@ def test_four_models_out_of_order():
     np.testing.assert_array_almost_equal(opt_result.sample_array,
                                          sample_array_expected)
 
+def test_raises_error_if_first_model_is_not_highest_cost():
+    '''
+    MXMC assumes first model is high fidelity. For MLMC, the high fidelity
+    model is finest discretization and therefore is the one with highest cost
+    '''
+
+    model_costs = np.array([11, 1, 12])
+    mlmc_variances = np.array([1, 1, 1])
+    
+    with pytest.raises(ValueError):
+        mlmc = MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+
 
 #TODO - refactor the opt_result assert statements into function
 #Test that result is correct when costs/variances are out of order
