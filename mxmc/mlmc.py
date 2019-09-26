@@ -12,10 +12,30 @@ class MLMC(Optimizer):
         if mlmc_variances is None:
             raise ValueError("Must specify mlmc_variances")
         self._mlmc_variances = mlmc_variances
-        self._level_costs = np.zeros(len(self._model_costs))
-        for i in range(0, len(self._model_costs)-1):
-            self._level_costs[i] = self._model_costs[i] + self._model_costs[i+1]
-        self._level_costs[-1] = self._model_costs[-1]
+        self._level_costs = self._get_level_costs(model_costs)
+
+    def _get_level_costs(self, model_costs):
+        '''
+        To get level costs from model costs, we need to sort costs to descending
+        order, then sum model costs on adjacent levels (except for last/fastest
+        model), then unsort the summed costs back to the original order
+        '''
+
+        self._cost_sort_indices = np.argsort(model_costs)
+        level_costs_sort = np.flip(model_costs[self._cost_sort_indices])
+
+        for i in range(0, self._num_models-1):
+            level_costs_sort[i] = level_costs_sort[i] + level_costs_sort[i+1]
+
+        #Unsort the costs back to original order
+        level_costs = np.zeros(self._num_models)
+        level_costs_sort = np.flip(level_costs_sort)
+        for i in range(0, self._num_models):
+            level_costs[self._cost_sort_indices[i]] = level_costs_sort[i]
+
+        print("level costs = ", level_costs)
+        return level_costs
+        
 
     def optimize(self, target_cost):
 
@@ -32,12 +52,25 @@ class MLMC(Optimizer):
             actual_cost = np.dot(num_samples_per_level, self._level_costs)
             
             estimator_variance = np.sum(self._mlmc_variances / num_samples_per_level)
-            allocation = np.zeros((self._num_models, 2*self._num_models))
 
-            allocation[:,0] = num_samples_per_level
-            for model_index in range(self._num_models-1):
-                allocation[model_index, 2*model_index+1] = 1
-                allocation[model_index, 2*model_index+2] = 1
-            allocation[-1,-1] = 1
+            allocation = self._get_allocation_array(num_samples_per_level)
 
             return OptimizationResult(actual_cost, estimator_variance, allocation)
+
+    def _get_allocation_array(self, num_samples_per_level):
+
+
+        allocation = np.zeros((self._num_models, 2*self._num_models))
+
+        inds = np.flip(self._cost_sort_indices)
+        allocation[:,0] = num_samples_per_level[inds]
+
+        for model_index in range(1, self._num_models):
+            cost_index = inds[model_index]
+            allocation[cost_index-1, 2*model_index] = 1
+            allocation[cost_index, 2*model_index+1] = 1
+        allocation[0, 1] = 1
+    
+        return allocation
+
+
