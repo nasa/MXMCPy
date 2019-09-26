@@ -127,5 +127,27 @@ def test_three_models_out_of_order():
     np.testing.assert_array_almost_equal(opt_result.sample_array,
                                          sample_array_expected)
 
+
+def test_four_models_out_of_order():
+
+    target_cost = 64
+    model_costs = np.array([11, 1, 5, 3])
+    mlmc_variances = np.array([0.25, 4, 0.5, 1])
+    mlmc_opt =  MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+
+    sample_array_expected = np.array([[1,1,0,0,1,0,0,0],
+                                      [2,0,0,0,0,1,1,0],
+                                      [4,0,1,0,0,0,0,1],
+                                      [16,0,0,1,0,0,0,0]])
+    var_expected = 1.
+    cost_expected = target_cost
+
+    opt_result = mlmc_opt.optimize(target_cost)
+    assert np.isclose(opt_result.cost, cost_expected)
+    assert np.isclose(opt_result.variance, var_expected)
+    np.testing.assert_array_almost_equal(opt_result.sample_array,
+                                         sample_array_expected)
+
+
 #TODO - refactor the opt_result assert statements into function
 #Test that result is correct when costs/variances are out of order

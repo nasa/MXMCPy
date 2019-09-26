@@ -21,19 +21,20 @@ class MLMC(Optimizer):
         model), then unsort the summed costs back to the original order
         '''
 
-        self._cost_sort_indices = np.argsort(model_costs)
-        level_costs_sort = np.flip(model_costs[self._cost_sort_indices])
+        sort_indices = np.argsort(model_costs)
+        level_costs_sort = np.flip(model_costs[sort_indices])
 
         for i in range(0, self._num_models-1):
             level_costs_sort[i] = level_costs_sort[i] + level_costs_sort[i+1]
 
-        #Unsort the costs back to original order
+        #Unsort the costs back to original order & store inverse map for later
         level_costs = np.zeros(self._num_models)
         level_costs_sort = np.flip(level_costs_sort)
         for i in range(0, self._num_models):
-            level_costs[self._cost_sort_indices[i]] = level_costs_sort[i]
+            level_costs[sort_indices[i]] = level_costs_sort[i]
 
-        print("level costs = ", level_costs)
+        self._cost_sort_indices = np.flip(sort_indices)
+
         return level_costs
         
 
@@ -62,13 +63,13 @@ class MLMC(Optimizer):
 
         allocation = np.zeros((self._num_models, 2*self._num_models))
 
-        inds = np.flip(self._cost_sort_indices)
-        allocation[:,0] = num_samples_per_level[inds]
+        allocation[:,0] = num_samples_per_level[self._cost_sort_indices]
 
+        print("sort index = ", self._cost_sort_indices)
         for model_index in range(1, self._num_models):
-            cost_index = inds[model_index]
-            allocation[cost_index-1, 2*model_index] = 1
-            allocation[cost_index, 2*model_index+1] = 1
+            cost_index = self._cost_sort_indices[model_index]
+            allocation[model_index-1, 2*cost_index] = 1
+            allocation[model_index, 2*cost_index+1] = 1
         allocation[0, 1] = 1
     
         return allocation
