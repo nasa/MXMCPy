@@ -80,6 +80,17 @@ def test_opt_results_are_correct_sizes(num_models):
     assert opt_result.sample_array.shape[1] == num_models*2
 
 
+@pytest.mark.parametrize("num_models", range(1, 4))
+def test_mfmc_opt_results_are_correct_sizes(num_models):
+    covariance = np.eye(num_models)
+    covariance[0] = np.linspace(1.0, 0.6, num_models)
+    covariance[:, 0] = np.linspace(1.0, 0.6, num_models)
+    model_costs = np.arange(num_models, 0, -1)
+    mfmc = MFMC(model_costs, covariance)
+    opt_result = mfmc.optimize(10)
+    assert opt_result.sample_array.shape[1] == num_models*2
+
+
 def test_mfmc_can_initialize_with_extra_inputs():
     covariance = np.array([[1, 0.5], [0.5, 1]])
     model_costs = np.array([4800, 4])

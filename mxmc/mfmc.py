@@ -8,100 +8,87 @@ from .optimizer import OptimizationResult, Optimizer
 class MFMC(Optimizer):
     def __init__(self, model_costs, covariance, *_, **__):
         super().__init__(model_costs, covariance)
-        self._stdevs = np.sqrt(np.diag(covariance))
-        self._correlations = covariance[0] / self._stdevs[0] / self._stdevs
+        stdev = np.sqrt(np.diag(covariance))
+        correlations = covariance[0] / stdev[0] / stdev
+        self._model_order_map = list(range(self._num_models))
+        self._model_order_map.sort(key=lambda x: correlations[x], reverse=True)
+        self._ordered_corr = correlations[self._model_order_map]
+        self._ordered_corr = np.append(self._ordered_corr, 0.)
+        self._ordered_cost = model_costs[self._model_order_map]
+        self._ordered_stdev = stdev[self._model_order_map]
 
     def optimize(self, target_cost):
         if target_cost < self._model_costs[0]:
-            allocation = np.ones((1, 2 * self._num_models))
-            allocation[0, 0] = 0
-            return OptimizationResult(0, np.inf, allocation)
+            return self.get_invalid_result()
 
-        best_rel_variance = np.sqrt(self._model_costs[0])
-        best_indices = [0]
-        lofi_model_indices_sets = self.get_unique_subsets(range(1, self._num_models))
-        for indices in lofi_model_indices_sets:
-            indices += [0]
-            indices.sort(key=lambda x: self._correlations[x], reverse=True)
+        if not self._model_indices_are_consistent():
+            raise RuntimeError("Inconsistent Models")
 
-            if not self._model_indices_are_consistent(indices):
-                continue
-
-            rel_variance = 0
-            for j in range(len(indices)):
-                corr = self._correlations[indices[j]]
-                corr_plus_1 = 0 if j == len(indices) - 1 else self._correlations[indices[j+1]]
-                rel_variance += np.sqrt(self._model_costs[indices[j]] *
-                                        (corr**2 - corr_plus_1**2))
-
-            if rel_variance < best_rel_variance:
-                best_rel_variance = rel_variance
-                best_indices = indices
-
-        correlations = self._correlations[best_indices]
-        model_costs = self._model_costs[best_indices]
-        stdevs = self._stdevs[best_indices]
-        sample_nums = self._calculate_sample_nums(target_cost, correlations, model_costs)
-        estimator_variance = self._calculate_estimator_variance(sample_nums, correlations, stdevs)
-
-        actual_cost = np.dot(model_costs, sample_nums)
-        allocation = self._make_allocation(sample_nums, best_indices)
+        sample_group_sizes = self._calculate_sample_group_sizes(target_cost)
+        estimator_variance = \
+            self._calculate_estimator_variance(sample_group_sizes)
+        actual_cost = np.dot(self._ordered_cost, sample_group_sizes)
+        allocation = self._make_allocation(sample_group_sizes)
         return OptimizationResult(actual_cost, estimator_variance, allocation)
 
-    def _model_indices_are_consistent(self, indices):
-        for j in range(1, len(indices)):
-            corr_minus_1 = self._correlations[indices[j-1]]
-            corr = self._correlations[indices[j]]
-            corr_plus_1 = 0 if j == len(indices) -1 else self._correlations[indices[j+1]]
-            if self._model_costs[indices[j-1]] / self._model_costs[indices[j]] \
-                    <= (corr_minus_1**2 - corr**2)/(corr**2 - corr_plus_1**2):
+    def _model_indices_are_consistent(self):
+        for j in range(1, self._num_models):
+            cost_ratio = self._ordered_cost[j-1] / self._ordered_cost[j]
+            req_cost_ratio = (self._ordered_corr[j-1]**2 -
+                              self._ordered_corr[j]**2) / \
+                             (self._ordered_corr[j]**2 -
+                              self._ordered_corr[j+1]**2)
+            if cost_ratio <= req_cost_ratio:
                 return False
         return True
 
-    def _calculate_sample_nums(self, target_cost, correlations, model_costs):
-        sample_ratios = self._calculate_sample_ratios(correlations, model_costs)
-        num_hifi_samples = target_cost / np.dot(model_costs, sample_ratios)
-        sample_nums = num_hifi_samples * sample_ratios
-        sample_nums = np.floor(sample_nums)
-        return sample_nums
+    def _calculate_sample_group_sizes(self, target_cost):
+        sample_ratios = self._calculate_sample_ratios()
+        num_hifi_samples = target_cost / np.dot(self._ordered_cost,
+                                                sample_ratios)
+        sample_group_sizes = num_hifi_samples * sample_ratios
+        sample_group_sizes = np.floor(sample_group_sizes)
+        return sample_group_sizes
 
-    def _calculate_sample_ratios(self, correlations, model_costs):
-        if len(correlations) == 1:
+    def _calculate_sample_ratios(self):
+        if self._num_models == 1:
             return np.array([1])
-        corr_i = correlations[1:]
-        corr_i_plus_1 = correlations[2:]
-        corr_i_plus_1 = np.append(corr_i_plus_1, 0)
-        sample_ratios = np.sqrt(model_costs[0]
-                                * (corr_i ** 2 - corr_i_plus_1 ** 2)
-                                / (model_costs[1:]
-                                * (1 - correlations[1] ** 2)))
+        sample_ratios = np.sqrt(self._ordered_cost[0]
+                                * (self._ordered_corr[1:-1] ** 2 -
+                                   self._ordered_corr[2:] ** 2)
+                                / (self._ordered_cost[1:]
+                                * (1 - self._ordered_corr[1] ** 2)))
         sample_ratios = np.insert(sample_ratios, 0, 1)
         return sample_ratios
 
-    def _calculate_estimator_variance(self, sample_nums, correlations, stdevs):
-        alphas = self._calculate_optimal_alphas(correlations, stdevs)
-        estimator_variance = stdevs[0] ** 2 / sample_nums[0]
-        for i in range(1, len(correlations)):
-            estimator_variance += (1/sample_nums[i - 1] - 1/sample_nums[i]) \
-                                  * (alphas[i] ** 2 * stdevs[i] ** 2
-                                     - 2*alphas[i] * correlations[i]
-                                     * stdevs[0] * stdevs[i])
+    def _calculate_estimator_variance(self, sample_group_sizes):
+        alphas = self._calculate_optimal_alphas()
+        estimator_variance = self._ordered_stdev[0] ** 2 \
+                             / sample_group_sizes[0]
+        for i in range(1, self._num_models):
+            estimator_variance += (1 / sample_group_sizes[i - 1]
+                                   - 1 / sample_group_sizes[i]) \
+                                  * (alphas[i] ** 2
+                                     * self._ordered_stdev[i] ** 2
+                                     - 2 * alphas[i] * self._ordered_corr[i]
+                                     * self._ordered_stdev[0]
+                                     * self._ordered_stdev[i])
         return estimator_variance
 
-    def _calculate_optimal_alphas(self, correlations, stdevs):
-        alpha_star = np.zeros(len(correlations))
-        alpha_star[1:] = [correlations[i] * stdevs[0] / stdevs[i] for i in
-                          range(1, len(correlations))]
+    def _calculate_optimal_alphas(self):
+        alpha_star = self._ordered_corr[:-1] * self._ordered_stdev[0] / \
+                     self._ordered_stdev
         return alpha_star
 
-    def _make_allocation(self, sample_nums, indices):
-        allocation = np.zeros((len(sample_nums), 2 * self._num_models), dtype=int)
+    def _make_allocation(self, sample_nums):
+        allocation = np.zeros((self._num_models, 2 * self._num_models),
+                              dtype=int)
         allocation[0, 0] = sample_nums[0]
         allocation[1:, 0] = [sample_nums[i] - sum(sample_nums[:i])
                              for i in range(1, len(sample_nums))]
 
         for i in range(len(sample_nums)):
-            for k, j in enumerate(indices[i:]):
+            for k, j in enumerate(self._model_order_map[i:]):
                 allocation[i, 1 + 2 * j] = 1
                 if k > 0:
                     allocation[i, 2 * j] = 1
