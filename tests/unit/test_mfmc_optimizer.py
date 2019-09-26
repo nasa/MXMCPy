@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 
 from mxmc.mfmc import MFMC
+from mxmc.model_selection import AutoModelSelection
 
 
 @pytest.fixture
@@ -40,12 +41,11 @@ def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
                                          np.array([[0, 1, 1, 1]], dtype=int))
 
 
-# TODO: What do we want to happen here?
 def test_optimize_with_hifi_fastest():
     covariance = np.array([[1, 0.0], [0.0, 1]])
     model_costs = np.array([1, 2])
     mfmc = MFMC(model_costs, covariance)
-    opt_result = mfmc.optimize(target_cost=30)
+    opt_result = AutoModelSelection(mfmc).optimize(target_cost=30)
     assert opt_result.cost == 30
     assert opt_result.variance == pytest.approx(1/30)
     np.testing.assert_array_almost_equal(opt_result.sample_array,
@@ -76,7 +76,7 @@ def test_opt_results_are_correct_sizes(num_models):
     covariance = np.eye(num_models)
     model_costs = np.ones(num_models)
     mfmc = MFMC(model_costs, covariance)
-    opt_result = mfmc.optimize(10)
+    opt_result = AutoModelSelection(mfmc).optimize(10)
     assert opt_result.sample_array.shape[1] == num_models*2
 
 

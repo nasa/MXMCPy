@@ -2,7 +2,7 @@ from itertools import combinations
 
 import numpy as np
 
-from .optimizer import OptimizationResult, Optimizer
+from .optimizer import OptimizationResult, Optimizer, InconsistentModelError
 
 
 class MFMC(Optimizer):
@@ -22,7 +22,7 @@ class MFMC(Optimizer):
             return self.get_invalid_result()
 
         if not self._model_indices_are_consistent():
-            raise RuntimeError("Inconsistent Models")
+            raise InconsistentModelError("Inconsistent Models")
 
         sample_group_sizes = self._calculate_sample_group_sizes(target_cost)
         estimator_variance = \

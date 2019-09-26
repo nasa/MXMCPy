@@ -7,6 +7,10 @@ OptimizationResult = namedtuple('OptimizationResult',
                                 'cost variance sample_array')
 
 
+class InconsistentModelError(Exception):
+    pass
+
+
 class Optimizer(metaclass=ABCMeta):
     def __init__(self, model_costs, covariance=None):
         self._model_costs = model_costs
