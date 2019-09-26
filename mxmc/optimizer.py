@@ -35,6 +35,11 @@ class Optimizer(metaclass=ABCMeta):
             np.copy(self._covariance[model_indices][:, model_indices])
         return self.__class__(subset_costs, subset_covariance)
 
+
+    def get_num_models(self):
+        return self._num_models
+
+
     def get_invalid_result(self):
         allocation = np.ones((1, 2 * self._num_models))
         allocation[0, 0] = 0
