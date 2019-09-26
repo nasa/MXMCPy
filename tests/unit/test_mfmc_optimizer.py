@@ -61,7 +61,6 @@ def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
     target_cost = 14640 * target_cost_multiplier
     opt_result = mfmc.optimize(target_cost)
 
-    print(opt_result.sample_array)
     assert opt_result.cost == pytest.approx(14640 * target_cost_multiplier)
     assert opt_result.variance == pytest.approx(61/240 * covariance_multiplier
                                                 / target_cost_multiplier)
