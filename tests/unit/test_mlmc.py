@@ -5,6 +5,12 @@ import pytest
 from mxmc.mlmc import MLMC
 
 
+def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
+    assert np.isclose(opt_result.cost, cost_ref)
+    assert np.isclose(opt_result.variance, var_ref)
+    np.testing.assert_array_almost_equal(opt_result.sample_array,
+                                         sample_array_ref)
+
 @pytest.fixture
 def mlmc_optimizer():
     model_costs = np.array([3, 1])
@@ -23,6 +29,7 @@ def mlmc_four_model():
     mlmc_variances = np.array([0.25, 0.5, 1, 4])
     return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
 
+
 def test_optimizer_returns_tuple_with(mlmc_optimizer):
     opt_result = mlmc_optimizer.optimize(target_cost=10)
     for member in ["cost", "variance", "sample_array"]:
@@ -40,16 +47,12 @@ def test_mlmc_variance_is_valid_type_or_raises_error(variances):
     with pytest.raises(ValueError):
         mlmc = MLMC(model_costs=np.array([1]), mlmc_variances=variances)
 
-
 @pytest.mark.parametrize("target_cost", [-1, 0.5, 0])
 def test_target_cost_too_low_to_run_models(mlmc_optimizer, target_cost):
 
     opt_result = mlmc_optimizer.optimize(target_cost)
-    assert opt_result.cost == 0
-    assert np.isinf(opt_result.variance)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         np.array([[0, 1, 1, 1]], dtype=int))
-
+    assert_opt_result_equal(opt_result, 0, np.inf, np.array([[0, 1, 1, 1]]))
+    
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_opt_results_are_correct_sizes(num_models):
     model_costs = np.ones(num_models)
@@ -68,11 +71,8 @@ def test_optimize_works_for_simple_two_model_ex(mlmc_optimizer, target_cost,
     cost_expected = target_cost
 
     opt_result = mlmc_optimizer.optimize(target_cost)
-
-    assert opt_result.cost == cost_expected
-    assert opt_result.variance == variance_expected
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_expected)
+    assert_opt_result_equal(opt_result, cost_expected, variance_expected,
+                            sample_array_expected)
 
 @pytest.mark.parametrize("target_cost, factor", [(24, 1), (48,2)])
 def test_optimize_works_for_simple_three_model_ex(mlmc_three_model, target_cost,
@@ -85,10 +85,8 @@ def test_optimize_works_for_simple_three_model_ex(mlmc_three_model, target_cost,
     cost_expected = target_cost
 
     opt_result = mlmc_three_model.optimize(target_cost)
-    assert opt_result.cost == cost_expected
-    assert opt_result.variance == var_expected
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_expected)
+    assert_opt_result_equal(opt_result, cost_expected, var_expected,
+                            sample_array_expected)
 
 @pytest.mark.parametrize("target_cost, factor", [(64, 1), (128, 2)])
 def test_optimize_works_for_simple_four_model_ex(mlmc_four_model, target_cost,
@@ -102,11 +100,8 @@ def test_optimize_works_for_simple_four_model_ex(mlmc_four_model, target_cost,
     cost_expected = target_cost
 
     opt_result = mlmc_four_model.optimize(target_cost)
-    assert opt_result.cost == cost_expected
-    assert opt_result.variance == var_expected
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_expected)
-
+    assert_opt_result_equal(opt_result, cost_expected, var_expected,
+                            sample_array_expected)
 
 def test_three_models_out_of_order():
 
@@ -122,11 +117,8 @@ def test_three_models_out_of_order():
     cost_expected = target_cost
 
     opt_result = mlmc_opt.optimize(target_cost)
-    assert np.isclose(opt_result.cost, cost_expected)
-    assert np.isclose(opt_result.variance, var_expected)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_expected)
-
+    assert_opt_result_equal(opt_result, cost_expected, var_expected,
+                            sample_array_expected)
 
 def test_four_models_out_of_order():
 
@@ -143,10 +135,8 @@ def test_four_models_out_of_order():
     cost_expected = target_cost
 
     opt_result = mlmc_opt.optimize(target_cost)
-    assert np.isclose(opt_result.cost, cost_expected)
-    assert np.isclose(opt_result.variance, var_expected)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_expected)
+    assert_opt_result_equal(opt_result, cost_expected, var_expected,
+                            sample_array_expected)
 
 def test_raises_error_if_first_model_is_not_highest_cost():
     '''
@@ -159,7 +149,3 @@ def test_raises_error_if_first_model_is_not_highest_cost():
     
     with pytest.raises(ValueError):
         mlmc = MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
-
-
-#TODO - refactor the opt_result assert statements into function
-#Test that result is correct when costs/variances are out of order
