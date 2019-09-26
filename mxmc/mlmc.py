@@ -90,8 +90,10 @@ class MLMC(Optimizer):
   
         mu_mlmc = self._calculate_mlmc_mu(target_cost)
         var_to_cost_ratio = self._mlmc_variances / self._level_costs
-        num_samples_per_level = mu_mlmc*np.sqrt(var_to_cost_ratio)
-        return num_samples_per_level
+        samples_per_level = mu_mlmc*np.sqrt(var_to_cost_ratio)
+        samples_per_level_ints = self._adjust_samples_per_level(target_cost,
+                                                             samples_per_level)
+        return samples_per_level_ints
 
     def _calculate_mlmc_mu(self, target_cost):
 
@@ -101,9 +103,20 @@ class MLMC(Optimizer):
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc
 
+    def _adjust_samples_per_level(self, target_cost, samples_per_level):
+        '''
+        TODO - going to need to make this more complex/robust in order to yield
+        # samples that come as close as possible to the target cost without 
+        going over after rounding to integers. For now, just make sure we
+        are rounding to integers
+        '''
+        sample_ints = [int((samples)) for samples in samples_per_level]
+        samples_per_level_ints = np.array(sample_ints)
+        return samples_per_level_ints
+
     def _get_allocation_array(self, num_samples_per_level):
 
-        allocation = np.zeros((self._num_models, 2*self._num_models))
+        allocation = np.zeros((self._num_models, 2*self._num_models), dtype=int)
         allocation[:,0] = num_samples_per_level[self._cost_sort_indices]
 
         for model_index in range(1, self._num_models):
