@@ -12,6 +12,7 @@ class MLMC(Optimizer):
         if mlmc_variances is None:
             raise ValueError("Must specify mlmc_variances")
         self._mlmc_variances = mlmc_variances
+        self._model_costs = np.cumsum(self._model_costs)
 
     def optimize(self, target_cost):
 

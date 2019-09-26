@@ -7,7 +7,7 @@ from mxmc.mlmc import MLMC
 
 @pytest.fixture
 def mlmc_optimizer():
-    model_costs = np.array([1, 4])
+    model_costs = np.array([1, 3])
     mlmc_variances = np.array([4, 1])
     return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
 
