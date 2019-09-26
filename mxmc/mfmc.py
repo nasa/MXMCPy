@@ -34,10 +34,13 @@ class MFMC(Optimizer):
     def _model_indices_are_consistent(self):
         for j in range(1, self._num_models):
             cost_ratio = self._ordered_cost[j-1] / self._ordered_cost[j]
-            req_cost_ratio = (self._ordered_corr[j-1]**2 -
-                              self._ordered_corr[j]**2) / \
-                             (self._ordered_corr[j]**2 -
-                              self._ordered_corr[j+1]**2)
+            denominator = self._ordered_corr[j] ** 2 \
+                          - self._ordered_corr[j + 1] ** 2
+            if np.isclose(denominator, 0, atol=1e-16):
+                return False
+            numerator = self._ordered_corr[j - 1] ** 2 \
+                        - self._ordered_corr[j] ** 2
+            req_cost_ratio = numerator / denominator
             if cost_ratio <= req_cost_ratio:
                 return False
         return True
