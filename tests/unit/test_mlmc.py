@@ -7,8 +7,14 @@ from mxmc.mlmc import MLMC
 
 @pytest.fixture
 def mlmc_optimizer():
-    model_costs = np.array([1, 3])
-    mlmc_variances = np.array([4, 1])
+    model_costs = np.array([3, 1])
+    mlmc_variances = np.array([1, 4])
+    return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+
+@pytest.fixture
+def mlmc_three_model():
+    model_costs = np.array([5, 3, 1])
+    mlmc_variances = np.array([0.5, 1, 4])
     return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
 
 def test_optimizer_returns_tuple_with(mlmc_optimizer):
@@ -61,5 +67,23 @@ def test_optimize_works_for_simple_two_model_ex(mlmc_optimizer, target_cost,
     assert opt_result.variance == variance_expected
     np.testing.assert_array_almost_equal(opt_result.sample_array,
                                          sample_array_expected)
+
+@pytest.mark.parametrize("target_cost, factor", [(24, 1), (48,2)])
+def test_optimize_works_for_simple_three_model_ex(mlmc_three_model, target_cost,
+                                                factor):
+
+    sample_array_expected = np.array([[1*factor,1,1,0,0,0], 
+                                      [2*factor,0,0,1,1,0],
+                                      [8*factor,0,0,0,0,1]])
+    var_expected = 1.5/float(factor)
+    cost_expected = target_cost
+
+    opt_result = mlmc_three_model.optimize(target_cost)
+    assert opt_result.cost == cost_expected
+#    assert np.testing.assert_almost_equal(opt_result.variance, var_expected)
+    np.testing.assert_array_almost_equal(opt_result.sample_array,
+                                         sample_array_expected)
+
+
 
 #Test that result is correct when costs/variances are out of order
