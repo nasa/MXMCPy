@@ -41,7 +41,7 @@ def test_optimize_with_small_target_cost(mfmc_optimizer, target_cost):
                                          np.array([[0, 1, 1, 1]], dtype=int))
 
 
-def test_optimize_with_hifi_fastest():
+def test_mfmc_with_model_selection_hifi_fastest():
     covariance = np.array([[1, 0.0], [0.0, 1]])
     model_costs = np.array([1, 2])
     mfmc = MFMC(model_costs, covariance)
@@ -80,7 +80,7 @@ def test_opt_results_are_correct_sizes(num_models):
 
 
 @pytest.mark.parametrize("num_models", range(1, 4))
-def test_mfmc_opt_results_are_correct_sizes(num_models):
+def test_optimize_results_are_correct_sizes(num_models):
     covariance = np.eye(num_models)
     covariance[0] = np.linspace(1.0, 0.6, num_models)
     covariance[:, 0] = np.linspace(1.0, 0.6, num_models)
@@ -90,7 +90,7 @@ def test_mfmc_opt_results_are_correct_sizes(num_models):
     assert opt_result.sample_array.shape[1] == num_models*2
 
 
-def test_mfmc_can_initialize_with_extra_inputs():
+def test_optimizer_can_initialize_with_extra_inputs():
     covariance = np.array([[1, 0.5], [0.5, 1]])
     model_costs = np.array([4800, 4])
     _ = MFMC(model_costs, covariance, 0, abc=0)
