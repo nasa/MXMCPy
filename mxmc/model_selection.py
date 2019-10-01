@@ -11,8 +11,9 @@ class AutoModelSelection():
     def optimize(self, target_cost):
         best_indices = None
         best_result = self._optimizer.get_invalid_result()
+        num_models = self._optimizer.get_num_models()
 
-        sets_of_model_indices= self.get_unique_subsets(range(self._optimizer._num_models))
+        sets_of_model_indices= self.get_unique_subsets(range(num_models))
         for indices in sets_of_model_indices:
             candidate_optimizer = self._optimizer.subset(indices)
             try:
@@ -27,9 +28,10 @@ class AutoModelSelection():
         if best_indices == None:
             return best_result
 
-        sample_array = np.zeros((len(best_result.sample_array), self._optimizer._num_models * 2))
+        sample_array = np.zeros((len(best_result.sample_array), num_models * 2))
         for i, index in enumerate(best_indices):
-            sample_array[:, index * 2 : index * 2 + 2] = best_result.sample_array[:, i * 2 : i * 2 + 2]
+            sample_array[:, index * 2 : index * 2 + 2] = \
+                         best_result.sample_array[:, i * 2 : i * 2 + 2]
 
         estimator_variance = best_result.variance
         actual_cost = best_result.cost
