@@ -2,7 +2,7 @@ from itertools import combinations
 
 import numpy as np
 
-from .optimizer import OptimizationResult, InconsistentModelError
+from .optimizer_base import OptimizationResult, InconsistentModelError
 
 class AutoModelSelection():
     def __init__(self, optimizer):

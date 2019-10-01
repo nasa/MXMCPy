@@ -2,10 +2,10 @@ from itertools import combinations
 
 import numpy as np
 
-from .optimizer import OptimizationResult, Optimizer, InconsistentModelError
+from .optimizer_base import OptimizationResult, OptimizerBase, InconsistentModelError
 
 
-class MFMC(Optimizer):
+class MFMC(OptimizerBase):
     def __init__(self, model_costs, covariance, *_, **__):
         super().__init__(model_costs, covariance)
         stdev = np.sqrt(np.diag(covariance))
