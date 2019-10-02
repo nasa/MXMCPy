@@ -8,11 +8,6 @@ from mxmc.InputGenerator import InputGenerator
 
 
 @pytest.fixture
-def compressed_allocation():
-    return np.array([[1, 1, 1, 1, 0, 0], [5, 0, 1, 1, 1, 1], [10, 0, 0, 0, 1, 1]])
-
-
-@pytest.fixture
 def expanded_allocation():
     return [[1, 1, 1, 0, 0],
             [0, 1, 1, 1, 1],
@@ -35,11 +30,6 @@ def expanded_allocation():
 @pytest.fixture
 def expanded_allocation_dataframe(expanded_allocation):
     return pd.DataFrame(columns=['0', '1_1', '1_2', '2_1', '2_2'], data=expanded_allocation)
-
-
-@pytest.fixture
-def sample_allocation(compressed_allocation):
-    return SampleAllocation(compressed_allocation, 'MFMC')
 
 
 def test_error_raised_if_no_method_specified(compressed_allocation):

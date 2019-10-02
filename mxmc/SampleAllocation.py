@@ -29,7 +29,7 @@ class SampleAllocation(object):
         return len(self.expanded_allocation)
 
     def get_number_of_samples_per_model(self):
-        samples_per_model = np.zeros(self.num_models)
+        samples_per_model = np.zeros(self.num_models, dtype=int)
         for model_index in range(self.num_models):
             if model_index == 0:
                 samples_per_model[model_index] = self.expanded_allocation[['0']].sum(axis=0).values[0]
