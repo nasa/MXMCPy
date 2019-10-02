@@ -9,7 +9,7 @@ class SampleAllocation(object):
             allocation_file = h5py.File(compressed_allocation, 'r')
             self.compressed_allocation = np.array(allocation_file['Compressed_Allocation/compressed_allocation'])
             self.num_models = self._calculate_num_models()
-            self.expanded_allocation = np.array(allocation_file['Expanded_Allocation/expanded_allocation'])
+            self.expanded_allocation = pd.DataFrame(allocation_file['Expanded_Allocation/expanded_allocation'])
             try:
                 self.samples = np.array(allocation_file['Samples/samples'])
             except:
@@ -24,6 +24,7 @@ class SampleAllocation(object):
             self.expanded_allocation = self._expand_allocation()
             self.samples = pd.DataFrame()
             self.method = method
+        self._num_shared_samples = self._calculate_sample_sharing_matrix()
 
     def get_total_number_of_samples(self):
         return len(self.expanded_allocation)
@@ -53,29 +54,40 @@ class SampleAllocation(object):
 
     def get_k0_matrix(self):
         k0 = np.zeros(self.num_models-1)
-        n_shared = np.zeros((self.num_models-1)*2)
-        n = self.expanded_allocation.sum(axis=0)
-        keys = list(self.expanded_allocation.columns.values)
-        for i in range(1,len(keys)):
-            n_shared[i-1] = np.logical_and(self.expanded_allocation[keys[0]] == 1,
-                                   self.expanded_allocation[keys[i]] == 1).sum()
+        n = self.expanded_allocation.sum(axis=0).values
         for i in range(len(k0)):
-            k0[i] = n_shared[i*2]/n.iloc[0]/n.iloc[i*2+1] - n_shared[i*2+1]/n.iloc[0]/n.iloc[i*2+2]
+            i_1 = i * 2 + 1
+            i_2 = i_1 + 1
+            k0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
+                    - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
         return k0
 
     def get_k_matrix(self):
-        k = np.zeros((self.num_models-1, self.num_models-1))
-        n_shared = np.zeros(((self.num_models-1)*2, (self.num_models-1)*2))
-        n = self.expanded_allocation.sum(axis=0)
-        keys = list(self.expanded_allocation.columns.values)
-        for i in range(1,len(keys)):
-            for j in range(1,len(keys)):
-                n_shared[i-1,j-1] = np.logical_and(self.expanded_allocation[keys[i]] == 1,
-                                               self.expanded_allocation[keys[j]] == 1).sum()
-        for i in range(len(k)):
-            for j in range(len(k)):
-                k[i,j] = n_shared[i*2,j*2]/n.iloc[i*2+1]/n.iloc[j*2+1] - n_shared[i*2,j*2+1]/n.iloc[i*2+1]/n.iloc[j*2+2] - n_shared[i*2+1,j*2]/n.iloc[i*2+2]/n.iloc[j*2+1] + n_shared[i*2+1,j*2+1]/n.iloc[i*2+2]/n.iloc[j*2+2]
+        k_size = self.num_models - 1
+        k = np.zeros((k_size, k_size))
+        self._num_shared_samples = self._calculate_sample_sharing_matrix()
+        n = self.expanded_allocation.sum(axis=0).values
+        for i in range(k_size):
+            i_1 = i * 2 + 1
+            i_2 = i_1 + 1
+            for j in range(k_size):
+                j_1 = j * 2 + 1
+                j_2 = j_1 + 1
+                k[i, j] = \
+                    self._num_shared_samples[i_1, j_1] / n[i_1] / n[j_1] \
+                    - self._num_shared_samples[i_1, j_2] / n[i_1] / n[j_2] \
+                    - self._num_shared_samples[i_2, j_1] / n[i_2] / n[j_1] \
+                    + self._num_shared_samples[i_2, j_2] / n[i_2] / n[j_2]
         return k
+
+    def _calculate_sample_sharing_matrix(self):
+        keys = list(self.expanded_allocation.columns.values)
+        sample_sharing = np.empty((len(keys), len(keys)))
+        for i, key in enumerate(keys):
+            shared_with_key = self.expanded_allocation[key] == 1
+            sample_sharing[i] = \
+                self.expanded_allocation[shared_with_key].sum(axis=0).values
+        return sample_sharing
 
     def save(self, file_path):
         f = h5py.File(file_path, 'w')
@@ -96,11 +108,11 @@ class SampleAllocation(object):
     def get_sample_split_for_model(self, i):
         col_1 = '%d_1' % i
         col_2 = '%d_2' % i
-        filter = np.logical_or(self.expanded_allocation[col_1] == 1,
-                               self.expanded_allocation[col_2] == 1)
-        filt_1 = self.expanded_allocation[col_1][filter] == 1
-        filt_2 = self.expanded_allocation[col_2][filter] == 1
-        return filt_1, filt_2
+        model_filter = np.logical_or(self.expanded_allocation[col_1] == 1,
+                                     self.expanded_allocation[col_2] == 1)
+        filter_1 = self.expanded_allocation[col_1][model_filter] == 1
+        filter_2 = self.expanded_allocation[col_2][model_filter] == 1
+        return filter_1, filter_2
 
     def _expand_allocation(self):
         expanded_allocation_data_frames = []
