@@ -51,6 +51,32 @@ class SampleAllocation(object):
     def get_samples_for_model(self, model):
         return self.samples.iloc[self.get_sample_indices_for_model(model), :]
 
+    def get_k0_matrix(self):
+        k0 = np.zeros(self.num_models-1)
+        n_shared = np.zeros((self.num_models-1)*2)
+        n = self.expanded_allocation.sum(axis=0)
+        keys = list(self.expanded_allocation.columns.values)
+        for i in range(1,len(keys)):
+            n_shared[i-1] = np.logical_and(self.expanded_allocation[keys[0]] == 1,
+                                   self.expanded_allocation[keys[i]] == 1).sum()
+        for i in range(len(k0)):
+            k0[i] = n_shared[i*2]/n.iloc[0]/n.iloc[i*2+1] - n_shared[i*2+1]/n.iloc[0]/n.iloc[i*2+2]
+        return k0
+
+    def get_k_matrix(self):
+        k = np.zeros(self.num_models-1, self.num_models-1)
+        n_shared = np.zeros((self.num_models-1)*2, (self.num_models-1)*2)
+        n = self.expanded_allocation.sum(axis=0)
+        keys = list(self.expanded_allocation.columns.values)
+        for i in range(1,len(keys)):
+            for j in range(1,len(keys)):
+                n_shared[i-1,j-1] = np.logical_and(self.expanded_allocation[keys[i]] == 1,
+                                               self.expanded_allocation[keys[j]] == 1).sum()
+        for i in range(len(k)):
+            for j in range(len(k)):
+                k[i,j] = n_shared[i*2,j*2]/n.iloc[i*2+1]/n.iloc[j*2+1] - n_shared[i*2,j*2+1]/n.iloc[i*2+1]/n.iloc[j*2+2] - n_shared[i*2+1,j*2]/n.iloc[i*2+2]/n.iloc[j*2+1] + n_shared[i*2+1,j*2+1]/n.iloc[i*2+2]/n.iloc[j*2+2]
+        return k
+
     def save(self, file_path):
         f = h5py.File(file_path, 'w')
         f.attrs['Method'] = self.method
@@ -97,3 +123,5 @@ class SampleAllocation(object):
             if element == 2:
                 temp_sums[index] = 1
         return temp_sums
+
+    def _return_number_shared_between_
