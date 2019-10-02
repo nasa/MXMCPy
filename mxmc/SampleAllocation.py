@@ -4,7 +4,7 @@ import h5py
 
 
 class SampleAllocation(object):
-    def __init__(self, compressed_allocation):
+    def __init__(self, compressed_allocation, method=None):
         if type(compressed_allocation) is str:
             allocation_file = h5py.File(compressed_allocation, 'r')
             self.compressed_allocation = np.array(allocation_file['Compressed_Allocation/compressed_allocation'])
@@ -14,14 +14,16 @@ class SampleAllocation(object):
                 self.samples = np.array(allocation_file['Samples/samples'])
             except:
                 self.samples = pd.DataFrame()
-            self.method = None
+            self.method = allocation_file.attrs['Method']
             allocation_file.close()
         else:
+            if method == None:
+                raise ValueError("Must specify method")
             self.compressed_allocation = compressed_allocation.tolist()
             self.num_models = self._calculate_num_models()
             self.expanded_allocation = self._expand_allocation()
             self.samples = pd.DataFrame()
-            self.method = None
+            self.method = method
 
     def get_total_number_of_samples(self):
         return len(self.expanded_allocation)
@@ -51,6 +53,7 @@ class SampleAllocation(object):
 
     def save(self, file_path):
         f = h5py.File(file_path, 'w')
+        f.attrs['Method'] = self.method
         group_compressed_allocation = f.create_group('Compressed_Allocation')
         group_expanded_allocation = f.create_group('Expanded_Allocation')
         group_samples = f.create_group('Samples')

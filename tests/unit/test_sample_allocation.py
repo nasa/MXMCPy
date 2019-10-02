@@ -39,7 +39,12 @@ def expanded_allocation_dataframe(expanded_allocation):
 
 @pytest.fixture
 def sample_allocation(compressed_allocation):
-    return SampleAllocation(compressed_allocation)
+    return SampleAllocation(compressed_allocation, 'MFMC')
+
+
+def test_error_raised_if_no_method_specified(compressed_allocation):
+    with pytest.raises(ValueError):
+        SampleAllocation(compressed_allocation)
 
 
 def test_compressed_allocation(sample_allocation, compressed_allocation):
@@ -55,7 +60,7 @@ def test_get_column_names(sample_allocation):
 
 
 def test_one_model_num_models():
-    test_allocation = SampleAllocation(np.array([[10, 1]]))
+    test_allocation = SampleAllocation(np.array([[10, 1]]), 'MFMC')
     assert test_allocation.num_models == 1
 
 
@@ -194,6 +199,13 @@ def test_h5_data_with_no_samples(sample_allocation):
     assert np.array_equal(data,
                           sample_allocation.compressed_allocation)
 
+def test_h5_method_attribute(sample_allocation):
+    sample_allocation.save('test_save.hdf5')
+    file = h5py.File('test_save.hdf5')
+    method = file.attrs['Method']
+    file.close()
+    assert method == 'MFMC'
+
 
 def test_sample_initialization_from_file_with_no_samples(input_array):
     sample_allocation = SampleAllocation('test_save.hdf5')
@@ -229,3 +241,7 @@ def test_sample_initialization_from_file(input_array):
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.samples,
                           input_array)
+
+def test_method_flag_initialization_from_file(input_array):
+    sample_allocation = SampleAllocation('test_save.hdf5')
+    assert sample_allocation.method == 'MFMC'
