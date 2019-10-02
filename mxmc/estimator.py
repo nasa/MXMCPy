@@ -25,4 +25,23 @@ class Estimator:
                 raise ValueError("Number of outputs per model does not match "
                                  "the sample allocation")
 
-        return np.mean(model_outputs[0])
+        k0 = self._allocation.get_k0_matrix()
+        k = self._allocation.get_k_matrix()
+        cov_q_delta = k0 * self._covariance[0, 1:]
+        cov_delta_delta = k * self._covariance[1:, 1:]
+
+        alpha = - np.linalg.solve(cov_delta_delta, cov_q_delta)
+
+        Q = np.mean(model_outputs[0])
+        for i in range(1, self._allocation.num_models):
+            filt_1, filt_2 = self._allocation.get_sample_split_for_model(i)
+            Q_i1 = model_outputs[i][filt_1]
+            Q_i2 = model_outputs[i][filt_2]
+            if len(Q_i1) != 0 or len(Q_i2) != 0:
+                Q += alpha[i-1] * (np.mean(Q_i1) - np.mean(Q_i2))
+
+        return Q
+
+
+
+

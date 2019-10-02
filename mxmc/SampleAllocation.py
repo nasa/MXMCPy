@@ -64,8 +64,8 @@ class SampleAllocation(object):
         return k0
 
     def get_k_matrix(self):
-        k = np.zeros(self.num_models-1, self.num_models-1)
-        n_shared = np.zeros((self.num_models-1)*2, (self.num_models-1)*2)
+        k = np.zeros((self.num_models-1, self.num_models-1))
+        n_shared = np.zeros(((self.num_models-1)*2, (self.num_models-1)*2))
         n = self.expanded_allocation.sum(axis=0)
         keys = list(self.expanded_allocation.columns.values)
         for i in range(1,len(keys)):
@@ -92,6 +92,15 @@ class SampleAllocation(object):
         group_expanded_allocation.create_dataset(name='expanded_allocation', data=self.expanded_allocation)
         group_samples.create_dataset(name='samples', data=self.samples)
         f.close()
+
+    def get_sample_split_for_model(self, i):
+        col_1 = '%d_1' % i
+        col_2 = '%d_2' % i
+        filter = np.logical_or(self.expanded_allocation[col_1] == 1,
+                               self.expanded_allocation[col_2] == 1)
+        filt_1 = self.expanded_allocation[col_1][filter] == 1
+        filt_2 = self.expanded_allocation[col_2][filter] == 1
+        return filt_1, filt_2
 
     def _expand_allocation(self):
         expanded_allocation_data_frames = []
@@ -123,5 +132,3 @@ class SampleAllocation(object):
             if element == 2:
                 temp_sums[index] = 1
         return temp_sums
-
-    def _return_number_shared_between_
