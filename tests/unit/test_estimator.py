@@ -55,5 +55,24 @@ def test_estimate_for_monte_carlo(num_models, num_samples):
     est = Estimator(mc_allocation, covariance)
 
     expected_estimate = np.mean(mc_outputs[0])
-    assert est.get_estimate(mc_outputs) == expected_estimate
+    assert est.get_estimate(mc_outputs) == pytest.approx(expected_estimate)
+
+
+def test_two_model_estimate():
+    compressed_allocation = np.array([[1, 1, 1, 1],
+                                      [5, 1, 1, 0],
+                                      [10, 0, 0, 1]])
+    allocation = SampleAllocation(compressed_allocation, "test case")
+    model_outputs = [np.arange(1, 7), np.arange(1,17)]
+    covariance = np.array([[1, 0.5], [0.5, 1]])
+
+    est = Estimator(allocation, covariance)
+
+    expected_estimate = 5.848484848484849
+    assert est.get_estimate(model_outputs) == pytest.approx(expected_estimate)
+
+
+
+
+
 
