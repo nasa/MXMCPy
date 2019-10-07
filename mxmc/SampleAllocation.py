@@ -1,3 +1,4 @@
+import warnings
 import pandas as pd
 import numpy as np
 import h5py
@@ -144,3 +145,15 @@ class SampleAllocation(object):
             if element == 2:
                 temp_sums[index] = 1
         return temp_sums
+
+    def get_used_models(self):
+        used_models = []
+        for i in range(self.num_models - 1):
+            i_1 = i * 2 + 1
+            i_2 = i_1 + 1
+            if not self.expanded_allocation.ix[:, i_1].equals(
+                    self.expanded_allocation.ix[:, i_2]):
+                used_models.append(i)
+            else:
+                warnings.warn("Allocation for model %d is unhelpful" % (i + 1))
+        return used_models

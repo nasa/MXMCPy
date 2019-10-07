@@ -34,7 +34,9 @@ def test_allocation_matches_model_outputs_num_models(sample_allocation,
 
 def test_allocation_matches_model_outputs_per_model(sample_allocation,
                                                     sample_model_outputs):
-    covariance = np.eye(sample_allocation.num_models)
+    covariance = np.random.random((sample_allocation.num_models,
+                                   sample_allocation.num_models))
+    covariance += covariance.transpose()
     est = Estimator(sample_allocation, covariance)
     sample_model_outputs[1] = sample_model_outputs[1][1:]
     with pytest.raises(ValueError):
@@ -70,6 +72,24 @@ def test_two_model_estimate():
 
     expected_estimate = 5.848484848484849
     assert est.get_estimate(model_outputs) == pytest.approx(expected_estimate)
+
+
+def test_two_model_approximate_variance():
+    compressed_allocation = np.array([[3, 1, 1, 1],
+                                      [57, 0, 0, 1]], dtype=int)
+    allocation = SampleAllocation(compressed_allocation, "test case")
+    covariance = np.array([[1, 0.5], [0.5, 1]])
+
+    est = Estimator(allocation, covariance)
+
+    assert est.get_approximate_variance() == pytest.approx(61/240)
+
+
+def test_three_model_approximate_variance(sample_allocation):
+    covariance = np.array([[1, 0.5, 0.25], [0.5, 1, 0.5], [0.25, 0.5, 1]])
+    est = Estimator(sample_allocation, covariance)
+
+    assert est.get_approximate_variance() == pytest.approx(1)
 
 
 
