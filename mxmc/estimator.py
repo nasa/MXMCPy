@@ -16,6 +16,7 @@ class Estimator:
         self._cov_delta_delta, self._cov_q_delta = \
             self._calculate_cov_delta_terms()
         self._alpha = self._calculate_alpha()
+        self.approximate_variance = self._get_approximate_variance()
 
     def _validation(self, covariance):
         if len(covariance) != self._num_models:
@@ -42,7 +43,7 @@ class Estimator:
         cov_delta_delta = k * self._covariance[1:, 1:]
         return cov_delta_delta, cov_q_delta
 
-    def get_approximate_variance(self):
+    def _get_approximate_variance(self):
         n_0 = self._allocation.get_number_of_samples_per_model()[0]
         var_q0 = self._covariance[0, 0]
 
