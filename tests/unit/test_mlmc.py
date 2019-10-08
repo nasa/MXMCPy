@@ -149,3 +149,16 @@ def test_raises_error_if_first_model_is_not_highest_cost():
     
     with pytest.raises(ValueError):
         mlmc = MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+
+def test_optimize_for_noninteger_sample_nums(mlmc_three_model):
+
+    sample_array_expected = np.array([[1,1,1,0,0,0],
+                                      [3,0,0,1,1,0],
+                                      [12,0,0,0,0,1]])
+    target_cost = 36
+    var_expected = (1/2. + 1/3. + 1/3.)
+    cost_expected = 32
+
+    opt_result = mlmc_three_model.optimize(target_cost)
+    assert_opt_result_equal(opt_result, cost_expected, var_expected,
+                            sample_array_expected)
