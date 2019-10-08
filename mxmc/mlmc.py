@@ -5,9 +5,9 @@ cost.
 '''
 import numpy as np
 
-from .optimizer import OptimizationResult, Optimizer
+from .optimizer_base import OptimizationResult, OptimizerBase
 
-class MLMC(Optimizer):
+class MLMC(OptimizerBase):
     '''
     Class that implements the Multi-Level Monte Carlo (MLMC) optimizer for
     determining an optimal sample allocation across models to minimize estimator
@@ -71,7 +71,7 @@ class MLMC(Optimizer):
     def optimize(self, target_cost):
 
         if self._target_cost_is_too_small(target_cost):
-            return self._make_invalid_result()
+            return self.get_invalid_result()
 
         return self._compute_optimization_result(target_cost)
 
