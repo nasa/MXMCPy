@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 class OutputProcessor():
 
@@ -12,15 +13,19 @@ class OutputProcessor():
         if len({model_output.size for model_output in model_outputs}) == 1:
             return np.cov(model_outputs)
 
-        cov = np.diag([np.var(out, ddof=1) for out in model_outputs])
+        output_df = pd.DataFrame(model_outputs)
+
+        cov = np.diag([np.var(row) for _, row in output_df.iterrows()])
+
         num_models = len(model_outputs)
         for i in range(num_models - 1):
             for j in range(i + 1, num_models):
-                model_out_i = model_outputs[i]
-                model_out_j = model_outputs[j]
-                min_length = min(len(model_out_i), len(model_out_j))
-                element_cov = np.cov([model_out_i[:min_length],
-                                      model_out_j[:min_length]])[0, 1]
+                model_out_pair = output_df.loc[[i, j]].dropna(axis=1)
+
+                model_out_i = model_out_pair.loc[i].values
+                model_out_j = model_out_pair.loc[j].values
+
+                element_cov = np.cov(model_out_i, model_out_j)[0, 1]
                 cov[i, j] = element_cov
                 cov[j, i] = element_cov
         return cov
