@@ -24,17 +24,18 @@ class MLMC(OptimizerBase):
         model_costs array.
     '''
 
-    def __init__(self, model_costs, covariance=None, mlmc_variances=None):
+    def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
 
-        super().__init__(model_costs, covariance, mlmc_variances)
-        self._validate_inputs(model_costs, mlmc_variances)
-        self._mlmc_variances = mlmc_variances
+        super().__init__(model_costs, covariance, vardiff_matrix)
+        self._validate_inputs(model_costs, vardiff_matrix)
         self._level_costs = self._get_level_costs(model_costs)
+        vardiff_matrix = self._sort_vardiff_by_cost(vardiff_matrix)
+        self._mlmc_variances = self._get_variances_from_vardiff(vardiff_matrix)
 
-    def _validate_inputs(self, model_costs, mlmc_variances):
+    def _validate_inputs(self, model_costs, vardiff_matrix):
 
-        if mlmc_variances is None:
-            raise ValueError("Must specify mlmc_variances")
+        if vardiff_matrix is None:
+            raise ValueError("Must specify vardiff_matrix")
         if model_costs[0] != np.max(model_costs):
             raise ValueError("First model must have highest cost for MLMC")
 
@@ -45,6 +46,20 @@ class MLMC(OptimizerBase):
         level_costs = self._unsort_level_costs(level_costs_sorted, sort_indices)
         self._cost_sort_indices = np.flip(sort_indices) # to unsort later
         return level_costs
+
+    def _sort_vardiff_by_cost(self, vardiff_matrix):
+        indices = np.ix_(self._cost_sort_indices, self._cost_sort_indices)
+        vardiff_matrix = vardiff_matrix[indices]
+        return vardiff_matrix
+
+    def _get_variances_from_vardiff(self, vardiff_matrix):
+        var = []
+        for i in range(0, vardiff_matrix.shape[0] -1):
+            var.append(vardiff_matrix[i, i + 1])
+        var.append(vardiff_matrix[-1, -1])
+
+        sort_indices = self._cost_sort_indices.argsort()
+        return np.array(var)[sort_indices]
 
     def _sort_model_costs(self, model_costs):
 
@@ -90,7 +105,7 @@ class MLMC(OptimizerBase):
 
         mu_mlmc = self._calculate_mlmc_mu(target_cost)
         var_to_cost_ratios = self._mlmc_variances / self._level_costs
-        samples_per_level = mu_mlmc*np.sqrt(var_to_cost_ratios)
+        samples_per_level = mu_mlmc * np.sqrt(var_to_cost_ratios)
         samples_per_level_ints = self._adjust_samples_per_level(target_cost,
                                                              samples_per_level)
         return samples_per_level_ints

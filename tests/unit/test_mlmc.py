@@ -5,6 +5,9 @@ import pytest
 from mxmc.mlmc import MLMC
 
 
+dummy_var = 999
+
+
 def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
     assert np.isclose(opt_result.cost, cost_ref)
     assert np.isclose(opt_result.variance, var_ref)
@@ -14,20 +17,24 @@ def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
 @pytest.fixture
 def mlmc_optimizer():
     model_costs = np.array([3, 1])
-    mlmc_variances = np.array([1, 4])
-    return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.array([[dummy_var, 1], [1, 4]])
+    return MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
 @pytest.fixture
 def mlmc_three_model():
     model_costs = np.array([5, 3, 1])
-    mlmc_variances = np.array([0.5, 1, 4])
-    return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.array([[dummy_var, 0.5, dummy_var],
+                               [0.5, dummy_var, 1], [dummy_var, 1, 4]])
+    return MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
 @pytest.fixture
 def mlmc_four_model():
     model_costs = np.array([11, 5, 3, 1])
-    mlmc_variances = np.array([0.25, 0.5, 1, 4])
-    return MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.array([[dummy_var, 0.25, dummy_var, dummy_var],
+                               [0.25, dummy_var, 0.5, dummy_var],
+                               [dummy_var, 0.5, dummy_var, 1],
+                               [dummy_var, dummy_var, 1, 4]])
+    return MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
 
 def test_optimizer_returns_tuple_with(mlmc_optimizer):
@@ -37,15 +44,9 @@ def test_optimizer_returns_tuple_with(mlmc_optimizer):
 
 def test_cost_variances_mismatch_raises_error():
     costs = np.array([1,2,3])
-    variances = np.array([1,2])
+    vardiff_matrix = np.array([[dummy_var, 1], [1 ,2]])
     with pytest.raises(ValueError):
-        mlmc = MLMC(model_costs=costs, mlmc_variances=variances)
-
-@pytest.mark.parametrize("variances", [1, None, "varz"])
-def test_mlmc_variance_is_valid_type_or_raises_error(variances):
-
-    with pytest.raises(ValueError):
-        mlmc = MLMC(model_costs=np.array([1]), mlmc_variances=variances)
+        mlmc = MLMC(model_costs=costs, vardiff_matrix=vardiff_matrix)
 
 @pytest.mark.parametrize("target_cost", [-1, 0.5, 0])
 def test_target_cost_too_low_to_run_models(mlmc_optimizer, target_cost):
@@ -56,8 +57,8 @@ def test_target_cost_too_low_to_run_models(mlmc_optimizer, target_cost):
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_opt_results_are_correct_sizes(num_models):
     model_costs = np.ones(num_models)
-    mlmc_variances = np.ones(num_models)
-    mlmc = MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.ones([num_models, num_models])
+    mlmc = MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
     opt_result = mlmc.optimize(10)
     assert opt_result.sample_array.shape[0] == num_models
     assert opt_result.sample_array.shape[1] == num_models*2
@@ -107,8 +108,10 @@ def test_three_models_out_of_order():
 
     target_cost = 24
     model_costs = np.array([5, 1, 3])
-    mlmc_variances = np.array([0.5, 4, 1])
-    mlmc_opt =  MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.array([[dummy_var, dummy_var, 0.5],
+                               [dummy_var, 4, 1],
+                               [0.5, 1, dummy_var]])
+    mlmc_opt =  MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
     sample_array_expected = np.array([[1,1,0,0,1,0],
                                       [2,0,1,0,0,1],
@@ -124,8 +127,12 @@ def test_four_models_out_of_order():
 
     target_cost = 64
     model_costs = np.array([11, 1, 5, 3])
-    mlmc_variances = np.array([0.25, 4, 0.5, 1])
-    mlmc_opt =  MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+    vardiff_matrix = np.array([[dummy_var, dummy_var, 0.25, dummy_var],
+                               [dummy_var, 4., dummy_var, 1.],
+                               [0.25, dummy_var, dummy_var, 0.5],
+                               [dummy_var, 1., 0.5, dummy_var]])
+    
+    mlmc_opt =  MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
     sample_array_expected = np.array([[1,1,0,0,1,0,0,0],
                                       [2,0,0,0,0,1,1,0],
@@ -145,10 +152,10 @@ def test_raises_error_if_first_model_is_not_highest_cost():
     '''
 
     model_costs = np.array([11, 1, 12])
-    mlmc_variances = np.array([1, 1, 1])
+    vardiff_matrix = np.ones([3, 3])
     
     with pytest.raises(ValueError):
-        mlmc = MLMC(model_costs=model_costs, mlmc_variances=mlmc_variances)
+        mlmc = MLMC(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
 
 def test_optimize_for_noninteger_sample_nums(mlmc_three_model):
 
