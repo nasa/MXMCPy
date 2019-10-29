@@ -151,9 +151,13 @@ class SampleAllocation(object):
         for i in range(self.num_models - 1):
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
-            if not self.expanded_allocation.ix[:, i_1].equals(
-                    self.expanded_allocation.ix[:, i_2]):
+            if not self.expanded_allocation.iloc[:, i_1].equals(
+                    self.expanded_allocation.iloc[:, i_2]):
                 used_models.append(i)
             else:
-                warnings.warn("Allocation for model %d is unhelpful" % (i + 1))
+                num_evals = self.expanded_allocation.iloc[:, i_1].sum()
+                if num_evals > 0:
+                    warnings.warn("Allocation Warning: Model %d is " % (i + 1)
+                                  + "evaluated %d times but does" % num_evals
+                                  + "not contribute to reduction in variance")
         return used_models
