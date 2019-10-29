@@ -1,7 +1,8 @@
 from .mfmc import MFMC
+from .mlmc import MLMC
 from .model_selection import AutoModelSelection
 
-ALGORITHM_MAP = {"mfmc": MFMC}
+ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC}
 
 
 class Optimizer():
@@ -15,4 +16,3 @@ class Optimizer():
         if auto_model_selection:
             optimizer = AutoModelSelection(optimizer)
         return optimizer.optimize(target_cost=target_cost)
-
