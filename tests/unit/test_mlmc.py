@@ -193,6 +193,5 @@ def test_mlmc_with_model_selection():
 
     opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
                                     auto_model_selection=True)
-    print(opt_result)
     assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                             sample_array_expected)
