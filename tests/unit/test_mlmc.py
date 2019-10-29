@@ -163,3 +163,36 @@ def test_optimize_for_noninteger_sample_nums(optimizer_three_model):
                                                 target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_expected, var_expected,
                             sample_array_expected)
+
+
+def test_mismatched_cost_and_vardiff_raises_error():
+    covariance = np.array([[1, 0.9], [0.9, 1]])
+    model_costs = np.array([1, 2])
+    vardiff_matrix = np.array([[dummy_var, 1, dummy_var],
+                               [1, dummy_var, 1],
+                               [dummy_var, 1, 2]])
+
+    with pytest.raises(ValueError):
+        optimizer = Optimizer(model_costs, covariance, vardiff_matrix)
+        _ = optimizer.optimize(algorithm="mlmc", target_cost=30)
+
+
+def test_mlmc_with_model_selection():
+    model_costs = np.array([3, 2, 1])
+    vardiff_matrix = np.array([[8, 2, 1],
+                               [2, 6, 3],
+                               [1, 3, 4]])
+    optimizer = Optimizer(model_costs, vardiff_matrix=vardiff_matrix)
+
+    target_cost = 8
+
+    sample_array_expected = np.array([[1, 1, 0, 0, 1, 0],
+                                      [4, 0, 0, 0, 0, 1]])
+    variance_expected = 2
+    cost_expected = target_cost
+
+    opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
+                                    auto_model_selection=True)
+    print(opt_result)
+    assert_opt_result_equal(opt_result, cost_expected, variance_expected,
+                            sample_array_expected)

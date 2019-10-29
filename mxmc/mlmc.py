@@ -26,18 +26,19 @@ class MLMC(OptimizerBase):
 
     def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
 
-        super().__init__(model_costs, covariance, vardiff_matrix)
+        super().__init__(model_costs, covariance)
         self._validate_inputs(model_costs, vardiff_matrix)
         self._level_costs = self._get_level_costs(model_costs)
-        vardiff_matrix = self._sort_vardiff_by_cost(vardiff_matrix)
-        self._mlmc_variances = self._get_variances_from_vardiff(vardiff_matrix)
+        self._vardiff_matrix = vardiff_matrix
+        sorted_vardiff = self._sort_vardiff_by_cost(vardiff_matrix)
+        self._mlmc_variances = self._get_variances_from_vardiff(sorted_vardiff)
 
     def _validate_inputs(self, model_costs, vardiff_matrix):
-
         if vardiff_matrix is None:
             raise ValueError("Must specify vardiff_matrix")
         if model_costs[0] != np.max(model_costs):
             raise ValueError("First model must have highest cost for MLMC")
+        self._validate_variance_matrix(vardiff_matrix)
 
     def _get_level_costs(self, model_costs):
 
@@ -141,3 +142,10 @@ class MLMC(OptimizerBase):
         allocation[0, 1] = 1
 
         return allocation
+
+    def subset(self, model_indices):
+        subset_costs = np.copy(self._model_costs[model_indices])
+        subset_vardiff_matrix = \
+            self._get_subset_of_matrix(self._vardiff_matrix, model_indices)
+        return self.__class__(subset_costs,
+                              vardiff_matrix=subset_vardiff_matrix)

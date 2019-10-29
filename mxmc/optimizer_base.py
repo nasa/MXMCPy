@@ -12,15 +12,13 @@ class InconsistentModelError(Exception):
 
 
 class OptimizerBase(metaclass=ABCMeta):
-    def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
+    def __init__(self, model_costs, covariance=None, *_, **__):
         self._model_costs = model_costs
         self._num_models = len(self._model_costs)
         self._covariance = covariance
 
         if covariance is not None:
             self._validate_variance_matrix(covariance)
-        if vardiff_matrix is not None:
-            self._validate_variance_matrix(vardiff_matrix)
 
     def _validate_variance_matrix(self, matrix):
         if len(matrix) != self._num_models:
@@ -36,9 +34,15 @@ class OptimizerBase(metaclass=ABCMeta):
 
     def subset(self, model_indices):
         subset_costs = np.copy(self._model_costs[model_indices])
-        subset_covariance = \
-            np.copy(self._covariance[model_indices][:, model_indices])
+        subset_covariance = self._get_subset_of_matrix(self._covariance,
+                                                       model_indices)
         return self.__class__(subset_costs, subset_covariance)
+
+    @staticmethod
+    def _get_subset_of_matrix(matrix, model_indices):
+        if matrix is None:
+            return None
+        return np.copy(matrix[model_indices][:, model_indices])
 
     def get_num_models(self):
         return self._num_models

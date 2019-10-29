@@ -41,23 +41,14 @@ def test_optimizer_returns_tuple_with(ui_optimizer, algorithm):
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
-@pytest.mark.parametrize("mismatched_input", ["costs", "covariance",
-                                              "vardiff"])
-def test_mismatched_inputs(algorithm, mismatched_input):
+def test_mismatched_cost_and_variance_raises_error(algorithm):
     covariance = np.array([[1, 0.9], [0.9, 1]])
-    model_costs = np.array([1, 2])
+    model_costs = np.array([1, 2, 3])
     vardiff_matrix = np.array([[DUMMY_VAR, 1], [1, 2]])
-    if mismatched_input == "covariance":
-        covariance = np.array([[1, 0.9, 0.8], [0.9, 1, 0.9], [0.8, 0.9, 1]])
-    elif mismatched_input == "vardiff":
-        vardiff_matrix = np.array([[DUMMY_VAR, 1, DUMMY_VAR],
-                                   [1, DUMMY_VAR, 1],
-                                   [DUMMY_VAR, 1, 2]])
-    elif mismatched_input == "costs":
-        model_costs = np.array([1, 2, 3])
 
     with pytest.raises(ValueError):
-        optimizer = Optimizer(model_costs, covariance, vardiff_matrix)
+        optimizer = Optimizer(model_costs, covariance,
+                              vardiff_matrix=vardiff_matrix)
         _ = optimizer.optimize(algorithm=algorithm, target_cost=30)
 
 
@@ -94,24 +85,22 @@ def test_optimize_results_are_correct_sizes(algorithm, num_models):
     assert opt_result.sample_array.shape[1] == num_models*2
 
 
+@pytest.mark.parametrize("algorithm", ALGORITHMS)
+@pytest.mark.parametrize("num_models", range(1, 4))
+def test_opt_results_are_correct_sizes_using_model_selection(num_models,
+                                                             algorithm):
+    covariance = np.eye(num_models)
+    model_costs = np.ones(num_models)
+    vardiff_matrix = np.ones([num_models, num_models])
+    optimizer = Optimizer(model_costs, covariance,
+                          vardiff_matrix=vardiff_matrix)
+    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10,
+                                    auto_model_selection=True)
+    assert opt_result.sample_array.shape[1] == num_models*2
+
+
 def test_optimizer_can_initialize_with_extra_inputs():
     covariance = np.array([[1, 0.5], [0.5, 1]])
     model_costs = np.array([4800, 4])
     vardiff_matrix = np.ones([2, 2])
     _ = Optimizer(model_costs, covariance, vardiff_matrix, 0, abc=0)
-
-
-
-
-
-# MODEL SELECTION.............................
-
-
-@pytest.mark.parametrize("num_models", range(1, 4))
-def test_opt_results_are_correct_sizes(num_models):
-    covariance = np.eye(num_models)
-    model_costs = np.ones(num_models)
-    optimizer = Optimizer(model_costs, covariance)
-    opt_result = optimizer.optimize(algorithm="mfmc", target_cost=10,
-                                    auto_model_selection=True)
-    assert opt_result.sample_array.shape[1] == num_models*2

@@ -15,6 +15,8 @@ class AutoModelSelection():
 
         sets_of_model_indices= self.get_unique_subsets(range(num_models))
         for indices in sets_of_model_indices:
+            if 0 not in indices:
+                continue
             candidate_optimizer = self._optimizer.subset(indices)
             try:
                 opt_result = candidate_optimizer.optimize(target_cost)
