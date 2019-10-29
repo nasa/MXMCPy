@@ -26,6 +26,7 @@ class SampleAllocation(object):
             self.samples = pd.DataFrame()
             self.method = method
         self._num_shared_samples = self._calculate_sample_sharing_matrix()
+        self.used_k_indices = self._calculate_used_k_indices()
 
     def get_total_number_of_samples(self):
         return len(self.expanded_allocation)
@@ -56,7 +57,7 @@ class SampleAllocation(object):
     def get_k0_matrix(self):
         k0 = np.zeros(self.num_models-1)
         n = self.expanded_allocation.sum(axis=0).values
-        for i in range(len(k0)):
+        for i in self.used_k_indices:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             k0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
@@ -68,10 +69,10 @@ class SampleAllocation(object):
         k = np.zeros((k_size, k_size))
         self._num_shared_samples = self._calculate_sample_sharing_matrix()
         n = self.expanded_allocation.sum(axis=0).values
-        for i in range(k_size):
+        for i in self.used_k_indices:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
-            for j in range(k_size):
+            for j in self.used_k_indices:
                 j_1 = j * 2 + 1
                 j_2 = j_1 + 1
                 k[i, j] = \
@@ -146,18 +147,18 @@ class SampleAllocation(object):
                 temp_sums[index] = 1
         return temp_sums
 
-    def get_used_models(self):
-        used_models = []
+    def _calculate_used_k_indices(self):
+        used_k_indices = []
         for i in range(self.num_models - 1):
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             if not self.expanded_allocation.iloc[:, i_1].equals(
                     self.expanded_allocation.iloc[:, i_2]):
-                used_models.append(i)
+                used_k_indices.append(i)
             else:
                 num_evals = self.expanded_allocation.iloc[:, i_1].sum()
                 if num_evals > 0:
                     warnings.warn("Allocation Warning: Model %d is " % (i + 1)
                                   + "evaluated %d times but does" % num_evals
-                                  + "not contribute to reduction in variance")
-        return used_models
+                                  + "not contribute to reduction in variance.")
+        return used_k_indices
