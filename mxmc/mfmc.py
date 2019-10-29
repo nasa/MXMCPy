@@ -6,10 +6,11 @@ from .optimizer_base import OptimizationResult, OptimizerBase, InconsistentModel
 
 
 class MFMC(OptimizerBase):
-    def __init__(self, model_costs, covariance, *_, **__):
-        super().__init__(model_costs, covariance)
+    def __init__(self, model_costs, covariance, *args, **kwargs):
+        super().__init__(model_costs, covariance, *args, **kwargs)
         stdev = np.sqrt(np.diag(covariance))
         correlations = covariance[0] / stdev[0] / stdev
+        print(stdev, covariance, correlations)
         self._model_order_map = list(range(self._num_models))
         self._model_order_map.sort(key=lambda x: correlations[x], reverse=True)
         self._ordered_corr = correlations[self._model_order_map]
@@ -36,6 +37,7 @@ class MFMC(OptimizerBase):
             cost_ratio = self._ordered_cost[j-1] / self._ordered_cost[j]
             denominator = self._ordered_corr[j] ** 2 \
                           - self._ordered_corr[j + 1] ** 2
+            print(self._ordered_corr, cost_ratio, denominator)
             if np.isclose(denominator, 0, atol=1e-16):
                 return False
             numerator = self._ordered_corr[j - 1] ** 2 \
