@@ -50,7 +50,7 @@ class Estimator:
         return variance
 
     def _calculate_alpha(self):
-        if self._allocation.method != "MLMC":
+        if self._allocation.method != "mlmc":
             alpha = self._calculate_acv_alphas()
         else:
             alpha = np.ones(self._num_models - 1)
