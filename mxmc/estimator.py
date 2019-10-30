@@ -57,13 +57,12 @@ class Estimator:
         return alpha
 
     def _calculate_acv_alphas(self):
-        used_indices = self._allocation.used_k_indices
-        temp_cov_delta_delta = \
-            self._cov_delta_delta[used_indices][:, used_indices]
-        temp_cov_q_delta = self._cov_q_delta[used_indices]
+        k_indices = [i - 1 for i in self._allocation.utilized_models if i != 0]
+        temp_cov_delta_delta = self._cov_delta_delta[k_indices][:, k_indices]
+        temp_cov_q_delta = self._cov_q_delta[k_indices]
         alpha = np.zeros(self._num_models - 1)
-        alpha[used_indices] = - np.linalg.solve(temp_cov_delta_delta,
-                                                temp_cov_q_delta)
+        alpha[k_indices] = - np.linalg.solve(temp_cov_delta_delta,
+                                             temp_cov_q_delta)
         return alpha
 
     def _validate_model_outputs(self, model_outputs):

@@ -29,7 +29,7 @@ class SampleAllocation:
             self.samples = pd.DataFrame()
             self.method = method
         self._num_shared_samples = self._calculate_sample_sharing_matrix()
-        self.used_k_indices = self._calculate_used_k_indices()
+        self.utilized_models = self._find_utilized_models()
 
     def get_total_number_of_samples(self):
         return len(self.expanded_allocation)
@@ -60,9 +60,10 @@ class SampleAllocation:
         return self.samples.iloc[self.get_sample_indices_for_model(model), :]
 
     def get_k0_matrix(self):
-        k0 = np.zeros(self.num_models - 1)
+        k_indices = [i - 1 for i in self.utilized_models if i != 0]
+        k0 = np.empty(self.num_models - 1)
         n = self.expanded_allocation.sum(axis=0).values
-        for i in self.used_k_indices:
+        for i in k_indices:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             k0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
@@ -74,10 +75,11 @@ class SampleAllocation:
         k = np.zeros((k_size, k_size))
         self._num_shared_samples = self._calculate_sample_sharing_matrix()
         n = self.expanded_allocation.sum(axis=0).values
-        for i in self.used_k_indices:
+        k_indices = [i - 1 for i in self.utilized_models if i != 0]
+        for i in k_indices:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
-            for j in self.used_k_indices:
+            for j in k_indices:
                 j_1 = j * 2 + 1
                 j_2 = j_1 + 1
                 k[i, j] = \
@@ -159,18 +161,24 @@ class SampleAllocation:
                 temp_sums[index] = 1
         return temp_sums
 
-    def _calculate_used_k_indices(self):
-        used_k_indices = []
-        for i in range(self.num_models - 1):
-            i_1 = i * 2 + 1
+    def _find_utilized_models(self):
+        utilized_models = []
+
+        if self.expanded_allocation.iloc[:, 0].sum() > 0:
+            utilized_models.append(0)
+        else:
+            warnings.warn("Allocation Warning: Model 0 is not evaluated,")
+
+        for i in range(1, self.num_models):
+            i_1 = i * 2 - 1
             i_2 = i_1 + 1
             if not self.expanded_allocation.iloc[:, i_1].equals(
                     self.expanded_allocation.iloc[:, i_2]):
-                used_k_indices.append(i)
+                utilized_models.append(i)
             else:
                 num_evals = self.expanded_allocation.iloc[:, i_1].sum()
                 if num_evals > 0:
                     warnings.warn("Allocation Warning: Model %d is " % (i + 1)
                                   + "evaluated %d times but does" % num_evals
                                   + "not contribute to reduction in variance.")
-        return used_k_indices
+        return utilized_models
