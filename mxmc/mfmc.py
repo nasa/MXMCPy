@@ -97,10 +97,3 @@ class MFMC(OptimizerBase):
                 if k > 0:
                     allocation[i, 2 * j] = 1
         return allocation
-
-    @staticmethod
-    def get_unique_subsets(master_set):
-        index_list = range(len(master_set))
-        for i in range(len(index_list), 0, -1):
-            for j in combinations(index_list, i):
-                yield [master_set[k] for k in j]

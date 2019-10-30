@@ -28,11 +28,11 @@ class AutoModelSelection():
                 best_result = opt_result
                 best_indices = indices
 
-        if best_indices == None:
+        if best_indices is None:
             return best_result
 
-        sample_array = np.zeros(
-                (len(best_result.sample_array), num_models * 2))
+        sample_array = np.zeros((len(best_result.sample_array),
+                                 num_models * 2))
         for i, index in enumerate(best_indices):
             sample_array[:, index * 2: index * 2 + 2] = \
                 best_result.sample_array[:, i * 2: i * 2 + 2]

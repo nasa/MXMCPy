@@ -3,8 +3,8 @@ import pytest
 import pandas as pd
 import numpy as np
 import os.path
-from mxmc.SampleAllocation import SampleAllocation
-from mxmc.InputGenerator import InputGenerator
+from mxmc.sample_allocation import SampleAllocation
+from mxmc.input_generator import InputGenerator
 
 
 @pytest.fixture

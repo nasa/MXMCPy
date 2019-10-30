@@ -5,16 +5,15 @@ import numpy as np
 import pandas as pd
 
 
-class SampleAllocation(object):
+class SampleAllocation:
     def __init__(self, compressed_allocation, method=None):
         if type(compressed_allocation) is str:
             allocation_file = h5py.File(compressed_allocation, 'r')
-            self.compressed_allocation = \
-                np.array(allocation_file[
-                             'Compressed_Allocation/compressed_allocation'])
+            self.compressed_allocation = np.array(allocation_file[
+                'Compressed_Allocation/compressed_allocation'])
             self.num_models = self._calculate_num_models()
             self.expanded_allocation = pd.DataFrame(
-                    allocation_file['Expanded_Allocation/expanded_allocation'])
+                allocation_file['Expanded_Allocation/expanded_allocation'])
             try:
                 self.samples = np.array(allocation_file['Samples/samples'])
             except:
@@ -49,9 +48,9 @@ class SampleAllocation(object):
     def get_sample_indices_for_model(self, model):
         if model == 0:
             return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
-        else:
-            allocation_sums = self._convert_2_to_1(model)
-            return list(allocation_sums.nonzero()[0])
+
+        allocation_sums = self._convert_2_to_1(model)
+        return list(allocation_sums.nonzero()[0])
 
     def generate_samples(self, input_generator):
         self.samples = input_generator.generate_samples(

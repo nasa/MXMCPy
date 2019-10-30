@@ -39,8 +39,8 @@ class OutputProcessor():
 
     @staticmethod
     def _initialize_matrix_diagonal_with_variances(output_df):
-        return np.diag(
-                [np.var(row, ddof=1) for _, row in output_df.iterrows()])
+        return np.diag([np.var(row, ddof=1)
+                        for _, row in output_df.iterrows()])
 
     @staticmethod
     def _build_output_df_from_allocation(model_outputs, sample_alloc):

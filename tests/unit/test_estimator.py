@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from mxmc.SampleAllocation import SampleAllocation
+from mxmc.sample_allocation import SampleAllocation
 from mxmc.estimator import Estimator
 
 
