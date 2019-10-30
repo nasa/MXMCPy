@@ -14,10 +14,9 @@ class AutoModelSelection():
         best_result = self._optimizer.get_invalid_result()
         num_models = self._optimizer.get_num_models()
 
-        sets_of_model_indices = self.get_unique_subsets(range(num_models))
+        sets_of_model_indices = \
+            self._get_subsets_including_zero(range(num_models))
         for indices in sets_of_model_indices:
-            if 0 not in indices:
-                continue
             candidate_optimizer = self._optimizer.subset(indices)
             try:
                 opt_result = candidate_optimizer.optimize(target_cost)
@@ -43,8 +42,9 @@ class AutoModelSelection():
                                   sample_array)
 
     @staticmethod
-    def get_unique_subsets(master_set):
-        index_list = range(len(master_set))
+    def _get_subsets_including_zero(master_set):
+        index_list = [i for i in range(len(master_set)) if master_set[i] != 0]
         for i in range(len(index_list), 0, -1):
             for j in combinations(index_list, i):
-                yield [master_set[k] for k in j]
+                yield [0] + [master_set[k] for k in j]
+        yield [0]
