@@ -69,14 +69,14 @@ class MFMC(OptimizerBase):
         alphas = self._calculate_optimal_alphas()
         estimator_variance = self._ordered_stdev[0] ** 2 \
                              / sample_group_sizes[0]
-        for i in range(1, self._num_models):
-            estimator_variance += (1 / sample_group_sizes[i - 1]
-                                   - 1 / sample_group_sizes[i]) \
-                                  * (alphas[i] ** 2
-                                     * self._ordered_stdev[i] ** 2
-                                     - 2 * alphas[i] * self._ordered_corr[i]
-                                     * self._ordered_stdev[0]
-                                     * self._ordered_stdev[i])
+        estimator_variance += np.sum((1 / sample_group_sizes[:-1]
+                                      - 1 / sample_group_sizes[1:])
+                                     * (alphas[1:] ** 2
+                                        * self._ordered_stdev[1:] ** 2
+                                        - 2 * alphas[1:]
+                                        * self._ordered_corr[1:-1]
+                                        * self._ordered_stdev[0]
+                                        * self._ordered_stdev[1:]))
         return estimator_variance
 
     def _calculate_optimal_alphas(self):
@@ -88,7 +88,7 @@ class MFMC(OptimizerBase):
         allocation = np.zeros((self._num_models, 2 * self._num_models),
                               dtype=int)
         allocation[0, 0] = sample_nums[0]
-        allocation[1:, 0] = [sample_nums[i] - sum(sample_nums[:i])
+        allocation[1:, 0] = [sample_nums[i] - sample_nums[i - 1]
                              for i in range(1, len(sample_nums))]
 
         for i in range(len(sample_nums)):

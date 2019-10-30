@@ -43,4 +43,5 @@ def test_monomial_model(algorithm):
     estimator_approx_variance = estimator.approximate_variance
     optimizer_approx_variance = opt_result.variance
 
-    assert estimator_approx_variance == optimizer_approx_variance
+    assert estimator_approx_variance \
+           == pytest.approx(optimizer_approx_variance)
