@@ -16,8 +16,9 @@ stages:
 pylint:
   stage: Static Analysis
   script:
+  - pip install -r requirements.txt
   - pip install pylint
-  - pylint mxmc
+  - pylint mxmc --exit-zero
 
 flake8:
   stage: Static Analysis

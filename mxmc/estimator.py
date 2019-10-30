@@ -25,20 +25,20 @@ class Estimator:
 
     def get_estimate(self, model_outputs):
         self._validate_model_outputs(model_outputs)
-        Q = np.mean(model_outputs[0])
+        q = np.mean(model_outputs[0])
         for i in range(1, self._allocation.num_models):
             filt_1, filt_2 = self._allocation.get_sample_split_for_model(i)
-            Q_i1 = model_outputs[i][filt_1]
-            Q_i2 = model_outputs[i][filt_2]
-            if len(Q_i1) != 0 or len(Q_i2) != 0:
-                Q += self._alpha[i - 1] * (np.mean(Q_i1) - np.mean(Q_i2))
+            q_i1 = model_outputs[i][filt_1]
+            q_i2 = model_outputs[i][filt_2]
+            if len(q_i1) != 0 or len(q_i2) != 0:
+                q += self._alpha[i - 1] * (np.mean(q_i1) - np.mean(q_i2))
 
-        return Q
+        return q
 
     def _calculate_cov_delta_terms(self):
-        k0 = self._allocation.get_k0_matrix()
+        k_0 = self._allocation.get_k0_matrix()
         k = self._allocation.get_k_matrix()
-        cov_q_delta = k0 * self._covariance[0, 1:]
+        cov_q_delta = k_0 * self._covariance[0, 1:]
         cov_delta_delta = k * self._covariance[1:, 1:]
         return cov_delta_delta, cov_q_delta
 

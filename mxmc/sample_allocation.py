@@ -7,7 +7,7 @@ import pandas as pd
 
 class SampleAllocation:
     def __init__(self, compressed_allocation, method=None):
-        if type(compressed_allocation) is str:
+        if isinstance(compressed_allocation, str):
             allocation_file = h5py.File(compressed_allocation, 'r')
             self.compressed_allocation = np.array(allocation_file[
                 'Compressed_Allocation/compressed_allocation'])
@@ -61,14 +61,14 @@ class SampleAllocation:
 
     def get_k0_matrix(self):
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
-        k0 = np.empty(self.num_models - 1)
+        k_0 = np.empty(self.num_models - 1)
         n = self.expanded_allocation.sum(axis=0).values
         for i in k_indices:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
-            k0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
+            k_0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
                 - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
-        return k0
+        return k_0
 
     def get_k_matrix(self):
         k_size = self.num_models - 1
@@ -99,14 +99,15 @@ class SampleAllocation:
         return sample_sharing
 
     def save(self, file_path):
-        f = h5py.File(file_path, 'w')
-        f.attrs['Method'] = self.method
-        group_compressed_allocation = f.create_group('Compressed_Allocation')
-        group_expanded_allocation = f.create_group('Expanded_Allocation')
-        group_samples = f.create_group('Samples')
-        _ = f.create_group('Input_Names')
+        h5_file = h5py.File(file_path, 'w')
+        h5_file.attrs['Method'] = self.method
+        group_compressed_allocation = \
+            h5_file.create_group('Compressed_Allocation')
+        group_expanded_allocation = h5_file.create_group('Expanded_Allocation')
+        group_samples = h5_file.create_group('Samples')
+        _ = h5_file.create_group('Input_Names')
         for model in range(self.num_models):
-            group_model = f.create_group('Samples_Model_' + str(model))
+            group_model = h5_file.create_group('Samples_Model_' + str(model))
             if not self.samples.empty:
                 group_model.create_dataset(name='samples_model_' + str(model),
                                            data=self.get_samples_for_model(
@@ -116,7 +117,7 @@ class SampleAllocation:
         group_expanded_allocation.create_dataset(name='expanded_allocation',
                                                  data=self.expanded_allocation)
         group_samples.create_dataset(name='samples', data=self.samples)
-        f.close()
+        h5_file.close()
 
     def get_sample_split_for_model(self, i):
         col_1 = '%d_1' % i

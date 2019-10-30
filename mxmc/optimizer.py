@@ -7,7 +7,7 @@ ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC}
 
 class Optimizer():
 
-    def __init__(self, *args, **kwargs):  # TODO: what should we do here?
+    def __init__(self, *args, **kwargs):
         self._args = args
         self._kwargs = kwargs
 
