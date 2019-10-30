@@ -16,7 +16,7 @@ class SampleAllocation:
                 allocation_file['Expanded_Allocation/expanded_allocation'])
             try:
                 self.samples = np.array(allocation_file['Samples/samples'])
-            except:
+            except KeyError:
                 self.samples = pd.DataFrame()
             self.method = allocation_file.attrs['Method']
             allocation_file.close()
@@ -39,7 +39,7 @@ class SampleAllocation:
         for model_index in range(self.num_models):
             if model_index == 0:
                 samples_per_model[model_index] = \
-                self.expanded_allocation[['0']].sum(axis=0).values[0]
+                    self.expanded_allocation[['0']].sum(axis=0).values[0]
             else:
                 allocation_sums = self._convert_2_to_1(model_index)
                 samples_per_model[model_index] = np.sum(allocation_sums)
@@ -67,7 +67,7 @@ class SampleAllocation:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             k0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
-                    - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
+                - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
         return k0
 
     def get_k_matrix(self):
@@ -104,7 +104,7 @@ class SampleAllocation:
         group_compressed_allocation = f.create_group('Compressed_Allocation')
         group_expanded_allocation = f.create_group('Expanded_Allocation')
         group_samples = f.create_group('Samples')
-        group_input_names = f.create_group('Input_Names')
+        _ = f.create_group('Input_Names')
         for model in range(self.num_models):
             group_model = f.create_group('Samples_Model_' + str(model))
             if not self.samples.empty:

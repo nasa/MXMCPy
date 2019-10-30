@@ -10,14 +10,14 @@ class OutputProcessor():
         pass
 
     def compute_covariance_matrix(self, model_outputs, sample_allocation=None):
-        '''
-        '''
-        offdiag_operator = lambda x, y: np.cov(x, y)[0, 1]
+        def offdiag_operator(x, y):
+            return np.cov(x, y)[0, 1]
         return self._build_matrix(model_outputs, sample_allocation,
                                   offdiag_operator)
 
     def compute_vardiff_matrix(self, model_outputs, sample_allocation=None):
-        offdiag_operator = lambda x, y: np.var(x - y)
+        def offdiag_operator(x, y):
+            return np.var(x - y)
         return self._build_matrix(model_outputs, sample_allocation,
                                   offdiag_operator)
 
@@ -33,8 +33,9 @@ class OutputProcessor():
         if sample_allocation is None:
             output_df = pd.DataFrame(model_outputs)
         else:
-            output_df = self._build_output_df_from_allocation(model_outputs,
-                                                              sample_allocation)
+            output_df = \
+                self._build_output_df_from_allocation(model_outputs,
+                                                      sample_allocation)
         return output_df
 
     @staticmethod
@@ -51,7 +52,8 @@ class OutputProcessor():
             sub_dfs.append(pd.DataFrame({model_index: outputs,
                                          'alloc_indices': alloc}))
 
-        merge_func = lambda x, y: x.merge(y, how='outer')
+        def merge_func(x, y):
+            return x.merge(y, how='outer')
         output_df = reduce(merge_func, sub_dfs).set_index('alloc_indices')
         output_df.sort_index(inplace=True)
         return output_df.T

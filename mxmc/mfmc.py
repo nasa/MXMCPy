@@ -1,5 +1,3 @@
-from itertools import combinations
-
 import numpy as np
 
 from .optimizer_base import OptimizationResult, OptimizerBase, \
@@ -36,11 +34,11 @@ class MFMC(OptimizerBase):
         for j in range(1, self._num_models):
             cost_ratio = self._ordered_cost[j - 1] / self._ordered_cost[j]
             denominator = self._ordered_corr[j] ** 2 \
-                          - self._ordered_corr[j + 1] ** 2
+                - self._ordered_corr[j + 1] ** 2
             if np.isclose(denominator, 0, atol=1e-16):
                 return False
             numerator = self._ordered_corr[j - 1] ** 2 \
-                        - self._ordered_corr[j] ** 2
+                - self._ordered_corr[j] ** 2
             req_cost_ratio = numerator / denominator
             if cost_ratio <= req_cost_ratio:
                 return False
@@ -68,7 +66,7 @@ class MFMC(OptimizerBase):
     def _calculate_estimator_variance(self, sample_group_sizes):
         alphas = self._calculate_optimal_alphas()
         estimator_variance = self._ordered_stdev[0] ** 2 \
-                             / sample_group_sizes[0]
+            / sample_group_sizes[0]
         estimator_variance += np.sum((1 / sample_group_sizes[:-1]
                                       - 1 / sample_group_sizes[1:])
                                      * (alphas[1:] ** 2

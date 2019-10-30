@@ -11,8 +11,8 @@ from .optimizer_base import OptimizationResult, OptimizerBase
 class MLMC(OptimizerBase):
     """
     Class that implements the Multi-Level Monte Carlo (MLMC) optimizer for
-    determining an optimal sample allocation across models to minimize estimator
-    variance.
+    determining an optimal sample allocation across models to minimize
+    estimator variance.
     NOTE:
         *MLMC optimizer assumes that the high-fidelity model corresponds to the
         finest discretization and is therefore the most time consuming, so the
