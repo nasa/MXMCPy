@@ -1,5 +1,5 @@
-from collections import namedtuple
 from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import numpy as np
 

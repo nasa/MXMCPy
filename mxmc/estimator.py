@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 
 
@@ -32,7 +31,7 @@ class Estimator:
             Q_i1 = model_outputs[i][filt_1]
             Q_i2 = model_outputs[i][filt_2]
             if len(Q_i1) != 0 or len(Q_i2) != 0:
-                Q += self._alpha[i-1] * (np.mean(Q_i1) - np.mean(Q_i2))
+                Q += self._alpha[i - 1] * (np.mean(Q_i1) - np.mean(Q_i2))
 
         return Q
 
@@ -47,7 +46,7 @@ class Estimator:
         n_0 = self._allocation.get_number_of_samples_per_model()[0]
         var_q0 = self._covariance[0, 0]
 
-        variance = var_q0/n_0 + self._cov_q_delta.dot(self._alpha)
+        variance = var_q0 / n_0 + self._cov_q_delta.dot(self._alpha)
         return variance
 
     def _calculate_alpha(self):
@@ -64,7 +63,7 @@ class Estimator:
         temp_cov_q_delta = self._cov_q_delta[used_indices]
         alpha = np.zeros(self._num_models - 1)
         alpha[used_indices] = - np.linalg.solve(temp_cov_delta_delta,
-                                               temp_cov_q_delta)
+                                                temp_cov_q_delta)
         return alpha
 
     def _validate_model_outputs(self, model_outputs):
@@ -76,7 +75,3 @@ class Estimator:
             if len(outputs) != num_samps:
                 raise ValueError("Number of outputs per model does not match "
                                  "the sample allocation")
-
-
-
-

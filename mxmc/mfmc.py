@@ -2,7 +2,8 @@ from itertools import combinations
 
 import numpy as np
 
-from .optimizer_base import OptimizationResult, OptimizerBase, InconsistentModelError
+from .optimizer_base import OptimizationResult, OptimizerBase, \
+    InconsistentModelError
 
 
 class MFMC(OptimizerBase):
@@ -33,7 +34,7 @@ class MFMC(OptimizerBase):
 
     def _model_indices_are_consistent(self):
         for j in range(1, self._num_models):
-            cost_ratio = self._ordered_cost[j-1] / self._ordered_cost[j]
+            cost_ratio = self._ordered_cost[j - 1] / self._ordered_cost[j]
             denominator = self._ordered_corr[j] ** 2 \
                           - self._ordered_corr[j + 1] ** 2
             if np.isclose(denominator, 0, atol=1e-16):
@@ -60,7 +61,7 @@ class MFMC(OptimizerBase):
                                 * (self._ordered_corr[1:-1] ** 2 -
                                    self._ordered_corr[2:] ** 2)
                                 / (self._ordered_cost[1:]
-                                * (1 - self._ordered_corr[1] ** 2)))
+                                   * (1 - self._ordered_corr[1] ** 2)))
         sample_ratios = np.insert(sample_ratios, 0, 1)
         return sample_ratios
 

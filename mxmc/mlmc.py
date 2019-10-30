@@ -1,14 +1,15 @@
-'''
+"""
 Implementation of an optimizer using the Multi-Level Monte Carlo (MLMC) method
 to find the sample allocation that yields the smallest variance for a target
 cost.
-'''
+"""
 import numpy as np
 
 from .optimizer_base import OptimizationResult, OptimizerBase
 
+
 class MLMC(OptimizerBase):
-    '''
+    """
     Class that implements the Multi-Level Monte Carlo (MLMC) optimizer for
     determining an optimal sample allocation across models to minimize estimator
     variance.
@@ -22,7 +23,7 @@ class MLMC(OptimizerBase):
         the covariance input is not used. The array does not need to be ordered
         from high to low fidelity, but it must be arranged according to the
         model_costs array.
-    '''
+    """
 
     def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
 
@@ -44,8 +45,9 @@ class MLMC(OptimizerBase):
 
         sort_indices, model_costs_sorted = self._sort_model_costs(model_costs)
         level_costs_sorted = self._sum_adjacent_model_costs(model_costs_sorted)
-        level_costs = self._unsort_level_costs(level_costs_sorted, sort_indices)
-        self._cost_sort_indices = np.flip(sort_indices) # to unsort later
+        level_costs = self._unsort_level_costs(level_costs_sorted,
+                                               sort_indices)
+        self._cost_sort_indices = np.flip(sort_indices)  # to unsort later
         return level_costs
 
     def _sort_vardiff_by_cost(self, vardiff_matrix):
@@ -55,7 +57,7 @@ class MLMC(OptimizerBase):
 
     def _get_variances_from_vardiff(self, vardiff_matrix):
         var = []
-        for i in range(0, vardiff_matrix.shape[0] -1):
+        for i in range(0, vardiff_matrix.shape[0] - 1):
             var.append(vardiff_matrix[i, i + 1])
         var.append(vardiff_matrix[-1, -1])
 
@@ -71,9 +73,9 @@ class MLMC(OptimizerBase):
     def _sum_adjacent_model_costs(self, model_costs_sorted):
 
         level_costs_sorted = np.copy(model_costs_sorted)
-        for i in range(0, self._num_models-1):
+        for i in range(0, self._num_models - 1):
             level_costs_sorted[i] = model_costs_sorted[i] \
-                                                + model_costs_sorted[i+1]
+                                    + model_costs_sorted[i + 1]
         return level_costs_sorted
 
     def _unsort_level_costs(self, level_costs_sort, sort_indices):
@@ -98,7 +100,7 @@ class MLMC(OptimizerBase):
 
         samples_per_level = self._get_num_samples_per_level(target_cost)
         actual_cost = np.dot(samples_per_level, self._level_costs)
-        estimator_variance = np.sum(self._mlmc_variances/samples_per_level)
+        estimator_variance = np.sum(self._mlmc_variances / samples_per_level)
         allocation = self._get_allocation_array(samples_per_level)
         return OptimizationResult(actual_cost, estimator_variance, allocation)
 
@@ -107,8 +109,8 @@ class MLMC(OptimizerBase):
         mu_mlmc = self._calculate_mlmc_mu(target_cost)
         var_to_cost_ratios = self._mlmc_variances / self._level_costs
         samples_per_level = mu_mlmc * np.sqrt(var_to_cost_ratios)
-        samples_per_level_ints = self._adjust_samples_per_level(target_cost,
-                                                             samples_per_level)
+        samples_per_level_ints = \
+            self._adjust_samples_per_level(target_cost, samples_per_level)
         return samples_per_level_ints
 
     def _calculate_mlmc_mu(self, target_cost):
@@ -132,13 +134,14 @@ class MLMC(OptimizerBase):
 
     def _get_allocation_array(self, num_samples_per_level):
 
-        allocation = np.zeros((self._num_models, 2*self._num_models), dtype=int)
+        allocation = np.zeros((self._num_models, 2 * self._num_models),
+                              dtype=int)
         allocation[:, 0] = num_samples_per_level[self._cost_sort_indices]
 
         for model_index in range(1, self._num_models):
             cost_index = self._cost_sort_indices[model_index]
-            allocation[model_index-1, 2*cost_index] = 1
-            allocation[model_index, 2*cost_index+1] = 1
+            allocation[model_index - 1, 2 * cost_index] = 1
+            allocation[model_index, 2 * cost_index + 1] = 1
         allocation[0, 1] = 1
 
         return allocation

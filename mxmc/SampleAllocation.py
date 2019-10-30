@@ -1,16 +1,20 @@
 import warnings
-import pandas as pd
-import numpy as np
+
 import h5py
+import numpy as np
+import pandas as pd
 
 
 class SampleAllocation(object):
     def __init__(self, compressed_allocation, method=None):
         if type(compressed_allocation) is str:
             allocation_file = h5py.File(compressed_allocation, 'r')
-            self.compressed_allocation = np.array(allocation_file['Compressed_Allocation/compressed_allocation'])
+            self.compressed_allocation = \
+                np.array(allocation_file[
+                             'Compressed_Allocation/compressed_allocation'])
             self.num_models = self._calculate_num_models()
-            self.expanded_allocation = pd.DataFrame(allocation_file['Expanded_Allocation/expanded_allocation'])
+            self.expanded_allocation = pd.DataFrame(
+                    allocation_file['Expanded_Allocation/expanded_allocation'])
             try:
                 self.samples = np.array(allocation_file['Samples/samples'])
             except:
@@ -18,7 +22,7 @@ class SampleAllocation(object):
             self.method = allocation_file.attrs['Method']
             allocation_file.close()
         else:
-            if method == None:
+            if method is None:
                 raise ValueError("Must specify method")
             self.compressed_allocation = compressed_allocation.tolist()
             self.num_models = self._calculate_num_models()
@@ -35,7 +39,8 @@ class SampleAllocation(object):
         samples_per_model = np.zeros(self.num_models, dtype=int)
         for model_index in range(self.num_models):
             if model_index == 0:
-                samples_per_model[model_index] = self.expanded_allocation[['0']].sum(axis=0).values[0]
+                samples_per_model[model_index] = \
+                self.expanded_allocation[['0']].sum(axis=0).values[0]
             else:
                 allocation_sums = self._convert_2_to_1(model_index)
                 samples_per_model[model_index] = np.sum(allocation_sums)
@@ -49,13 +54,14 @@ class SampleAllocation(object):
             return list(allocation_sums.nonzero()[0])
 
     def generate_samples(self, input_generator):
-        self.samples = input_generator.generate_samples(self.get_total_number_of_samples())
+        self.samples = input_generator.generate_samples(
+            self.get_total_number_of_samples())
 
     def get_samples_for_model(self, model):
         return self.samples.iloc[self.get_sample_indices_for_model(model), :]
 
     def get_k0_matrix(self):
-        k0 = np.zeros(self.num_models-1)
+        k0 = np.zeros(self.num_models - 1)
         n = self.expanded_allocation.sum(axis=0).values
         for i in self.used_k_indices:
             i_1 = i * 2 + 1
@@ -101,9 +107,13 @@ class SampleAllocation(object):
         for model in range(self.num_models):
             group_model = f.create_group('Samples_Model_' + str(model))
             if not self.samples.empty:
-                group_model.create_dataset(name='samples_model_' + str(model), data=self.get_samples_for_model(model))
-        group_compressed_allocation.create_dataset(name='compressed_allocation', data=self.compressed_allocation)
-        group_expanded_allocation.create_dataset(name='expanded_allocation', data=self.expanded_allocation)
+                group_model.create_dataset(name='samples_model_' + str(model),
+                                           data=self.get_samples_for_model(
+                                               model))
+        group_compressed_allocation.create_dataset(
+            name='compressed_allocation', data=self.compressed_allocation)
+        group_expanded_allocation.create_dataset(name='expanded_allocation',
+                                                 data=self.expanded_allocation)
         group_samples.create_dataset(name='samples', data=self.samples)
         f.close()
 
@@ -122,9 +132,11 @@ class SampleAllocation(object):
         for index in range(len(self.compressed_allocation)):
             row = self.compressed_allocation[index].copy()
             sample_group_size = row.pop(0)
-            expanded_allocation_data_frames.append(pd.DataFrame(columns=self._get_column_names(),
-                                                                data=[row] * sample_group_size))
-        expanded_dataframe = pd.concat(expanded_allocation_data_frames, ignore_index=True)
+            expanded_allocation_data_frames.append(
+                pd.DataFrame(columns=self._get_column_names(),
+                             data=[row] * sample_group_size))
+        expanded_dataframe = pd.concat(expanded_allocation_data_frames,
+                                       ignore_index=True)
         return expanded_dataframe
 
     def _calculate_num_models(self):
@@ -141,7 +153,8 @@ class SampleAllocation(object):
         return column_names
 
     def _convert_2_to_1(self, model):
-        temp_sums = self.expanded_allocation[[str(model) + '_1', str(model) + '_2']].sum(axis=1).values
+        temp_sums = self.expanded_allocation[
+            [str(model) + '_1', str(model) + '_2']].sum(axis=1).values
         for index, element in enumerate(temp_sums):
             if element == 2:
                 temp_sums[index] = 1
