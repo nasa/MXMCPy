@@ -46,14 +46,17 @@ class Estimator:
         n_0 = self._allocation.get_number_of_samples_per_model()[0]
         var_q0 = self._covariance[0, 0]
 
-        variance = var_q0 / n_0 + self._cov_q_delta.dot(self._alpha)
+        variance = var_q0 / n_0 \
+            + self._alpha.dot(self._cov_delta_delta.dot(self._alpha)) \
+            + 2*self._alpha.dot(self._cov_q_delta)
+
         return variance
 
     def _calculate_alpha(self):
         if self._allocation.method != "mlmc":
             alpha = self._calculate_acv_alphas()
         else:
-            alpha = np.ones(self._num_models - 1)
+            alpha = - np.ones(self._num_models - 1)
         return alpha
 
     def _calculate_acv_alphas(self):
