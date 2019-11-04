@@ -71,14 +71,14 @@ class MFMC(OptimizerBase):
                                       - 1 / sample_group_sizes[1:])
                                      * (alphas[1:] ** 2
                                         * self._ordered_stdev[1:] ** 2
-                                        - 2 * alphas[1:]
+                                        + 2 * alphas[1:]
                                         * self._ordered_corr[1:-1]
                                         * self._ordered_stdev[0]
                                         * self._ordered_stdev[1:]))
         return estimator_variance
 
     def _calculate_optimal_alphas(self):
-        alpha_star = self._ordered_corr[:-1] * self._ordered_stdev[0] / \
+        alpha_star = - self._ordered_corr[:-1] * self._ordered_stdev[0] / \
                      self._ordered_stdev
         return alpha_star
 
