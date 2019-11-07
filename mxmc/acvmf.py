@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import optimize as scipy_optimize
+import torch
 
 from .optimizer_base import OptimizerBase, OptimizationResult
 
@@ -12,55 +13,84 @@ class ACVMF(OptimizerBase):
         if target_cost < np.sum(self._model_costs):
             return self.get_invalid_result()
 
-        ratios = self._solve_opt_problem(target_cost)
-        
-        N = target_cost/(np.dot(self._model_costs[1:], ratios) + self._model_costs[0])
-        print("N = ", N)
-        sample_nums = np.array([np.floor(N)] + list(np.floor(N*ratios)))
+        sample_nums = self._solve_opt_problem(target_cost)
+        sample_nums = np.floor(sample_nums)
         allocation = self._make_allocation(sample_nums)
 
-        ratios = sample_nums[1:]/sample_nums[0]
-        variance = self._compute_objective_function(ratios, target_cost)
-        cost = np.dot(sample_nums, self._model_costs)
+        variance, _ = self._compute_objective_function(sample_nums, target_cost)
+        
+        total_sample_nums = np.zeros(len(sample_nums))
+        total_sample_nums[0] = sample_nums[0]
+        total_sample_nums[1:] = sample_nums[0] + sample_nums[1:]        
 
+        cost = np.dot(total_sample_nums, self._model_costs)
+
+        print("Total Sample nums = ", total_sample_nums)
+        
         return OptimizationResult(cost, variance, allocation)
 
     def _solve_opt_problem(self, target_cost):
-        initial_guess = np.array(range(2,self._num_models+1))
+        
+        if self._num_models == 1:
+            return np.array([])
+        initial_guess = np.ones(self._num_models)
         constraints = [self._get_cost_constraint(target_cost)]
-        ratios = scipy_optimize.minimize(self._compute_objective_function, 
-                                         initial_guess, (target_cost, ), 
-                                         method='SLSQP', constraints=constraints)
-        print("ratios = ", ratios)
-        return initial_guess
+        bounds = [(1, np.inf) for i in range(self._num_models)]
+        options = {"disp": True}
+        opt_result = scipy_optimize.minimize(self._compute_objective_function, 
+                                             initial_guess, (target_cost, ), 
+                                             constraints=constraints,
+                                             bounds=bounds, jac=True,
+                                             method='SLSQP',
+                                             options=options)
+        print("opt result = ", opt_result)
+        #return opt_result.x
+        return [1, 1, 2]
 
     def _get_cost_constraint(self, target_cost):
-        
-        def cost_constraint(ratios):
-            return target_cost/(np.dot(self._model_costs[1:], ratios) + self._model_costs[0]) - 1
+
+        def cost_constraint(sample_nums):
+            
+            N = sample_nums[0]
+            cost = N*self._model_costs[0]
+            for i in range(self._num_models-2):
+                cost +=  self._model_costs[i+1]*(N + sample_nums[i+1])
+            return target_cost - cost
+
         constraint_dict = {"type": "ineq", "fun": cost_constraint}
         return constraint_dict
 
-    def _compute_objective_function(self, ratios, target_cost):
-
-        N = target_cost/(np.dot(self._model_costs[1:], ratios) +\
-             self._model_costs[0])
-        big_C = self._covariance[1:, 1:]
-        c_bar = self._covariance[0, 1:] / np.sqrt(self._covariance[0,0])
-
-        F = np.zeros((self._num_models-1, self._num_models-1))
-        np.fill_diagonal(F, (ratios-1)/ratios)
-
+    def _compute_objective_function(self, sample_nums, target_cost):
+        
+        sample_nums = torch.tensor(sample_nums, requires_grad=True,  
+                                  dtype=torch.double)
+        ratios = torch.zeros(len(sample_nums)-1, dtype=torch.double)
+        N = sample_nums[0]
+        for i in range(self._num_models-1):
+            ratios[i] = 1. + sample_nums[i+1]/N
+        
+        covariance = torch.tensor(self._covariance, dtype=torch.double)
+        model_costs = torch.tensor(self._model_costs, dtype=torch.double)
+        big_C = covariance[1:, 1:]
+        c_bar = covariance[0, 1:] / torch.sqrt(covariance[0,0])
+        
+        F = torch.zeros((self._num_models-1, self._num_models-1))
+        for i in range(self._num_models-1):
+            F[i, i] = (ratios[i]-1)/ratios[i]
         for i in range(self._num_models-2):
             for j in range(i+1, self._num_models-1):
-                min_ratio = np.min([ratios[i], ratios[j]])
+                min_ratio = torch.min(ratios[[i,j]])
                 F[i, j] = (min_ratio - 1)/ min_ratio
                 F[j, i] = F[i, j]
-
-        a = np.diag(F)*c_bar
-        R_squared = np.dot(a, np.linalg.solve(big_C*F, a))
-        variance = self._covariance[0,0]/N*(1-R_squared)
-        return variance
+        a = (torch.diag(F)*c_bar).reshape((-1,1))
+        big_C_times_F = big_C*F
+#        if torch.matrix_rank(big_C_times_F)  < self._num_models-1:
+#            return np.inf
+        alpha, _ = torch.solve(a, big_C_times_F)
+        R_squared = torch.dot(a.flatten(),  alpha.flatten())
+        variance = covariance[0,0]/N*(1-R_squared)
+        variance.backward()       
+        return (variance.detach().numpy(), sample_nums.grad.detach().numpy())
 
     def _make_allocation(self, sample_nums):
 
@@ -68,10 +98,16 @@ class ACVMF(OptimizerBase):
                               dtype=int)
         allocation[0,1:] = np.ones(2*self._num_models-1, dtype=int)
         allocation[0, 0] = sample_nums[0]
-        allocation[1:, 0] = [sample_nums[i] - sample_nums[i - 1]
-                             for i in range(1, len(sample_nums))]        
-        
-        for k in range(self._num_models-1):
-            col_index = 2*k + 3
-            allocation[:k+2, col_index] = 1
+
+        deltaNs_unused = list(sample_nums[1:])
+        deltaNs_used = []
+
+        for i in range(self._num_models-1):
+            min_ind = deltaNs_unused.index(min(deltaNs_unused))
+            true_ind = np.argwhere(sample_nums[1:] == min(deltaNs_unused))
+            min_deltaN = deltaNs_unused[min_ind]
+            allocation[i+1, 0] = min_deltaN - sum(deltaNs_used)
+            allocation[:i+2, 3+2*true_ind] = 1
+            deltaNs_used.append(deltaNs_unused.pop(min_ind))
+
         return allocation
