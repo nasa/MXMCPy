@@ -2,7 +2,6 @@ import numpy as np
 from scipy import optimize as scipy_optimize
 import torch
 
-#from .optimizer_base import OptimizerBase, OptimizationResult
 from .acv_optimizer import ACVOptimizer
 
 class ACVMF(ACVOptimizer):
