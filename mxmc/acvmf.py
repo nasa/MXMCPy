@@ -16,17 +16,9 @@ class ACVMF(OptimizerBase):
         sample_nums = self._solve_opt_problem(target_cost)
         sample_nums = np.floor(sample_nums)
         allocation = self._make_allocation(sample_nums)
-
         variance, _ = self._compute_objective_function(sample_nums, target_cost)
-        
-        total_sample_nums = np.zeros(len(sample_nums))
-        total_sample_nums[0] = sample_nums[0]
-        total_sample_nums[1:] = sample_nums[0] + sample_nums[1:]        
+        cost = self._get_total_cost(sample_nums)
 
-        cost = np.dot(total_sample_nums, self._model_costs)
-
-        print("Total Sample nums = ", total_sample_nums)
-        
         return OptimizationResult(cost, variance, allocation)
 
     def _solve_opt_problem(self, target_cost):
@@ -36,28 +28,32 @@ class ACVMF(OptimizerBase):
         initial_guess = np.ones(self._num_models)
         constraints = [self._get_cost_constraint(target_cost)]
         bounds = [(1, np.inf) for i in range(self._num_models)]
-        options = {"disp": True}
+        options = {"disp": False}
         opt_result = scipy_optimize.minimize(self._compute_objective_function, 
                                              initial_guess, (target_cost, ), 
                                              constraints=constraints,
                                              bounds=bounds, jac=True,
                                              method='SLSQP',
                                              options=options)
-        print("opt result = ", opt_result)
         return opt_result.x
-#        return [1, 1, 2]
+
+    def _get_total_cost(self, sample_nums):
+
+        total_sample_nums = np.zeros(len(sample_nums))
+        total_sample_nums[0] = sample_nums[0]
+        total_sample_nums[1:] = sample_nums[0] + sample_nums[1:]        
+        cost = np.dot(total_sample_nums, self._model_costs)
 
     def _get_cost_constraint(self, target_cost):
 
-        def cost_constraint(sample_nums):
-            
+        def constraint_func(sample_nums):
             N = sample_nums[0]
             cost = N*self._model_costs[0]
             for i in range(self._num_models-2):
                 cost +=  self._model_costs[i+1]*(N + sample_nums[i+1])
             return target_cost - cost
 
-        constraint_dict = {"type": "ineq", "fun": cost_constraint}
+        constraint_dict = {"type": "ineq", "fun": constraint_func}
         return constraint_dict
 
     def _compute_objective_function(self, sample_nums, target_cost):
@@ -66,18 +62,34 @@ class ACVMF(OptimizerBase):
             return self._covariance[0,0]/sample_nums[0], \
                     -self._covariance[0,0]*sample_nums[0]**-2
 
-        sample_nums = torch.tensor(sample_nums, requires_grad=True,  
-                                  dtype=torch.double)
+        sample_nums = torch.tensor(sample_nums, requires_grad=True)
+        covariance = torch.tensor(self._covariance)
+        model_costs = torch.tensor(self._model_costs)
+        variance = self._compute_acv_estimator_variance(covariance, sample_nums)
+        variance.backward()       
+        return (variance.detach().numpy(), sample_nums.grad.detach().numpy())
+
+    def _compute_acv_estimator_variance(self, covariance, sample_nums):
+
+        big_C = covariance[1:, 1:]
+        c_bar = covariance[0, 1:] / torch.sqrt(covariance[0,0])
+        ratios = self._compute_ratios_from_sample_nums(sample_nums)
+        F = self._compute_acv_F_matrix(ratios)
+        a = (torch.diag(F)*c_bar).reshape((-1,1))
+        alpha, _ = torch.solve(a, big_C*F)
+        R_squared = torch.dot(a.flatten(),  alpha.flatten())
+        variance = covariance[0,0]/sample_nums[0]*(1-R_squared)
+        return variance
+
+    def _compute_ratios_from_sample_nums(self, sample_nums):
         ratios = torch.zeros(len(sample_nums)-1, dtype=torch.double)
         N = sample_nums[0]
         for i in range(self._num_models-1):
             ratios[i] = 1. + sample_nums[i+1]/N
-        
-        covariance = torch.tensor(self._covariance, dtype=torch.double)
-        model_costs = torch.tensor(self._model_costs, dtype=torch.double)
-        big_C = covariance[1:, 1:]
-        c_bar = covariance[0, 1:] / torch.sqrt(covariance[0,0])
-        
+        return ratios
+
+    def _compute_acv_F_matrix(self, ratios):
+
         F = torch.zeros((self._num_models-1, self._num_models-1))
         for i in range(self._num_models-1):
             F[i, i] = (ratios[i]-1)/ratios[i]
@@ -86,15 +98,7 @@ class ACVMF(OptimizerBase):
                 min_ratio = torch.min(ratios[[i,j]])
                 F[i, j] = (min_ratio - 1)/ min_ratio
                 F[j, i] = F[i, j]
-        a = (torch.diag(F)*c_bar).reshape((-1,1))
-        big_C_times_F = big_C*F
-#        if torch.matrix_rank(big_C_times_F)  < self._num_models-1:
-#            return np.inf
-        alpha, _ = torch.solve(a, big_C_times_F)
-        R_squared = torch.dot(a.flatten(),  alpha.flatten())
-        variance = covariance[0,0]/N*(1-R_squared)
-        variance.backward()       
-        return (variance.detach().numpy(), sample_nums.grad.detach().numpy())
+        return F
 
     def _make_allocation(self, sample_nums):
 
