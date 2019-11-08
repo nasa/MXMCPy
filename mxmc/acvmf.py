@@ -32,7 +32,7 @@ class ACVMF(OptimizerBase):
     def _solve_opt_problem(self, target_cost):
         
         if self._num_models == 1:
-            return np.array([])
+            return np.array([target_cost/self._model_costs[0]])
         initial_guess = np.ones(self._num_models)
         constraints = [self._get_cost_constraint(target_cost)]
         bounds = [(1, np.inf) for i in range(self._num_models)]
@@ -44,8 +44,8 @@ class ACVMF(OptimizerBase):
                                              method='SLSQP',
                                              options=options)
         print("opt result = ", opt_result)
-        #return opt_result.x
-        return [1, 1, 2]
+        return opt_result.x
+#        return [1, 1, 2]
 
     def _get_cost_constraint(self, target_cost):
 
@@ -61,7 +61,11 @@ class ACVMF(OptimizerBase):
         return constraint_dict
 
     def _compute_objective_function(self, sample_nums, target_cost):
-        
+
+        if self._num_models == 1:
+            return self._covariance[0,0]/sample_nums[0], \
+                    -self._covariance[0,0]*sample_nums[0]**-2
+
         sample_nums = torch.tensor(sample_nums, requires_grad=True,  
                                   dtype=torch.double)
         ratios = torch.zeros(len(sample_nums)-1, dtype=torch.double)
