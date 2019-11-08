@@ -104,3 +104,25 @@ def test_optimizer_can_initialize_with_extra_inputs():
     model_costs = np.array([4800, 4])
     vardiff_matrix = np.ones([2, 2])
     _ = Optimizer(model_costs, covariance, vardiff_matrix, 0, abc=0)
+
+@pytest.mark.parametrize("algorithm", ALGORITHMS)
+def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
+
+    covariance = np.array([[12.]])
+    vardiff_matrix = np.array([[12.]])
+    model_costs = np.array([2.])
+    target_cost = 8.    
+
+    optimizer = Optimizer(model_costs, covariance, 
+                          vardiff_matrix=vardiff_matrix)
+
+    opt_result = optimizer.optimize(algorithm=algorithm, 
+                                    target_cost=target_cost)
+    
+    N_ref = target_cost/model_costs[0]
+    variance_ref = covariance[0]/N_ref
+    cost_ref = target_cost
+
+    assert np.isclose(variance_ref, opt_result.variance)
+    assert np.isclose(cost_ref, opt_result.cost)
+    assert N_ref == opt_result.sample_array[0,0]
