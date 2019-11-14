@@ -1,11 +1,10 @@
 import numpy as np
-from scipy import optimize as scipy_optimize
 import torch
 
 from .acv_optimizer import ACVOptimizer, TORCHDTYPE
 
 
-class ACVMF(ACVOptimizer):
+class ACVIS(ACVOptimizer):
 
     def _compute_acv_F_matrix(self, ratios):
 
@@ -15,8 +14,7 @@ class ACVMF(ACVOptimizer):
             F[i, i] = (ratios[i]-1)/ratios[i]
         for i in range(self._num_models-2):
             for j in range(i+1, self._num_models-1):
-                min_ratio = torch.min(ratios[[i,j]])
-                F[i, j] = (min_ratio - 1)/ min_ratio
+                F[i, j] = ((ratios[i]-1)/ratios[i])*((ratios[j]-1)/ratios[j])
                 F[j, i] = F[i, j]
         return F
 
@@ -34,8 +32,8 @@ class ACVMF(ACVOptimizer):
             min_ind = deltaNs_unused.index(min(deltaNs_unused))
             true_ind = np.argwhere(sample_nums[1:] == min(deltaNs_unused))
             min_deltaN = deltaNs_unused[min_ind]
-            allocation[i+1, 0] = min_deltaN - sum(deltaNs_used)
-            allocation[:i+2, 3+2*true_ind] = 1
+            allocation[i+1, 0] = min_deltaN
+            allocation[i+1, 3+2*true_ind] = 1
             deltaNs_used.append(deltaNs_unused.pop(min_ind))
 
         return allocation
