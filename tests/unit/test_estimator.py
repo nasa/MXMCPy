@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from mxmc.sample_allocation import SampleAllocation
 from mxmc.estimator import Estimator
+from mxmc.sample_allocation import SampleAllocation
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_allocation_matches_model_outputs_per_model(sample_allocation,
 @pytest.mark.parametrize("num_models", range(1, 4))
 @pytest.mark.parametrize("num_samples", [10, 100])
 def test_estimate_for_monte_carlo(num_models, num_samples):
-    compressed_allocation = np.zeros((1, num_models*2), dtype=int)
+    compressed_allocation = np.zeros((1, num_models * 2), dtype=int)
     compressed_allocation[0, 0] = num_samples
     compressed_allocation[0, 1] = 1
     mc_allocation = SampleAllocation(compressed_allocation, "mc")
@@ -65,7 +65,7 @@ def test_two_model_estimate():
                                       [5, 1, 1, 0],
                                       [10, 0, 0, 1]])
     allocation = SampleAllocation(compressed_allocation, "test case")
-    model_outputs = [np.arange(1, 7), np.arange(1,17)]
+    model_outputs = [np.arange(1, 7), np.arange(1, 17)]
     covariance = np.array([[1, 0.5], [0.5, 1]])
 
     est = Estimator(allocation, covariance)
@@ -90,9 +90,3 @@ def test_three_model_approximate_variance(sample_allocation):
     est = Estimator(sample_allocation, covariance)
 
     assert est.approximate_variance == pytest.approx(1)
-
-
-
-
-
-

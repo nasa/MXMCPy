@@ -1,8 +1,6 @@
-
 import numpy as np
 import pytest
 
-from mxmc.mlmc import MLMC
 from mxmc.optimizer import Optimizer
 
 dummy_var = 999
@@ -43,10 +41,9 @@ def optimizer_four_model():
 @pytest.mark.parametrize("target_cost, factor", [(8, 1), (16, 2)])
 def test_optimize_works_for_simple_two_model_ex(optimizer_two_model,
                                                 target_cost, factor):
-
-    sample_array_expected = np.array([[1*factor, 1, 1, 0],
-                                      [4*factor, 0, 0, 1]])
-    variance_expected = 2/float(factor)
+    sample_array_expected = np.array([[1 * factor, 1, 1, 0],
+                                      [4 * factor, 0, 0, 1]])
+    variance_expected = 2 / float(factor)
     cost_expected = target_cost
 
     opt_result = optimizer_two_model.optimize(algorithm="mlmc",
@@ -55,14 +52,13 @@ def test_optimize_works_for_simple_two_model_ex(optimizer_two_model,
                             sample_array_expected)
 
 
-@pytest.mark.parametrize("target_cost, factor", [(24, 1), (48,2)])
+@pytest.mark.parametrize("target_cost, factor", [(24, 1), (48, 2)])
 def test_optimize_works_for_simple_three_model_ex(optimizer_three_model,
                                                   target_cost, factor):
-
-    sample_array_expected = np.array([[1*factor, 1, 1, 0, 0, 0],
-                                      [2*factor, 0, 0, 1, 1, 0],
-                                      [8*factor, 0, 0, 0, 0, 1]])
-    var_expected = 1.5/float(factor)
+    sample_array_expected = np.array([[1 * factor, 1, 1, 0, 0, 0],
+                                      [2 * factor, 0, 0, 1, 1, 0],
+                                      [8 * factor, 0, 0, 0, 0, 1]])
+    var_expected = 1.5 / float(factor)
     cost_expected = target_cost
 
     opt_result = optimizer_three_model.optimize(algorithm="mlmc",
@@ -74,12 +70,11 @@ def test_optimize_works_for_simple_three_model_ex(optimizer_three_model,
 @pytest.mark.parametrize("target_cost, factor", [(64, 1), (128, 2)])
 def test_optimize_works_for_simple_four_model_ex(optimizer_four_model,
                                                  target_cost, factor):
-
-    sample_array_expected = np.array([[1*factor, 1, 1, 0, 0, 0, 0, 0],
-                                      [2*factor, 0, 0, 1, 1, 0, 0, 0],
-                                      [4*factor, 0, 0, 0, 0, 1, 1, 0],
-                                      [16*factor, 0, 0, 0, 0, 0, 0, 1]])
-    var_expected = 1/float(factor)
+    sample_array_expected = np.array([[1 * factor, 1, 1, 0, 0, 0, 0, 0],
+                                      [2 * factor, 0, 0, 1, 1, 0, 0, 0],
+                                      [4 * factor, 0, 0, 0, 0, 1, 1, 0],
+                                      [16 * factor, 0, 0, 0, 0, 0, 0, 1]])
+    var_expected = 1 / float(factor)
     cost_expected = target_cost
 
     opt_result = optimizer_four_model.optimize(algorithm="mlmc",
@@ -89,7 +84,6 @@ def test_optimize_works_for_simple_four_model_ex(optimizer_four_model,
 
 
 def test_three_models_out_of_order():
-
     target_cost = 24
     model_costs = np.array([5, 1, 3])
     vardiff_matrix = np.array([[dummy_var, dummy_var, 0.5],
@@ -111,14 +105,13 @@ def test_three_models_out_of_order():
 
 
 def test_four_models_out_of_order():
-
     target_cost = 64
     model_costs = np.array([11, 1, 5, 3])
     vardiff_matrix = np.array([[dummy_var, dummy_var, 0.25, dummy_var],
                                [dummy_var, 4., dummy_var, 1.],
                                [0.25, dummy_var, dummy_var, 0.5],
                                [dummy_var, 1., 0.5, dummy_var]])
-    
+
     optimizer = Optimizer(model_costs=model_costs,
                           vardiff_matrix=vardiff_matrix)
 
@@ -143,7 +136,7 @@ def test_raises_error_if_first_model_is_not_highest_cost():
 
     model_costs = np.array([11, 1, 12])
     vardiff_matrix = np.ones([3, 3])
-    
+
     with pytest.raises(ValueError):
         optimizer = Optimizer(model_costs=model_costs,
                               vardiff_matrix=vardiff_matrix)
@@ -151,12 +144,11 @@ def test_raises_error_if_first_model_is_not_highest_cost():
 
 
 def test_optimize_for_noninteger_sample_nums(optimizer_three_model):
-
     sample_array_expected = np.array([[1, 1, 1, 0, 0, 0],
                                       [3, 0, 0, 1, 1, 0],
                                       [12, 0, 0, 0, 0, 1]])
     target_cost = 36
-    var_expected = (1/2. + 1/3. + 1/3.)
+    var_expected = (1 / 2. + 1 / 3. + 1 / 3.)
     cost_expected = 32
 
     opt_result = optimizer_three_model.optimize(algorithm="mlmc",

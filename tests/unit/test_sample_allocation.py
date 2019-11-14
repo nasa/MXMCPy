@@ -1,10 +1,12 @@
-import h5py
-import pytest
-import pandas as pd
-import numpy as np
 import os.path
-from mxmc.sample_allocation import SampleAllocation
+
+import h5py
+import numpy as np
+import pandas as pd
+import pytest
+
 from mxmc.input_generator import InputGenerator
+from mxmc.sample_allocation import SampleAllocation
 
 
 @pytest.fixture
@@ -29,7 +31,8 @@ def expanded_allocation():
 
 @pytest.fixture
 def expanded_allocation_dataframe(expanded_allocation):
-    return pd.DataFrame(columns=['0', '1_1', '1_2', '2_1', '2_2'], data=expanded_allocation)
+    return pd.DataFrame(columns=['0', '1_1', '1_2', '2_1', '2_2'],
+                        data=expanded_allocation)
 
 
 def test_error_raised_if_no_method_specified(compressed_allocation):
@@ -46,7 +49,8 @@ def test_num_models(sample_allocation):
 
 
 def test_get_column_names(sample_allocation):
-    assert sample_allocation._get_column_names() == ['0', '1_1', '1_2', '2_1', '2_2']
+    assert sample_allocation._get_column_names() == ['0', '1_1', '1_2', '2_1',
+                                                     '2_2']
 
 
 def test_one_model_num_models():
@@ -55,11 +59,13 @@ def test_one_model_num_models():
 
 
 def test_expand_allocation(sample_allocation, expanded_allocation_dataframe):
-    assert pd.DataFrame.equals(sample_allocation.expanded_allocation, expanded_allocation_dataframe)
+    assert pd.DataFrame.equals(sample_allocation.expanded_allocation,
+                               expanded_allocation_dataframe)
 
 
 def test_get_number_of_samples_per_model(sample_allocation):
-    assert np.array_equal(sample_allocation.get_number_of_samples_per_model(), np.array([1, 6, 15]))
+    assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
+                          np.array([1, 6, 15]))
 
 
 def test_get_sample_indices_for_model_0(sample_allocation):
@@ -67,11 +73,15 @@ def test_get_sample_indices_for_model_0(sample_allocation):
 
 
 def test_get_sample_indices_for_model_1(sample_allocation):
-    assert sample_allocation.get_sample_indices_for_model(1) == [0, 1, 2, 3, 4, 5]
+    assert sample_allocation.get_sample_indices_for_model(1) == [0, 1, 2, 3, 4,
+                                                                 5]
 
 
 def test_get_sample_indices_for_model_2(sample_allocation):
-    assert sample_allocation.get_sample_indices_for_model(2) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    assert sample_allocation.get_sample_indices_for_model(2) == [1, 2, 3, 4, 5,
+                                                                 6, 7, 8, 9,
+                                                                 10, 11, 12,
+                                                                 13, 14, 15]
 
 
 def test_get_total_number_of_samples(sample_allocation):
@@ -114,21 +124,25 @@ def input_dataframe(input_names, input_array):
 
 
 def test_input_generator_init(input_dataframe, input_generator_with_array):
-    assert pd.DataFrame.equals(input_dataframe, input_generator_with_array.input_dataframe)
+    assert pd.DataFrame.equals(input_dataframe,
+                               input_generator_with_array.input_dataframe)
 
 
-def test_input_generator_generate_samples(input_generator_with_array, input_dataframe):
+def test_input_generator_generate_samples(input_generator_with_array,
+                                          input_dataframe):
     assert pd.DataFrame.equals(input_dataframe,
                                input_generator_with_array.generate_samples(16))
 
 
-def test_input_generator_generate_subset_of_samples(input_generator_with_array, input_dataframe):
+def test_input_generator_generate_subset_of_samples(input_generator_with_array,
+                                                    input_dataframe):
     assert pd.DataFrame.equals(input_dataframe[:5],
                                input_generator_with_array.generate_samples(5))
 
 
-def test_input_generator_generate_too_many_samples_requested(input_generator_with_array,
-                                                             input_dataframe):
+def test_input_generator_generate_too_many_samples_requested(
+        input_generator_with_array,
+        input_dataframe):
     with pytest.raises(ValueError):
         input_generator_with_array.generate_samples(17)
 
@@ -160,7 +174,9 @@ def test_sample_allocation_get_samples_for_model_2(input_generator_with_array,
                                                    sample_allocation,
                                                    input_dataframe):
     sample_allocation.generate_samples(input_generator_with_array)
-    assert pd.DataFrame.equals(input_dataframe.iloc[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], :],
+    assert pd.DataFrame.equals(input_dataframe.iloc[
+                               [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                15], :],
                                sample_allocation.get_samples_for_model(2))
 
 
@@ -188,6 +204,7 @@ def test_h5_data_with_no_samples(sample_allocation):
     file.close()
     assert np.array_equal(data,
                           sample_allocation.compressed_allocation)
+
 
 def test_h5_method_attribute(sample_allocation):
     sample_allocation.save('test_save.hdf5')
@@ -231,6 +248,7 @@ def test_sample_initialization_from_file(input_array):
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.samples,
                           input_array)
+
 
 def test_method_flag_initialization_from_file(input_array):
     sample_allocation = SampleAllocation('test_save.hdf5')

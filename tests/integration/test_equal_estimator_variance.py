@@ -1,9 +1,9 @@
-import pytest
 import numpy as np
+import pytest
 
+from mxmc.estimator import Estimator
 from mxmc.optimizer import Optimizer
 from mxmc.sample_allocation import SampleAllocation
-from mxmc.estimator import Estimator
 
 ALGORITHMS = ["mfmc", "mlmc"]
 
@@ -20,7 +20,7 @@ def monomial_model_variances(powers):
             else:
                 vardiff[i, j] = 1 / (2 * p_i + 1) - 2 / (p_i + p_j + 1) \
                                 + 1 / (2 * p_j + 1) \
-                                - (1 / (p_i + 1) - 1 / (p_j + 1))**2
+                                - (1 / (p_i + 1) - 1 / (p_j + 1)) ** 2
     return cov, vardiff
 
 

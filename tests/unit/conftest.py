@@ -14,4 +14,3 @@ def compressed_allocation():
 @pytest.fixture
 def sample_allocation(compressed_allocation):
     return SampleAllocation(compressed_allocation, 'MFMC')
-
