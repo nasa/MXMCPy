@@ -1,16 +1,15 @@
 import pytest
-from pytest_mock import mocker 
-import mock
 import numpy as np
 
 from mxmc.optimizer import *
-from mxmc import acvmf
+
 
 def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
     assert np.isclose(opt_result.cost, cost_ref)
     assert np.isclose(opt_result.variance, var_ref)
     np.testing.assert_array_almost_equal(opt_result.sample_array,
                                          sample_array_ref)
+
 
 @pytest.mark.parametrize("cost_factor", [1, 4])
 @pytest.mark.parametrize("covariance_factor", [1, 4 ])
@@ -38,6 +37,7 @@ def test_acvmf_three_models_known_solution(cost_factor,
     opt_result = optimizer.optimize(algorithm="acvmf", target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_ref, var_ref, allocation_ref)
 
+
 @pytest.mark.parametrize("cost_factor", [1,4])
 @pytest.mark.parametrize("covariance_factor", [1,4])
 def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
@@ -63,6 +63,7 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     opt_result = optimizer.optimize(algorithm="acvmf", target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_ref, var_ref, allocation_ref)
 
+
 @pytest.mark.parametrize("seed", [1])
 def test_acvmf_optimizer_satisfies_constraints(seed):
 
@@ -80,4 +81,3 @@ def test_acvmf_optimizer_satisfies_constraints(seed):
     assert sample_nums[0] >= 1
     for i, sample in enumerate(sample_nums[1:]):
         assert sample > sample_nums[i]
-    

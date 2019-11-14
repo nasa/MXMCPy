@@ -4,6 +4,10 @@ import torch
 
 from .optimizer_base import OptimizerBase, OptimizationResult
 
+
+TORCHDTYPE = torch.double
+
+
 class ACVMF(OptimizerBase):
 
     def __init__(self, model_costs, covariance, *args, **kwargs):
@@ -67,9 +71,10 @@ class ACVMF(OptimizerBase):
 
     def _compute_objective_function(self, sample_nums, target_cost):
 
-        sample_nums = torch.tensor(sample_nums, requires_grad=True)
-        covariance = torch.tensor(self._covariance)
-        model_costs = torch.tensor(self._model_costs)
+        sample_nums = torch.tensor(sample_nums, requires_grad=True,
+                                   dtype=TORCHDTYPE)
+        covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
+        model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
         variance = self._compute_acv_estimator_variance(covariance, sample_nums)
         variance.backward()       
         return (variance.detach().numpy(), sample_nums.grad.detach().numpy())
@@ -95,7 +100,8 @@ class ACVMF(OptimizerBase):
 
     def _compute_acv_F_matrix(self, ratios):
 
-        F = torch.zeros((self._num_models-1, self._num_models-1))
+        F = torch.zeros((self._num_models-1, self._num_models-1),
+                        dtype=TORCHDTYPE)
         for i in range(self._num_models-1):
             F[i, i] = (ratios[i]-1)/ratios[i]
         for i in range(self._num_models-2):
