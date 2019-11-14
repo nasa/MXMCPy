@@ -5,7 +5,7 @@ from mxmc.estimator import Estimator
 from mxmc.optimizer import Optimizer
 from mxmc.sample_allocation import SampleAllocation
 
-ALGORITHMS = ["mfmc", "mlmc"]
+ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis"]
 
 
 def monomial_model_variances(powers):
@@ -37,6 +37,7 @@ def test_monomial_model(algorithm):
                           vardiff_matrix=vardiff_matrix)
 
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10)
+    print(opt_result.sample_array)
     sample_allocation = SampleAllocation(opt_result.sample_array,
                                          method=algorithm)
     estimator = Estimator(sample_allocation, covariance)

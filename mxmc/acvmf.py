@@ -20,21 +20,18 @@ class ACVMF(ACVOptimizer):
         return F
 
     def _make_allocation(self, sample_nums):
-
-        allocation = np.zeros((self._num_models, 2 * self._num_models),
+        total_sample_nums = np.copy(sample_nums)
+        total_sample_nums[1:] += sample_nums[0]
+        unique_nums = list(set(total_sample_nums[1:]))
+        unique_nums.sort()
+        allocation = np.zeros((1 + len(unique_nums), 2 * self._num_models),
                               dtype=int)
         allocation[0, 1:] = np.ones(2 * self._num_models - 1, dtype=int)
         allocation[0, 0] = sample_nums[0]
+        for i, num in enumerate(unique_nums):
+            allocation[i + 1, 0] = num - np.sum(allocation[:i+1, 0])
 
-        deltaNs_unused = list(sample_nums[1:])
-        deltaNs_used = []
-
-        for i in range(self._num_models - 1):
-            min_ind = deltaNs_unused.index(min(deltaNs_unused))
-            true_ind = np.argwhere(sample_nums[1:] == min(deltaNs_unused))
-            min_deltaN = deltaNs_unused[min_ind]
-            allocation[i + 1, 0] = min_deltaN - sum(deltaNs_used)
-            allocation[:i + 2, 3 + 2 * true_ind] = 1
-            deltaNs_used.append(deltaNs_unused.pop(min_ind))
+        for i in range(1, self._num_models):
+            allocation[1:, i*2+1][total_sample_nums[i] >= unique_nums] = 1
 
         return allocation
