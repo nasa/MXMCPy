@@ -37,7 +37,6 @@ def test_monomial_model(algorithm):
                           vardiff_matrix=vardiff_matrix)
 
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10)
-    print(opt_result.sample_array)
     sample_allocation = SampleAllocation(opt_result.sample_array,
                                          method=algorithm)
     estimator = Estimator(sample_allocation, covariance)
