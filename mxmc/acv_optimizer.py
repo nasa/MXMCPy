@@ -28,7 +28,7 @@ class ACVOptimizer(OptimizerBase):
                                                        target_cost)
         cost = self._get_total_cost(sample_nums)
 
-        return OptimizationResult(cost, variance, allocation), self.opt_path
+        return OptimizationResult(cost, variance, allocation)  # :, self.opt_path
 
     def _get_monte_carlo_opt_result(self, target_cost):
 
