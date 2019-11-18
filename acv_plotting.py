@@ -35,15 +35,10 @@ def test_monomial_model(algorithm):
 
 
 def get_variances_of_all_algos():
-    algorithms = ["mfmc", "mlmc"]
+    algorithms = ["mfmc", "mlmc", "acvmf", "acvis"]
     variances = dict()
     for algo in algorithms:
         variances[algo] = test_monomial_model(algo)
-    optimizer = Optimizer(MODELCOSTS, covariance=COVARIANCE,
-                          vardiff_matrix=VARDIFF_MATRIX)
-    opt_result = optimizer.optimize(algorithm="acvmf",
-                                    target_cost=TARGET_COST)
-    variances["acvmf"] = opt_result.variance
     return variances
 
 
@@ -142,11 +137,12 @@ def plot_2d_acvmf_vars(recent_opt_path):
 
 
 if __name__ == "__main__":
-    EXPONENTS = [4, 3, 2, 1]
+    EXPONENTS = [5, 4, 3, 2, 1]
     COVARIANCE, VARDIFF_MATRIX = monomial_model_variances(EXPONENTS)
     MODELCOSTS = monomial_model_costs(EXPONENTS)
     TARGET_COST = 100
     var = get_variances_of_all_algos()
     #assert(abs(var['acvmf'] - 4.61206448e-05) < 1e-12)
     # plot_2d_acvmf_vars(opt_path)
+    print(var)
 

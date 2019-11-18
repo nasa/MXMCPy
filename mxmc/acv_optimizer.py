@@ -59,7 +59,7 @@ class ACVOptimizer(OptimizerBase):
 
     def _perform_slsqp_optim(self, initial_guess, bounds, constraints,
                              target_cost):
-        options = {"disp": True, "ftol": 1e-10}
+        options = {"disp": False, "ftol": 1e-10}
         opt_result = scipy_optimize.minimize(
                 self._compute_variance_and_grad,
                 initial_guess, (target_cost,),
@@ -71,7 +71,7 @@ class ACVOptimizer(OptimizerBase):
 
     def _perform_nelder_mead_optim(self, initial_guess, bounds, constraints,
                                    target_cost):
-        options = {"disp": True, "xatol": 1e-12, "fatol": 1e-12,
+        options = {"disp": False, "xatol": 1e-12, "fatol": 1e-12,
                    "maxfev": 500 * len(initial_guess)}
         opt_result = scipy_optimize.minimize(
                 self._compute_variance_using_penalties,
