@@ -20,9 +20,7 @@ class ACVMF(ACVOptimizer):
         return F
 
     def _make_allocation(self, sample_nums):
-        total_sample_nums = np.copy(sample_nums)
-        total_sample_nums[1:] += sample_nums[0]
-        unique_nums = list(set(total_sample_nums[1:]))
+        unique_nums = list(set(sample_nums[1:]))
         unique_nums.sort()
         allocation = np.zeros((1 + len(unique_nums), 2 * self._num_models),
                               dtype=int)
@@ -32,6 +30,6 @@ class ACVMF(ACVOptimizer):
             allocation[i + 1, 0] = num - np.sum(allocation[:i+1, 0])
 
         for i in range(1, self._num_models):
-            allocation[1:, i*2+1][total_sample_nums[i] >= unique_nums] = 1
+            allocation[1:, i*2+1][sample_nums[i] >= unique_nums] = 1
 
         return allocation

@@ -17,7 +17,7 @@ class ACVOptimizer(OptimizerBase):
         if self._num_models == 1:
             return self._get_monte_carlo_opt_result(target_cost)
 
-        ratios = self._solve_opt_problem_ratios(target_cost)
+        ratios = self._solve_opt_problem(target_cost)
 
         sample_nums = self._compute_sample_nums_from_ratios(ratios,
                                                             target_cost)
@@ -38,13 +38,10 @@ class ACVOptimizer(OptimizerBase):
         return OptimizationResult(cost, variance, allocation)
 
     def _compute_total_cost(self, sample_nums):
-        total_sample_nums = np.zeros(len(sample_nums))
-        total_sample_nums[0] = sample_nums[0]
-        total_sample_nums[1:] = sample_nums[0] + sample_nums[1:]
-        cost = np.dot(total_sample_nums, self._model_costs)
+        cost = np.dot(sample_nums, self._model_costs)
         return cost
 
-    def _solve_opt_problem_ratios(self, target_cost):
+    def _solve_opt_problem(self, target_cost):
         initial_guess = self._model_costs[0] / self._model_costs[1:]
         bounds = [(1, np.inf)] * (self._num_models - 1)
         constraints = self._get_constraints(target_cost)

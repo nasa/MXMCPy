@@ -21,10 +21,10 @@ def test_acvmf_three_models_known_solution(cost_factor,
     model_costs = np.array([3, 2, 1])
     optimizer = Optimizer(model_costs, covariance)
 
-    num_samples_for_opt = np.array([1, 1, 2]) * cost_factor
+    ratios_for_opt = np.array([2, 3])
     mocker.patch.object(ALGORITHM_MAP['acvis'],
                         '_solve_opt_problem',
-                        return_value=num_samples_for_opt)
+                        return_value=ratios_for_opt)
 
     cost_ref = 10. * cost_factor
     var_ref = (63. / 88.) * covariance_factor / cost_factor
@@ -46,10 +46,10 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     model_costs = np.array([3, 1, 2])
     optimizer = Optimizer(model_costs, covariance)
 
-    num_samples_for_opt = np.array([1, 2, 1]) * cost_factor
+    ratios_for_opt = np.array([3, 2])
     mocker.patch.object(ALGORITHM_MAP['acvis'],
                         '_solve_opt_problem',
-                        return_value=num_samples_for_opt)
+                        return_value=ratios_for_opt)
 
     cost_ref = 10. * cost_factor
     var_ref = (63. / 88.) * covariance_factor / cost_factor

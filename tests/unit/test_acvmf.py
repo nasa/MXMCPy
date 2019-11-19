@@ -21,10 +21,10 @@ def test_acvmf_three_models_known_solution(cost_factor,
     model_costs = np.array([3, 2, 1])
     optimizer = Optimizer(model_costs, covariance)
 
-    num_samples_for_opt = np.array([1, 1, 2]) * cost_factor
+    ratios_for_opt = np.array([2, 3])
     mocker.patch.object(ALGORITHM_MAP['acvmf'],
                         '_solve_opt_problem',
-                        return_value=num_samples_for_opt)
+                        return_value=ratios_for_opt)
 
     cost_ref = 10. * cost_factor
     var_ref = 0.7179487179487178 * covariance_factor / cost_factor
@@ -46,10 +46,10 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     model_costs = np.array([3, 1, 2])
     optimizer = Optimizer(model_costs, covariance)
 
-    num_samples_for_opt = np.array([1, 2, 1]) * cost_factor
+    ratios_for_opt = np.array([3, 2])
     mocker.patch.object(ALGORITHM_MAP['acvmf'],
                         '_solve_opt_problem',
-                        return_value=num_samples_for_opt)
+                        return_value=ratios_for_opt)
 
     cost_ref = 10. * cost_factor
     var_ref = 0.7179487179487178 * covariance_factor / cost_factor
@@ -67,7 +67,7 @@ def test_acvmf_optimizer_satisfies_constraints(seed):
     num_models = 3
     rand_matrix = np.random.random((num_models, num_models))
     covariance = np.dot(rand_matrix.T, rand_matrix)
-    model_costs = [5, 4, 3]
+    model_costs = np.array([5, 4, 3])
 
     target_cost = 100
     optimizer = Optimizer(model_costs, covariance)
@@ -76,5 +76,5 @@ def test_acvmf_optimizer_satisfies_constraints(seed):
 
     sample_nums = np.cumsum(opt_result.sample_array[:, 0])
     assert sample_nums[0] >= 1
-    for i, sample in enumerate(sample_nums[1:]):
-        assert sample > sample_nums[i]
+    for sample in sample_nums[1:]:
+        assert sample > sample_nums[0]
