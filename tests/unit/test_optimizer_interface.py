@@ -3,7 +3,7 @@ import pytest
 
 from mxmc.optimizer import Optimizer
 
-ALGORITHMS = ["mfmc", "mlmc"]
+ALGORITHMS = ["mfmc", "mlmc", "acvmf"]
 DUMMY_VAR = 999
 
 
@@ -27,7 +27,6 @@ def ui_optimizer():
 @pytest.mark.parametrize("target_cost", [-1, 0.5, 0])
 def test_target_cost_too_low_to_run_models(ui_optimizer, algorithm,
                                            target_cost):
-
     opt_result = ui_optimizer.optimize(algorithm=algorithm,
                                        target_cost=target_cost)
     assert_opt_result_equal(opt_result, 0, np.inf, np.array([[0, 1, 1, 1]]))
@@ -53,7 +52,7 @@ def test_mismatched_cost_and_variance_raises_error(algorithm):
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
-@pytest.mark.parametrize("asymmetric_input", ["covariance",  "vardiff"])
+@pytest.mark.parametrize("asymmetric_input", ["covariance", "vardiff"])
 def test_input_asymmetry(algorithm, asymmetric_input):
     covariance = np.array([[0, 2], [1, 0]])
     model_costs = np.array([1, 1, 1])
@@ -82,7 +81,7 @@ def test_optimize_results_are_correct_sizes(algorithm, num_models):
 
     if algorithm in ALGORITHMS:
         assert opt_result.sample_array.shape[0] == num_models
-    assert opt_result.sample_array.shape[1] == num_models*2
+    assert opt_result.sample_array.shape[1] == num_models * 2
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
@@ -96,7 +95,7 @@ def test_opt_results_are_correct_sizes_using_model_selection(num_models,
                           vardiff_matrix=vardiff_matrix)
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10,
                                     auto_model_selection=True)
-    assert opt_result.sample_array.shape[1] == num_models*2
+    assert opt_result.sample_array.shape[1] == num_models * 2
 
 
 def test_optimizer_can_initialize_with_extra_inputs():
@@ -105,24 +104,25 @@ def test_optimizer_can_initialize_with_extra_inputs():
     vardiff_matrix = np.ones([2, 2])
     _ = Optimizer(model_costs, covariance, vardiff_matrix, 0, abc=0)
 
+
+
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
 def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
-
     covariance = np.array([[12.]])
     vardiff_matrix = np.array([[12.]])
     model_costs = np.array([2.])
-    target_cost = 8.    
+    target_cost = 8.
 
-    optimizer = Optimizer(model_costs, covariance, 
+    optimizer = Optimizer(model_costs, covariance,
                           vardiff_matrix=vardiff_matrix)
 
-    opt_result = optimizer.optimize(algorithm=algorithm, 
+    opt_result = optimizer.optimize(algorithm=algorithm,
                                     target_cost=target_cost)
-    
-    N_ref = target_cost/model_costs[0]
-    variance_ref = covariance[0]/N_ref
+
+    N_ref = target_cost / model_costs[0]
+    variance_ref = covariance[0] / N_ref
     cost_ref = target_cost
 
     assert np.isclose(variance_ref, opt_result.variance)
     assert np.isclose(cost_ref, opt_result.cost)
-    assert N_ref == opt_result.sample_array[0,0]
+    assert N_ref == opt_result.sample_array[0, 0]

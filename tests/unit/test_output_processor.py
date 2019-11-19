@@ -1,6 +1,8 @@
-import pytest
 import numpy as np
+import pytest
+
 from mxmc.output_processor import OutputProcessor
+
 
 class SampleAllocationStub:
 
@@ -53,8 +55,10 @@ def test_compute_covariance_matrix_with_sample_allocation(output_processor):
     covariance = output_processor.compute_covariance_matrix(model_outputs,
                                                             sample_alloc)
 
-    expected = np.array([[7/12., .5, 1.25], [.5, 1., -.25], [1.25, -.25, 7/6.]])
+    expected = np.array(
+            [[7 / 12., .5, 1.25], [.5, 1., -.25], [1.25, -.25, 7 / 6.]])
     np.testing.assert_array_almost_equal(covariance, expected)
+
 
 def test_compute_covariance_matrix_with_no_overlap(output_processor):
     model_outputs = [np.array([1, 2]), np.array([1.])]
@@ -112,10 +116,10 @@ def test_compute_vd_matrix_with_sample_allocation(output_processor):
                      np.array([1., -0.5, 2., 1.5])]
 
     vardiff = output_processor.compute_vardiff_matrix(model_outputs,
-                                                            sample_alloc)
+                                                      sample_alloc)
 
-    expected = np.array([[7/12., .5625, .5625], [.5625, 1., .5625],
-                         [.5625, .5625, 7/6.]])
+    expected = np.array([[7 / 12., .5625, .5625], [.5625, 1., .5625],
+                         [.5625, .5625, 7 / 6.]])
     np.testing.assert_array_almost_equal(vardiff, expected)
 
 
@@ -134,7 +138,7 @@ def test_compute_vd_matrix_with_sample_allocation(output_processor):
     model_outputs = [np.array([1, 2]), np.array([1., 2., 3.])]
 
     vardiff = output_processor.compute_vardiff_matrix(model_outputs,
-                                                            sample_alloc)
+                                                      sample_alloc)
 
     expected = np.array([[0.5, np.nan], [np.nan, 1.]])
     np.testing.assert_array_almost_equal(vardiff, expected)

@@ -10,10 +10,10 @@ class SampleAllocation:
         if isinstance(compressed_allocation, str):
             allocation_file = h5py.File(compressed_allocation, 'r')
             self.compressed_allocation = np.array(allocation_file[
-                'Compressed_Allocation/compressed_allocation'])
+                                                      'Compressed_Allocation/compressed_allocation'])
             self.num_models = self._calculate_num_models()
             self.expanded_allocation = pd.DataFrame(
-                allocation_file['Expanded_Allocation/expanded_allocation'])
+                    allocation_file['Expanded_Allocation/expanded_allocation'])
             try:
                 self.samples = np.array(allocation_file['Samples/samples'])
             except KeyError:
@@ -54,7 +54,7 @@ class SampleAllocation:
 
     def generate_samples(self, input_generator):
         self.samples = input_generator.generate_samples(
-            self.get_total_number_of_samples())
+                self.get_total_number_of_samples())
 
     def get_samples_for_model(self, model):
         return self.samples.iloc[self.get_sample_indices_for_model(model), :]
@@ -67,7 +67,7 @@ class SampleAllocation:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             k_0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
-                - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
+                     - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
         return k_0
 
     def get_k_matrix(self):
@@ -111,9 +111,9 @@ class SampleAllocation:
             if not self.samples.empty:
                 group_model.create_dataset(name='samples_model_' + str(model),
                                            data=self.get_samples_for_model(
-                                               model))
+                                                   model))
         group_compressed_allocation.create_dataset(
-            name='compressed_allocation', data=self.compressed_allocation)
+                name='compressed_allocation', data=self.compressed_allocation)
         group_expanded_allocation.create_dataset(name='expanded_allocation',
                                                  data=self.expanded_allocation)
         group_samples.create_dataset(name='samples', data=self.samples)
@@ -135,8 +135,8 @@ class SampleAllocation:
             row = self.compressed_allocation[index].copy()
             sample_group_size = row.pop(0)
             expanded_allocation_data_frames.append(
-                pd.DataFrame(columns=self._get_column_names(),
-                             data=[row] * sample_group_size))
+                    pd.DataFrame(columns=self._get_column_names(),
+                                 data=[row] * sample_group_size))
         expanded_dataframe = pd.concat(expanded_allocation_data_frames,
                                        ignore_index=True)
         return expanded_dataframe

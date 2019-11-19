@@ -12,12 +12,14 @@ class OutputProcessor():
     def compute_covariance_matrix(self, model_outputs, sample_allocation=None):
         def offdiag_operator(x, y):
             return np.cov(x, y)[0, 1]
+
         return self._build_matrix(model_outputs, sample_allocation,
                                   offdiag_operator)
 
     def compute_vardiff_matrix(self, model_outputs, sample_allocation=None):
         def offdiag_operator(x, y):
             return np.var(x - y)
+
         return self._build_matrix(model_outputs, sample_allocation,
                                   offdiag_operator)
 
@@ -54,6 +56,7 @@ class OutputProcessor():
 
         def merge_func(x, y):
             return x.merge(y, how='outer')
+
         output_df = reduce(merge_func, sub_dfs).set_index('alloc_indices')
         output_df.sort_index(inplace=True)
         return output_df.T
