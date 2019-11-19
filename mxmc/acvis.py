@@ -26,12 +26,13 @@ class ACVIS(ACVOptimizer):
         allocation[0, 1:] = np.ones(2 * self._num_models - 1, dtype=int)
         allocation[0, 0] = sample_nums[0]
 
-        deltaNs_unused = list(sample_nums[1:])
+        deltaNs = sample_nums[1:] - sample_nums[0]
+        deltaNs_unused = list(deltaNs)
         deltaNs_used = []
 
         for i in range(self._num_models - 1):
             min_ind = deltaNs_unused.index(min(deltaNs_unused))
-            true_ind = np.argwhere(sample_nums[1:] == min(deltaNs_unused))
+            true_ind = np.argwhere(deltaNs == min(deltaNs_unused))
             min_deltaN = deltaNs_unused[min_ind]
             allocation[i + 1, 0] = min_deltaN
             allocation[i + 1, 3 + 2 * true_ind] = 1
