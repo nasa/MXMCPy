@@ -25,11 +25,10 @@ class MLMC(OptimizerBase):
         model_costs array.
     """
 
-    def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
+    def __init__(self, model_costs, covariance=None):
         super().__init__(model_costs, covariance)
         self._validate_inputs(model_costs, covariance)
         self._level_costs = self._get_level_costs(model_costs)
-        self._vardiff_matrix = vardiff_matrix
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
 
