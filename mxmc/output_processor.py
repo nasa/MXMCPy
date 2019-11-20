@@ -10,40 +10,23 @@ class OutputProcessor():
         pass
 
     def compute_covariance_matrix(self, model_outputs, sample_allocation=None):
-        def offdiag_operator(x, y):
-            return np.cov(x, y)[0, 1]
-
-        return self._build_matrix(model_outputs, sample_allocation,
-                                  offdiag_operator)
-
-    def compute_vardiff_matrix(self, model_outputs, sample_allocation=None):
-        def offdiag_operator(x, y):
-            return np.var(x - y)
-
-        return self._build_matrix(model_outputs, sample_allocation,
-                                  offdiag_operator)
-
-    def _build_matrix(self, model_outputs, sample_allocation, operator):
         output_df = self._build_output_dataframe(model_outputs,
                                                  sample_allocation)
-        matrix = self._initialize_matrix_diagonal_with_variances(output_df)
-        matrix = self._compute_offdiagonal_elements(matrix, output_df,
-                                                    operator)
-        return matrix
+        cov_matrix = self._initialize_matrix_diagonal_with_variances(output_df)
+        cov_matrix = self._compute_offdiagonal_elements(cov_matrix, output_df)
+        return cov_matrix
 
     def _build_output_dataframe(self, model_outputs, sample_allocation):
         if sample_allocation is None:
             output_df = pd.DataFrame(model_outputs)
         else:
-            output_df = \
-                self._build_output_df_from_allocation(model_outputs,
-                                                      sample_allocation)
+            output_df = self._build_output_df_from_allocation(model_outputs,
+                                                              sample_allocation)
         return output_df
 
     @staticmethod
     def _initialize_matrix_diagonal_with_variances(output_df):
-        return np.diag([np.var(row, ddof=1)
-                        for _, row in output_df.iterrows()])
+        return np.diag([np.var(row, ddof=1) for _, row in output_df.iterrows()])
 
     @staticmethod
     def _build_output_df_from_allocation(model_outputs, sample_alloc):
@@ -62,7 +45,7 @@ class OutputProcessor():
         return output_df.T
 
     @staticmethod
-    def _compute_offdiagonal_elements(matrix, output_df, operator):
+    def _compute_offdiagonal_elements(matrix, output_df):
         num_models = output_df.shape[0]
         for i in range(num_models - 1):
 
@@ -76,7 +59,7 @@ class OutputProcessor():
                 if len(model_out_i) <= 1:
                     element_matrix = np.nan
                 else:
-                    element_matrix = operator(model_out_i, model_out_j)
+                    element_matrix = np.cov(model_out_i, model_out_j)[0, 1]
 
                 matrix[i, j] = element_matrix
                 matrix[j, i] = element_matrix
