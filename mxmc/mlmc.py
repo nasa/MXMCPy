@@ -1,4 +1,4 @@
-"""
+"""c
 Implementation of an optimizer using the Multi-Level Monte Carlo (MLMC) method
 to find the sample allocation that yields the smallest variance for a target
 cost.
@@ -26,20 +26,19 @@ class MLMC(OptimizerBase):
     """
 
     def __init__(self, model_costs, covariance=None, vardiff_matrix=None):
-
         super().__init__(model_costs, covariance)
-        self._validate_inputs(model_costs, vardiff_matrix)
+        self._validate_inputs(model_costs, covariance)
         self._level_costs = self._get_level_costs(model_costs)
         self._vardiff_matrix = vardiff_matrix
-        sorted_vardiff = self._sort_vardiff_by_cost(vardiff_matrix)
-        self._mlmc_variances = self._get_variances_from_vardiff(sorted_vardiff)
+        #sorted_vardiff = self._sort_vardiff_by_cost(vardiff_matrix)
+        #self._mlmc_variances = self._get_variances_from_vardiff(sorted_vardiff)
+        sorted_cov = self._sort_covariance_by_cost(covariance)
+        self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
 
-    def _validate_inputs(self, model_costs, vardiff_matrix):
-        if vardiff_matrix is None:
-            raise ValueError("Must specify vardiff_matrix")
+    def _validate_inputs(self, model_costs, covariance):
         if model_costs[0] != np.max(model_costs):
             raise ValueError("First model must have highest cost for MLMC")
-        self._validate_variance_matrix(vardiff_matrix)
+        self._validate_covariance_matrix(covariance)
 
     def _get_level_costs(self, model_costs):
 
@@ -55,6 +54,11 @@ class MLMC(OptimizerBase):
         vardiff_matrix = vardiff_matrix[indices]
         return vardiff_matrix
 
+    def _sort_covariance_by_cost(self, cov_matrix):
+        indices = np.ix_(self._cost_sort_indices, self._cost_sort_indices)
+        cov_matrix_sorted = cov_matrix[indices]
+        return cov_matrix_sorted
+
     def _get_variances_from_vardiff(self, vardiff_matrix):
         var = []
         for i in range(0, vardiff_matrix.shape[0] - 1):
@@ -63,6 +67,16 @@ class MLMC(OptimizerBase):
 
         sort_indices = self._cost_sort_indices.argsort()
         return np.array(var)[sort_indices]
+
+    def _get_variances_from_covariance(self, cov_matrix):
+        vars_ = []
+        for i in range(0, cov_matrix.shape[0] - 1):
+            var = cov_matrix[i,i] + cov_matrix[i+1,i+1] - 2*cov_matrix[i,i+1]
+            vars_.append(var)
+        vars_.append(cov_matrix[-1, -1])
+
+        sort_indices = self._cost_sort_indices.argsort()
+        return np.array(vars_)[sort_indices]
 
     def _sort_model_costs(self, model_costs):
 
@@ -145,10 +159,3 @@ class MLMC(OptimizerBase):
         allocation[0, 1] = 1
 
         return allocation
-
-    def subset(self, model_indices):
-        subset_costs = np.copy(self._model_costs[model_indices])
-        subset_vardiff_matrix = \
-            self._get_subset_of_matrix(self._vardiff_matrix, model_indices)
-        return self.__class__(subset_costs,
-                              vardiff_matrix=subset_vardiff_matrix)
