@@ -16,26 +16,25 @@ def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
 @pytest.fixture
 def optimizer_two_model():
     model_costs = np.array([3, 1])
-    vardiff_matrix = np.array([[dummy_var, 1], [1, 4]])
-    return Optimizer(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
+    cov = np.array([[1, 2], [2, 4]])
+    return Optimizer(model_costs=model_costs, covariance=cov)
 
 
 @pytest.fixture
 def optimizer_three_model():
     model_costs = np.array([5, 3, 1])
-    vardiff_matrix = np.array([[dummy_var, 0.5, dummy_var],
-                               [0.5, dummy_var, 1], [dummy_var, 1, 4]])
-    return Optimizer(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
+    cov_matrix = np.array([[1.5, 1, dummy_var], [1, 1, 2], [dummy_var, 2, 4]])
+    return Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
 
 @pytest.fixture
 def optimizer_four_model():
     model_costs = np.array([11, 5, 3, 1])
-    vardiff_matrix = np.array([[dummy_var, 0.25, dummy_var, dummy_var],
-                               [0.25, dummy_var, 0.5, dummy_var],
-                               [dummy_var, 0.5, dummy_var, 1],
-                               [dummy_var, dummy_var, 1, 4]])
-    return Optimizer(model_costs=model_costs, vardiff_matrix=vardiff_matrix)
+    cov_matrix = np.array([[0.75, 1, dummy_var, dummy_var], 
+                           [1, 1.5, 1, dummy_var],
+                           [dummy_var, 1, 1, 2], 
+                           [dummy_var, dummy_var, 2, 4]])
+    return Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
 
 @pytest.mark.parametrize("target_cost, factor", [(8, 1), (16, 2)])
@@ -85,12 +84,9 @@ def test_optimize_works_for_simple_four_model_ex(optimizer_four_model,
 
 def test_three_models_out_of_order():
     target_cost = 24
+    cov_matrix = np.array([[1.5, dummy_var, 1], [dummy_var, 4, 2], [1, 2, 1]])
     model_costs = np.array([5, 1, 3])
-    vardiff_matrix = np.array([[dummy_var, dummy_var, 0.5],
-                               [dummy_var, 4, 1],
-                               [0.5, 1, dummy_var]])
-    optimizer = Optimizer(model_costs=model_costs,
-                          vardiff_matrix=vardiff_matrix)
+    optimizer = Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
     sample_array_expected = np.array([[1, 1, 0, 0, 1, 0],
                                       [2, 0, 1, 0, 0, 1],
@@ -107,13 +103,13 @@ def test_three_models_out_of_order():
 def test_four_models_out_of_order():
     target_cost = 64
     model_costs = np.array([11, 1, 5, 3])
-    vardiff_matrix = np.array([[dummy_var, dummy_var, 0.25, dummy_var],
-                               [dummy_var, 4., dummy_var, 1.],
-                               [0.25, dummy_var, dummy_var, 0.5],
-                               [dummy_var, 1., 0.5, dummy_var]])
+    cov_matrix = np.array([[0.75, dummy_var, 1, dummy_var], 
+                           [dummy_var, 4, dummy_var, 2],
+                           [1, dummy_var, 1.5, 1],
+                           [dummy_var, 2, 1, 1]])
 
-    optimizer = Optimizer(model_costs=model_costs,
-                          vardiff_matrix=vardiff_matrix)
+
+    optimizer = Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
     sample_array_expected = np.array([[1, 1, 0, 0, 1, 0, 0, 0],
                                       [2, 0, 0, 0, 0, 1, 1, 0],
@@ -135,11 +131,11 @@ def test_raises_error_if_first_model_is_not_highest_cost():
     '''
 
     model_costs = np.array([11, 1, 12])
-    vardiff_matrix = np.ones([3, 3])
+    cov_matrix = np.ones([3, 3])
 
     with pytest.raises(ValueError):
         optimizer = Optimizer(model_costs=model_costs,
-                              vardiff_matrix=vardiff_matrix)
+                              covariance=cov_matrix)
         _ = optimizer.optimize(algorithm="mlmc", target_cost=50)
 
 
@@ -157,24 +153,21 @@ def test_optimize_for_noninteger_sample_nums(optimizer_three_model):
                             sample_array_expected)
 
 
-def test_mismatched_cost_and_vardiff_raises_error():
-    covariance = np.array([[1, 0.9], [0.9, 1]])
+def test_mismatched_cost_and_covariance_raises_error():
     model_costs = np.array([1, 2])
-    vardiff_matrix = np.array([[dummy_var, 1, dummy_var],
-                               [1, dummy_var, 1],
-                               [dummy_var, 1, 2]])
+    covariance = np.array([[dummy_var, 1, dummy_var],
+                           [1, dummy_var, 1],
+                           [dummy_var, 1, 2]])
 
     with pytest.raises(ValueError):
-        optimizer = Optimizer(model_costs, covariance, vardiff_matrix)
+        optimizer = Optimizer(model_costs, covariance)
         _ = optimizer.optimize(algorithm="mlmc", target_cost=30)
 
 
 def test_mlmc_with_model_selection():
     model_costs = np.array([3, 2, 1])
-    vardiff_matrix = np.array([[8, 2, 1],
-                               [2, 6, 3],
-                               [1, 3, 4]])
-    optimizer = Optimizer(model_costs, vardiff_matrix=vardiff_matrix)
+    cov_matrix = np.array([[8, 6, 11/2.], [6, 6, 7/2.], [11/2., 7/2., 4.]])
+    optimizer = Optimizer(model_costs, covariance=cov_matrix)
 
     target_cost = 8
 
