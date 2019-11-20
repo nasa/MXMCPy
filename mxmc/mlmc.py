@@ -30,8 +30,6 @@ class MLMC(OptimizerBase):
         self._validate_inputs(model_costs, covariance)
         self._level_costs = self._get_level_costs(model_costs)
         self._vardiff_matrix = vardiff_matrix
-        #sorted_vardiff = self._sort_vardiff_by_cost(vardiff_matrix)
-        #self._mlmc_variances = self._get_variances_from_vardiff(sorted_vardiff)
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
 
@@ -49,24 +47,10 @@ class MLMC(OptimizerBase):
         self._cost_sort_indices = np.flip(sort_indices)  # to unsort later
         return level_costs
 
-    def _sort_vardiff_by_cost(self, vardiff_matrix):
-        indices = np.ix_(self._cost_sort_indices, self._cost_sort_indices)
-        vardiff_matrix = vardiff_matrix[indices]
-        return vardiff_matrix
-
     def _sort_covariance_by_cost(self, cov_matrix):
         indices = np.ix_(self._cost_sort_indices, self._cost_sort_indices)
         cov_matrix_sorted = cov_matrix[indices]
         return cov_matrix_sorted
-
-    def _get_variances_from_vardiff(self, vardiff_matrix):
-        var = []
-        for i in range(0, vardiff_matrix.shape[0] - 1):
-            var.append(vardiff_matrix[i, i + 1])
-        var.append(vardiff_matrix[-1, -1])
-
-        sort_indices = self._cost_sort_indices.argsort()
-        return np.array(var)[sort_indices]
 
     def _get_variances_from_covariance(self, cov_matrix):
         vars_ = []
