@@ -18,9 +18,7 @@ def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
 def ui_optimizer():
     model_costs = np.array([100, 1])
     covariance = np.array([[1, 0.9], [0.9, 1]])
-    vardiff_matrix = np.array([[DUMMY_VAR, 1], [1, 4]])
-    return Optimizer(model_costs, covariance=covariance,
-                     vardiff_matrix=vardiff_matrix)
+    return Optimizer(model_costs, covariance=covariance)
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
@@ -43,27 +41,20 @@ def test_optimizer_returns_tuple_with(ui_optimizer, algorithm):
 def test_mismatched_cost_and_variance_raises_error(algorithm):
     covariance = np.array([[1, 0.9], [0.9, 1]])
     model_costs = np.array([1, 2, 3])
-    vardiff_matrix = np.array([[DUMMY_VAR, 1], [1, 2]])
 
     with pytest.raises(ValueError):
-        optimizer = Optimizer(model_costs, covariance,
-                              vardiff_matrix=vardiff_matrix)
+        optimizer = Optimizer(model_costs, covariance)
         _ = optimizer.optimize(algorithm=algorithm, target_cost=30)
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
-@pytest.mark.parametrize("asymmetric_input", ["covariance", "vardiff"])
-def test_input_asymmetry(algorithm, asymmetric_input):
+def test_input_asymmetry(algorithm):
     covariance = np.array([[0, 2], [1, 0]])
     model_costs = np.array([1, 1, 1])
-    vardiff_matrix = np.array([[DUMMY_VAR, 1], [1, 2]])
-    if asymmetric_input == "covariance":
-        covariance[0, 1] -= 1
-    elif asymmetric_input == "vardiff":
-        vardiff_matrix[0, 1] -= 1
+    covariance[0, 1] -= 1
 
     with pytest.raises(ValueError):
-        optimizer = Optimizer(model_costs, covariance, vardiff_matrix)
+        optimizer = Optimizer(model_costs, covariance)
         _ = optimizer.optimize(algorithm=algorithm, target_cost=30)
 
 
@@ -74,9 +65,8 @@ def test_optimize_results_are_correct_sizes(algorithm, num_models):
     covariance[0] = np.linspace(1.0, 0.6, num_models)
     covariance[:, 0] = np.linspace(1.0, 0.6, num_models)
     model_costs = np.arange(num_models, 0, -1)
-    vardiff_matrix = np.ones([num_models, num_models])
 
-    optimizer = Optimizer(model_costs, covariance, vardiff_matrix)
+    optimizer = Optimizer(model_costs, covariance)
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10)
 
     if algorithm in ["mfmc", "mlmc", "acvis"]:
@@ -92,9 +82,7 @@ def test_opt_results_are_correct_sizes_using_model_selection(num_models,
     covariance[0] = np.linspace(1.0, 0.6, num_models)
     covariance[:, 0] = np.linspace(1.0, 0.6, num_models)
     model_costs = np.arange(num_models, 0, -1)
-    vardiff_matrix = np.ones([num_models, num_models])
-    optimizer = Optimizer(model_costs, covariance,
-                          vardiff_matrix=vardiff_matrix)
+    optimizer = Optimizer(model_costs, covariance)
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10,
                                     auto_model_selection=True)
     assert opt_result.sample_array.shape[1] == num_models * 2
@@ -103,20 +91,17 @@ def test_opt_results_are_correct_sizes_using_model_selection(num_models,
 def test_optimizer_can_initialize_with_extra_inputs():
     covariance = np.array([[1, 0.5], [0.5, 1]])
     model_costs = np.array([4800, 4])
-    vardiff_matrix = np.ones([2, 2])
-    _ = Optimizer(model_costs, covariance, vardiff_matrix, 0, abc=0)
+    _ = Optimizer(model_costs, covariance, 0, abc=0)
 
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
 def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
     covariance = np.array([[12.]])
-    vardiff_matrix = np.array([[12.]])
     model_costs = np.array([2.])
     target_cost = 8.
 
-    optimizer = Optimizer(model_costs, covariance,
-                          vardiff_matrix=vardiff_matrix)
+    optimizer = Optimizer(model_costs, covariance)
 
     opt_result = optimizer.optimize(algorithm=algorithm,
                                     target_cost=target_cost)
