@@ -24,11 +24,11 @@ class ACVOptimizer(OptimizerBase):
         sample_nums = np.floor(sample_nums)
         ratios = self._compute_ratios_from_sample_nums(sample_nums)
 
-        variance, _ = self._compute_variance_and_grad(ratios, target_cost)
+        actual_cost = self._compute_total_cost(sample_nums)
+        variance, _ = self._compute_variance_and_grad(ratios, actual_cost)
         allocation = self._make_allocation(sample_nums)
-        cost = self._compute_total_cost(sample_nums)
 
-        return OptimizationResult(cost, variance, allocation)
+        return OptimizationResult(actual_cost, variance, allocation)
 
     def _get_monte_carlo_opt_result(self, target_cost):
         sample_nums = np.floor(np.array([target_cost / self._model_costs[0]]))
@@ -153,10 +153,7 @@ class ACVOptimizer(OptimizerBase):
         return variance
 
     def _compute_ratios_from_sample_nums(self, sample_nums):
-        ratios = torch.zeros(len(sample_nums) - 1, dtype=torch.double)
-        N = sample_nums[0]
-        for i in range(self._num_models - 1):
-            ratios[i] = sample_nums[i + 1] / N
+        ratios = sample_nums[1:] / sample_nums[0]
         return ratios
 
     def _compute_sample_nums_from_ratios(self, ratios, target_cost):
