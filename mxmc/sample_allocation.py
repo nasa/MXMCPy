@@ -10,7 +10,7 @@ class SampleAllocation:
         if isinstance(compressed_allocation, str):
             allocation_file = h5py.File(compressed_allocation, 'r')
             self.compressed_allocation = np.array(allocation_file[
-                                                      'Compressed_Allocation/compressed_allocation'])
+              'Compressed_Allocation/compressed_allocation'])
             self.num_models = self._calculate_num_models()
             self.expanded_allocation = pd.DataFrame(
                     allocation_file['Expanded_Allocation/expanded_allocation'])
@@ -67,7 +67,7 @@ class SampleAllocation:
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
             k_0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
-                     - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
+                - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
         return k_0
 
     def get_k_matrix(self):

@@ -54,7 +54,7 @@ class MLMC(OptimizerBase):
     def _get_variances_from_covariance(self, cov_matrix):
         vars_ = []
         for i in range(0, cov_matrix.shape[0] - 1):
-            var = cov_matrix[i,i] + cov_matrix[i+1,i+1] - 2*cov_matrix[i,i+1]
+            var = cov_matrix[i, i] + cov_matrix[i+1, i+1] - 2*cov_matrix[i, i+1]
             vars_.append(var)
         vars_.append(cov_matrix[-1, -1])
 

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-class OutputProcessor():
+class OutputProcessor:
 
     def __init__(self):
         pass
@@ -20,13 +20,15 @@ class OutputProcessor():
         if sample_allocation is None:
             output_df = pd.DataFrame(model_outputs)
         else:
-            output_df = self._build_output_df_from_allocation(model_outputs,
-                                                              sample_allocation)
+            output_df = \
+                self._build_output_df_from_allocation(model_outputs,
+                                                      sample_allocation)
         return output_df
 
     @staticmethod
     def _initialize_matrix_diagonal_with_variances(output_df):
-        return np.diag([np.var(row, ddof=1) for _, row in output_df.iterrows()])
+        return np.diag([np.var(row, ddof=1)
+                        for _, row in output_df.iterrows()])
 
     @staticmethod
     def _build_output_df_from_allocation(model_outputs, sample_alloc):

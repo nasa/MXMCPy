@@ -47,8 +47,8 @@ class Estimator:
         var_q0 = self._covariance[0, 0]
 
         variance = var_q0 / n_0 \
-                   + self._alpha.dot(self._cov_delta_delta.dot(self._alpha)) \
-                   + 2 * self._alpha.dot(self._cov_q_delta)
+            + self._alpha.dot(self._cov_delta_delta.dot(self._alpha)) \
+            + 2 * self._alpha.dot(self._cov_q_delta)
 
         return variance
 
