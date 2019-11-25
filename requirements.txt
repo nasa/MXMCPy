@@ -1,3 +1,7 @@
 h5py
 pandas
 numpy
+pytest
+pytest-cov
+torch
+scipy
