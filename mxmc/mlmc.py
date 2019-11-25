@@ -54,14 +54,17 @@ class MLMC(OptimizerBase):
     def _get_variances_from_covariance(self, cov_matrix):
         vars_ = []
         for i in range(0, cov_matrix.shape[0] - 1):
-            var = cov_matrix[i, i] + cov_matrix[i+1, i+1] - 2*cov_matrix[i, i+1]
+            var = cov_matrix[i, i] + \
+                  cov_matrix[i+1, i+1] - \
+                  2 * cov_matrix[i, i+1]
             vars_.append(var)
         vars_.append(cov_matrix[-1, -1])
 
         sort_indices = self._cost_sort_indices.argsort()
         return np.array(vars_)[sort_indices]
 
-    def _sort_model_costs(self, model_costs):
+    @staticmethod
+    def _sort_model_costs(model_costs):
 
         sort_indices = np.argsort(model_costs)
         model_costs_sort = np.flip(model_costs[sort_indices])
@@ -118,14 +121,15 @@ class MLMC(OptimizerBase):
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc
 
-    def _adjust_samples_per_level(self, target_cost, samples_per_level):
-        '''
-        TODO - going to need to make this more complex/robust in order to yield
+    @staticmethod
+    def _adjust_samples_per_level(target_cost, samples_per_level):
+
+        # TODO: need to make this more complex/robust in order to yield
         # samples that come as close as possible to the target cost without
-        going over after rounding to integers. For now, just make sure we
-        are rounding to integers
-        '''
-        sample_ints = [int((samples)) for samples in samples_per_level]
+        # going over after rounding to integers. For now, just make sure we
+        # are rounding to integers
+        #
+        sample_ints = [int(samples) for samples in samples_per_level]
         samples_per_level_ints = np.array(sample_ints)
         return samples_per_level_ints
 

@@ -105,7 +105,8 @@ class ACVOptimizer(OptimizerBase):
         variance = self._compute_acv_estimator_variance(covariance,
                                                         ratios_tensor, N)
         variance.backward()
-        result = (variance.detach().numpy(), ratios_tensor.grad.detach().numpy())
+        result = (variance.detach().numpy(),
+                  ratios_tensor.grad.detach().numpy())
         return result
 
     def _compute_variance_using_penalties(self, ratios, target_cost,
