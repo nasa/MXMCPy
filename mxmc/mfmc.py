@@ -18,7 +18,7 @@ class MFMC(OptimizerBase):
 
     def optimize(self, target_cost):
         if target_cost < self._model_costs[0]:
-            return self.get_invalid_result()
+            return self._get_invalid_result()
 
         if not self._model_indices_are_consistent():
             raise InconsistentModelError("Inconsistent Models")

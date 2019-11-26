@@ -11,7 +11,7 @@ class AutoModelSelection():
 
     def optimize(self, target_cost):
         best_indices = None
-        best_result = self._optimizer.get_invalid_result()
+        best_result = self._optimizer._get_invalid_result()
         num_models = self._optimizer.get_num_models()
 
         sets_of_model_indices = \

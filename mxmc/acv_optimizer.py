@@ -13,9 +13,9 @@ class ACVOptimizer(OptimizerBase):
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
-            return self.get_invalid_result()
+            return self._get_invalid_result()
         if self._num_models == 1:
-            return self._get_monte_carlo_opt_result(target_cost)
+            return self._get_monte_carlo_result(target_cost)
 
         ratios = self._solve_opt_problem(target_cost)
 
@@ -29,13 +29,6 @@ class ACVOptimizer(OptimizerBase):
         allocation = self._make_allocation(sample_nums)
 
         return OptimizationResult(actual_cost, variance, allocation)
-
-    def _get_monte_carlo_opt_result(self, target_cost):
-        sample_nums = np.floor(np.array([target_cost / self._model_costs[0]]))
-        variance = self._covariance[0, 0] / sample_nums[0]
-        cost = self._compute_total_cost(sample_nums)
-        allocation = self._make_allocation(sample_nums)
-        return OptimizationResult(cost, variance, allocation)
 
     def _compute_total_cost(self, sample_nums):
         cost = np.dot(sample_nums, self._model_costs)
@@ -152,7 +145,8 @@ class ACVOptimizer(OptimizerBase):
         variance = covariance[0, 0] / N * (1 - R_squared)
         return variance
 
-    def _compute_ratios_from_sample_nums(self, sample_nums):
+    @staticmethod
+    def _compute_ratios_from_sample_nums(sample_nums):
         ratios = sample_nums[1:] / sample_nums[0]
         return ratios
 
