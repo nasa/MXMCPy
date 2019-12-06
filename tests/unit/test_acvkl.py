@@ -58,3 +58,20 @@ def test_full_kl_enumeration(mocker, num_models, num_combinations):
     _ = optimizer.optimize("acvkl", target_cost)
 
     assert acvkl_enum_module.ACVKL.call_count == num_combinations
+
+
+def test_acv_kl_inner_variance_calc(mocker):
+    covariance = np.array([[1, 0.75, 0.25],
+                           [0.75, 1., 0.5],
+                           [0.25, 0.5, 1.]])
+    model_costs = np.array([3, 2, 1])
+    optimizer = Optimizer(model_costs, covariance, k_models={1}, l_models={1})
+
+    ratios_for_opt = np.array([2, 3])
+    mocker.patch('mxmc.acvkl_enumerator.ACVKL._solve_opt_problem',
+                 return_value=ratios_for_opt)
+
+    dummy_target_cost = 100
+    opt_result = optimizer.optimize("acvkl", dummy_target_cost)
+
+    assert opt_result.variance == 205./288
