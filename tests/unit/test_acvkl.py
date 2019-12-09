@@ -25,8 +25,7 @@ def test_kl_model_evals_in_enumeration(mocker, k_models, l_models,
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.ACVKL')
-    acvkl_enum_module.ACVKL.return_value = mocked_optimizer
+    mocker.patch('mxmc.acvkl_enumerator.ACVKL', return_value=mocked_optimizer)
 
     target_cost = 10
     if expected_evals > 0:
@@ -51,8 +50,7 @@ def test_full_kl_enumeration(mocker, num_models, num_combinations):
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.ACVKL')
-    acvkl_enum_module.ACVKL.return_value = mocked_optimizer
+    mocker.patch('mxmc.acvkl_enumerator.ACVKL', return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("acvkl", target_cost)
