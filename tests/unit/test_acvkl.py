@@ -69,7 +69,7 @@ def test_acv_kl_inner_variance_calc(mocker):
     mocker.patch('mxmc.acvkl_enumerator.ACVKL._solve_opt_problem',
                  return_value=ratios_for_opt)
 
-    dummy_target_cost = 100
+    dummy_target_cost = 10
     opt_result = optimizer.optimize("acvkl", dummy_target_cost)
 
-    assert opt_result.variance == 205./288
+    assert np.isclose(opt_result.variance, 204./288)
