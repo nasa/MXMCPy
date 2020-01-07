@@ -3,5 +3,6 @@ pandas
 numpy
 pytest
 pytest-cov
+pytest-mock
 torch
 scipy
