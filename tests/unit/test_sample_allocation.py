@@ -186,7 +186,7 @@ def test_h5_file_exists(sample_allocation):
 
 
 def test_h5_keys_exist(sample_allocation):
-    file = h5py.File('test_save.hdf5')
+    file = h5py.File('test_save.hdf5', 'r')
     data = list(file.keys())
     file.close()
     assert data == ['Compressed_Allocation',
@@ -199,7 +199,7 @@ def test_h5_keys_exist(sample_allocation):
 
 
 def test_h5_data_with_no_samples(sample_allocation):
-    file = h5py.File('test_save.hdf5')
+    file = h5py.File('test_save.hdf5', 'r')
     data = list(file['Compressed_Allocation']['compressed_allocation'])
     file.close()
     assert np.array_equal(data,
@@ -208,7 +208,7 @@ def test_h5_data_with_no_samples(sample_allocation):
 
 def test_h5_method_attribute(sample_allocation):
     sample_allocation.save('test_save.hdf5')
-    file = h5py.File('test_save.hdf5')
+    file = h5py.File('test_save.hdf5', 'r')
     method = file.attrs['Method']
     file.close()
     assert method == 'MFMC'
@@ -225,7 +225,7 @@ def test_h5_data_with_samples(input_generator_with_array,
                               input_dataframe):
     sample_allocation.generate_samples(input_generator_with_array)
     sample_allocation.save('test_save.hdf5')
-    file = h5py.File('test_save.hdf5')
+    file = h5py.File('test_save.hdf5', 'r')
     data = list(file['Samples_Model_0']['samples_model_0'])
     file.close()
     assert np.array_equal(data,
