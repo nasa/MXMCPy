@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pytest
 
@@ -13,4 +15,7 @@ def compressed_allocation():
 
 @pytest.fixture
 def sample_allocation(compressed_allocation):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     return SampleAllocation(compressed_allocation, 'MFMC')

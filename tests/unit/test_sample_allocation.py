@@ -1,4 +1,5 @@
 import os.path
+import warnings
 
 import h5py
 import numpy as np
@@ -215,6 +216,9 @@ def test_h5_method_attribute(sample_allocation):
 
 
 def test_sample_initialization_from_file_with_no_samples(input_array):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.samples,
                           pd.DataFrame())
@@ -233,23 +237,35 @@ def test_h5_data_with_samples(input_generator_with_array,
 
 
 def test_compressed_allocation_initialization_from_file(compressed_allocation):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.compressed_allocation,
                           compressed_allocation)
 
 
 def test_expanded_allocation_initialization_from_file(expanded_allocation):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.expanded_allocation,
                           expanded_allocation)
 
 
 def test_sample_initialization_from_file(input_array):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert np.array_equal(sample_allocation.samples,
                           input_array)
 
 
 def test_method_flag_initialization_from_file(input_array):
+    warnings.filterwarnings("ignore",
+                            message="Allocation Warning",
+                            category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert sample_allocation.method == 'MFMC'
