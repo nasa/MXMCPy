@@ -180,6 +180,6 @@ class SampleAllocation:
                 num_evals = self.expanded_allocation.iloc[:, i_1].sum()
                 if num_evals > 0:
                     warnings.warn("Allocation Warning: Model %d is " % (i + 1)
-                                  + "evaluated %d times but does" % num_evals
+                                  + "evaluated %d times but does " % num_evals
                                   + "not contribute to reduction in variance.")
         return utilized_models
