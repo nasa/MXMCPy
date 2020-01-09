@@ -100,7 +100,11 @@ class MLMC(OptimizerBase):
 
         samples_per_level = self._get_num_samples_per_level(target_cost)
         actual_cost = np.dot(samples_per_level, self._level_costs)
-        estimator_variance = np.sum(self._mlmc_variances / samples_per_level)
+
+        nonzero_sample_nums = np.where(samples_per_level != 0)
+        estimator_variance = np.sum(self._mlmc_variances[nonzero_sample_nums] /
+                                    samples_per_level[nonzero_sample_nums])
+
         allocation = self._get_allocation_array(samples_per_level)
         return OptimizationResult(actual_cost, estimator_variance, allocation)
 
