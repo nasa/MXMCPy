@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from mxmc.output_processor import OutputProcessor
 
@@ -13,46 +12,41 @@ class SampleAllocationStub:
         return self.model_indices[model]
 
 
-@pytest.fixture
-def output_processor():
-    return OutputProcessor()
-
-
-def test_compute_cov_matrix_return_empty_array_if_no_outputs(output_processor):
-    covariance = output_processor.compute_covariance_matrix([])
+def test_compute_cov_matrix_return_empty_array_if_no_outputs():
+    covariance = OutputProcessor.compute_covariance_matrix([])
     assert covariance.size == 0
 
 
-def test_compute_covariance_matrix_one_number_is_nan_array(output_processor):
-    covariance = output_processor.compute_covariance_matrix([np.array(1)])
+def test_compute_covariance_matrix_one_number_is_nan_array():
+    covariance = OutputProcessor.compute_covariance_matrix([np.array(1)])
     assert np.isnan(covariance)
 
 
-def test_compute_covariance_matrix_two_samples(output_processor):
+def test_compute_covariance_matrix_two_samples():
     model_outputs = [np.array([1, 2])]
-    covariance = output_processor.compute_covariance_matrix(model_outputs)
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs)
     assert covariance == np.array([0.5])
 
 
-def test_compute_covariance_matrix_two_model_zero_variance(output_processor):
+def test_compute_covariance_matrix_two_model_zero_variance():
     model_outputs = [np.array([1, 1]), np.array([1, 1])]
-    covariance = output_processor.compute_covariance_matrix(model_outputs)
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs)
     np.testing.assert_array_equal(covariance, np.zeros((2, 2)))
 
 
-def test_compute_covariance_matrix_two_model_different_sizes(output_processor):
+def test_compute_covariance_matrix_two_model_different_sizes():
     model_outputs = [np.array([1, 1]), np.array([1, 1, 1]), np.array([1, 1])]
-    covariance = output_processor.compute_covariance_matrix(model_outputs)
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs)
     np.testing.assert_array_equal(covariance, np.zeros((3, 3)))
 
 
-def test_compute_covariance_matrix_with_sample_allocation(output_processor):
+def test_compute_covariance_matrix_with_sample_allocation_1():
     model_indices = {0: [1, 2, 4], 1: [2, 3, 4], 2: [0, 1, 2, 3]}
     sample_alloc = SampleAllocationStub(model_indices)
     model_outputs = [np.array([1, 2, 2.5]), np.array([1., 2., 3.]),
                      np.array([1., -0.5, 2., 1.5])]
 
-    covariance = output_processor.compute_covariance_matrix(model_outputs,
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs,
                                                             sample_alloc)
 
     expected = np.array(
@@ -60,22 +54,22 @@ def test_compute_covariance_matrix_with_sample_allocation(output_processor):
     np.testing.assert_array_almost_equal(covariance, expected)
 
 
-def test_compute_covariance_matrix_with_no_overlap(output_processor):
-    model_outputs = [np.array([1, 2]), np.array([1.])]
-
-    covariance = output_processor.compute_covariance_matrix(model_outputs)
-
-    expected = np.array([[0.5, np.nan], [np.nan] * 2])
-    np.testing.assert_array_almost_equal(covariance, expected)
-
-
-def test_compute_covariance_matrix_with_sample_allocation(output_processor):
+def test_compute_covariance_matrix_with_sample_allocation_2():
     model_indices = {0: [0, 1], 1: [2, 3, 4]}
     sample_alloc = SampleAllocationStub(model_indices)
     model_outputs = [np.array([1, 2]), np.array([1., 2., 3.])]
 
-    covariance = output_processor.compute_covariance_matrix(model_outputs,
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs,
                                                             sample_alloc)
 
     expected = np.array([[0.5, np.nan], [np.nan, 1.]])
+    np.testing.assert_array_almost_equal(covariance, expected)
+
+
+def test_compute_covariance_matrix_with_no_overlap():
+    model_outputs = [np.array([1, 2]), np.array([1.])]
+
+    covariance = OutputProcessor.compute_covariance_matrix(model_outputs)
+
+    expected = np.array([[0.5, np.nan], [np.nan] * 2])
     np.testing.assert_array_almost_equal(covariance, expected)
