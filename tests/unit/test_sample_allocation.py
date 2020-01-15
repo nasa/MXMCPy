@@ -42,7 +42,8 @@ def test_error_raised_if_no_method_specified(compressed_allocation):
 
 
 def test_compressed_allocation(sample_allocation, compressed_allocation):
-    assert sample_allocation.compressed_allocation == compressed_allocation.tolist()
+    assert np.array_equal(sample_allocation.compressed_allocation,
+                          compressed_allocation)
 
 
 def test_num_models(sample_allocation):
@@ -86,7 +87,7 @@ def test_get_sample_indices_for_model_2(sample_allocation):
 
 
 def test_get_total_number_of_samples(sample_allocation):
-    assert sample_allocation.get_total_number_of_samples() == 16
+    assert sample_allocation.num_total_samples == 16
 
 
 @pytest.fixture
