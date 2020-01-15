@@ -22,7 +22,7 @@ class OptimizerBase(metaclass=ABCMeta):
 
     def _validate_covariance_matrix(self, matrix):
         if len(matrix) != self._num_models:
-            error_msg = "Coariance matrix and model cost dimensions must match"
+            error_msg = "Covariance matrix and model cost dimensions must match"
             raise ValueError(error_msg)
         if not np.allclose(matrix.transpose(), matrix):
             error_msg = "Covariance matrix array must be symmetric"
