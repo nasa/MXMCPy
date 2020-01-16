@@ -27,15 +27,15 @@ class MLMC(OptimizerBase):
 
     def __init__(self, model_costs, covariance=None):
         super().__init__(model_costs, covariance)
-        self._validate_inputs(model_costs, covariance)
+        self._validate_inputs(model_costs)
         self._level_costs = self._get_level_costs(model_costs)
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
 
-    def _validate_inputs(self, model_costs, covariance):
+    @staticmethod
+    def _validate_inputs(model_costs):
         if model_costs[0] != np.max(model_costs):
             raise ValueError("First model must have highest cost for MLMC")
-        self._validate_covariance_matrix(covariance)
 
     def _get_level_costs(self, model_costs):
 
@@ -133,8 +133,7 @@ class MLMC(OptimizerBase):
         # going over after rounding to integers. For now, just make sure we
         # are rounding to integers
         #
-        sample_ints = [int(samples) for samples in samples_per_level]
-        samples_per_level_ints = np.array(sample_ints)
+        samples_per_level_ints = np.array(samples_per_level, dtype=int)
         return samples_per_level_ints
 
     def _get_allocation_array(self, num_samples_per_level):
