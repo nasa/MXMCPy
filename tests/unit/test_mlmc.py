@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.optimizer import Optimizer
+from mxmc.mlmc import MLMC
 
 dummy_var = 999
 
@@ -30,9 +31,9 @@ def optimizer_three_model():
 @pytest.fixture
 def optimizer_four_model():
     model_costs = np.array([11, 5, 3, 1])
-    cov_matrix = np.array([[0.75, 1, dummy_var, dummy_var], 
+    cov_matrix = np.array([[0.75, 1, dummy_var, dummy_var],
                            [1, 1.5, 1, dummy_var],
-                           [dummy_var, 1, 1, 2], 
+                           [dummy_var, 1, 1, 2],
                            [dummy_var, dummy_var, 2, 4]])
     return Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
@@ -103,11 +104,10 @@ def test_three_models_out_of_order():
 def test_four_models_out_of_order():
     target_cost = 64
     model_costs = np.array([11, 1, 5, 3])
-    cov_matrix = np.array([[0.75, dummy_var, 1, dummy_var], 
+    cov_matrix = np.array([[0.75, dummy_var, 1, dummy_var],
                            [dummy_var, 4, dummy_var, 2],
                            [1, dummy_var, 1.5, 1],
                            [dummy_var, 2, 1, 1]])
-
 
     optimizer = Optimizer(model_costs=model_costs, covariance=cov_matrix)
 
@@ -171,12 +171,38 @@ def test_mlmc_with_model_selection():
 
     target_cost = 8
 
-    sample_array_expected = np.array([[1, 1, 0, 0, 1, 0],
-                                      [4, 0, 0, 0, 0, 1]])
+    sample_array_expected = np.array([[0, 1, 1, 0, 0, 0],
+                                      [3, 0, 0, 1, 0, 0]])
     variance_expected = 2
-    cost_expected = target_cost
+    cost_expected = 6
 
     opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
                                     auto_model_selection=True)
     assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                             sample_array_expected)
+
+
+@pytest.mark.parametrize('num_levels', list(range(2, 5)))
+@pytest.mark.parametrize('random_seed', list(range(3)))
+def test_adjust_samples_per_level(num_levels, random_seed):
+
+    np.random.seed(random_seed)
+    level_costs = np.arange(num_levels, 0, -1)
+    cov_matrix = np.identity(num_levels)
+
+    mlmc = MLMC(level_costs, cov_matrix)
+    mlmc._level_costs = level_costs
+
+    samples = np.sort(np.random.rand(num_levels)*10)
+    int_samples = samples.astype(np.int)
+    max_samples = int_samples + 1
+
+    min_cost = np.dot(int_samples, level_costs)
+    max_cost = np.dot(max_samples, level_costs)
+
+    for target_cost in np.linspace(min_cost, max_cost, 10):
+
+        result = mlmc._adjust_samples_per_level(target_cost, samples)
+        cost_result = np.dot(result, level_costs)
+
+        assert min_cost <= cost_result <= max_cost

@@ -113,6 +113,7 @@ class MLMC(OptimizerBase):
         mu_mlmc = self._calculate_mlmc_mu(target_cost)
         var_to_cost_ratios = self._mlmc_variances / self._level_costs
         samples_per_level = mu_mlmc * np.sqrt(var_to_cost_ratios)
+
         samples_per_level_ints = \
             self._adjust_samples_per_level(target_cost, samples_per_level)
         return samples_per_level_ints
@@ -125,16 +126,26 @@ class MLMC(OptimizerBase):
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc
 
-    @staticmethod
-    def _adjust_samples_per_level(target_cost, samples_per_level):
+    def _adjust_samples_per_level(self, target_cost, base_samples_per_level):
 
-        # TODO: need to make this more complex/robust in order to yield
-        # samples that come as close as possible to the target cost without
-        # going over after rounding to integers. For now, just make sure we
-        # are rounding to integers
-        #
-        samples_per_level_ints = np.array(samples_per_level, dtype=int)
-        return samples_per_level_ints
+        samples_per_level = np.array(base_samples_per_level, dtype=int)
+        remaining_cost = target_cost - \
+            np.dot(samples_per_level, self._level_costs)
+
+        sample_size_remainders = base_samples_per_level - samples_per_level
+        sample_priority_indices = np.flip(np.argsort(sample_size_remainders))
+
+        for sample_index in sample_priority_indices:
+
+            level_cost = self._level_costs[sample_index]
+            remainder = sample_size_remainders[sample_index]
+
+            if level_cost <= remaining_cost and remainder > 0.:
+
+                samples_per_level[sample_index] += 1
+                remaining_cost -= self._level_costs[sample_index]
+
+        return samples_per_level
 
     def _get_allocation_array(self, num_samples_per_level):
 
