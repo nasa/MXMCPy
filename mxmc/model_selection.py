@@ -5,7 +5,7 @@ import numpy as np
 from .optimizer_base import OptimizationResult, InconsistentModelError
 
 
-class AutoModelSelection():
+class AutoModelSelection:
     def __init__(self, optimizer):
         self._optimizer = optimizer
 

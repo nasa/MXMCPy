@@ -7,7 +7,7 @@ from .model_selection import AutoModelSelection
 ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmf": ACVMF, "acvis": ACVIS}
 
 
-class Optimizer():
+class Optimizer:
 
     def __init__(self, *args, **kwargs):
         self._args = args
