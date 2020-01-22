@@ -14,37 +14,54 @@ class AutoModelSelection:
         best_result = self._optimizer.get_invalid_result()
         num_models = self._optimizer.get_num_models()
 
-        sets_of_model_indices = \
-            self._get_subsets_including_zero(range(num_models))
-        for indices in sets_of_model_indices:
-            candidate_optimizer = self._optimizer.subset(indices)
-            try:
-                opt_result = candidate_optimizer.optimize(target_cost)
-            except InconsistentModelError:
-                continue
-
-            if opt_result.variance < best_result.variance:
-                best_result = opt_result
-                best_indices = indices
+        for indices in self._get_subsets_of_model_indices(num_models):
+            best_result, best_indices = \
+                self._test_candidate_optimizer(target_cost, indices,
+                                               best_result, best_indices)
 
         if best_indices is None:
             return best_result
 
-        sample_array = np.zeros((len(best_result.sample_array),
-                                 num_models * 2))
-        for i, index in enumerate(best_indices):
-            sample_array[:, index * 2: index * 2 + 2] = \
-                best_result.sample_array[:, i * 2: i * 2 + 2]
+        sample_array = \
+            self._gen_sample_array(best_result, best_indices, num_models)
 
         estimator_variance = best_result.variance
         actual_cost = best_result.cost
+
         return OptimizationResult(actual_cost, estimator_variance,
                                   sample_array)
 
+    def _test_candidate_optimizer(self, target_cost, indices,
+                                  best_result, best_indices):
+
+        candidate_optimizer = self._optimizer.subset(indices)
+        try:
+            opt_result = candidate_optimizer.optimize(target_cost)
+        except InconsistentModelError:
+            return best_result, best_indices
+
+        if opt_result.variance < best_result.variance:
+            return opt_result, indices
+
+        return best_result, best_indices
+
     @staticmethod
-    def _get_subsets_including_zero(master_set):
-        index_list = [i for i in range(len(master_set)) if master_set[i] != 0]
-        for i in range(len(index_list), 0, -1):
-            for j in combinations(index_list, i):
-                yield [0] + [master_set[k] for k in j]
+    def _gen_sample_array(result, indices, num_models):
+
+        sample_array = np.zeros((len(result.sample_array), num_models * 2))
+        for i, index in enumerate(indices):
+
+            sample_array[:, index * 2: index * 2 + 2] = \
+                result.sample_array[:, i * 2: i * 2 + 2]
+
+        return sample_array
+
+    @staticmethod
+    def _get_subsets_of_model_indices(num_models):
+
+        index_list = list(range(1, num_models))
+        for subset_length in reversed(index_list):
+            for subset in combinations(index_list, subset_length):
+                yield [0] + list(subset)
+
         yield [0]
