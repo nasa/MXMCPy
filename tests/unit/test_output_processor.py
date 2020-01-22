@@ -47,7 +47,7 @@ def test_compute_covariance_matrix_with_sample_allocation_1():
                      np.array([1., -0.5, 2., 1.5])]
 
     covariance = OutputProcessor.compute_covariance_matrix(model_outputs,
-                                                            sample_alloc)
+                                                           sample_alloc)
 
     expected = np.array(
             [[7 / 12., .5, 1.25], [.5, 1., -.25], [1.25, -.25, 7 / 6.]])
@@ -60,7 +60,7 @@ def test_compute_covariance_matrix_with_sample_allocation_2():
     model_outputs = [np.array([1, 2]), np.array([1., 2., 3.])]
 
     covariance = OutputProcessor.compute_covariance_matrix(model_outputs,
-                                                            sample_alloc)
+                                                           sample_alloc)
 
     expected = np.array([[0.5, np.nan], [np.nan, 1.]])
     np.testing.assert_array_almost_equal(covariance, expected)

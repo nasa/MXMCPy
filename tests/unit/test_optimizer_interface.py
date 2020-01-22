@@ -94,7 +94,6 @@ def test_optimizer_can_initialize_with_extra_inputs():
     _ = Optimizer(model_costs, covariance, 0, abc=0)
 
 
-
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
 def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
     covariance = np.array([[12.]])

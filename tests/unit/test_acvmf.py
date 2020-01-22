@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from mxmc.optimizer import *
+from mxmc.optimizer import Optimizer, ALGORITHM_MAP
 
 
 def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):

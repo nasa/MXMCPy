@@ -1,5 +1,4 @@
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 from mxmc.acvmf import ACVMF
@@ -58,9 +57,10 @@ def plot_3d_acvmf_vars():
             k = remaining_cost/MODELCOSTS[2]
             sample_nums[2] = k
             try:
-                var, _ = optimizer._compute_objective_function(sample_nums, TARGET_COST)
+                var, _ = optimizer._compute_objective_function(sample_nums,
+                                                               TARGET_COST)
                 output.append(sample_nums + [var])
-            except:
+            except Exception:
                 pass
     output = np.array(output)
 
@@ -109,7 +109,7 @@ def plot_2d_acvmf_vars(recent_opt_path):
 
                 if var < 0.0025:
                     output.append([r1, r2, var])
-            except:
+            except Exception:
                 pass
     output = np.array(output)
 
@@ -127,13 +127,28 @@ def plot_2d_acvmf_vars(recent_opt_path):
     # ax.plot(opt_path[:, 0], opt_path[:, 1], 'm.-')
     # ax.plot(opt_path[-1, 0], opt_path[-1, 1], 'rx')
     #
-    ax.plot(recent_opt_path[:, 0], recent_opt_path[:, 1], 'b.-', zs=recent_opt_path[:, 2])
-    ax.plot(recent_opt_path[-2:, 0], recent_opt_path[-2:, 1], 'kx', zs=recent_opt_path[-2:, 2])
+    ax.plot(recent_opt_path[:, 0],
+            recent_opt_path[:, 1],
+            'b.-',
+            zs=recent_opt_path[:, 2])
+
+    ax.plot(recent_opt_path[-2:, 0],
+            recent_opt_path[-2:, 1],
+            'kx',
+            zs=recent_opt_path[-2:, 2])
 
     ax.set_xlabel("r1")
     ax.set_ylabel("r2")
     plt.colorbar(sc)
     plt.show()
+
+
+def get_opt_path():
+    raise NotImplementedError
+
+
+def get_opt_path_2():
+    raise NotImplementedError
 
 
 if __name__ == "__main__":
@@ -142,7 +157,6 @@ if __name__ == "__main__":
     MODELCOSTS = monomial_model_costs(EXPONENTS)
     TARGET_COST = 100
     var = get_variances_of_all_algos()
-    #assert(abs(var['acvmf'] - 4.61206448e-05) < 1e-12)
+    # assert(abs(var['acvmf'] - 4.61206448e-05) < 1e-12)
     # plot_2d_acvmf_vars(opt_path)
     print(var)
-
