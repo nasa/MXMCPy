@@ -138,8 +138,8 @@ class ACVOptimizer(OptimizerBase):
         big_C = covariance[1:, 1:]
         c_bar = covariance[0, 1:] / torch.sqrt(covariance[0, 0])
 
-        F = self._compute_acv_F_matrix(ratios)
-        a = (torch.diag(F) * c_bar).reshape((-1, 1))
+        F, F0 = self._compute_acv_F_and_F0(ratios)
+        a = (F0 * c_bar).reshape((-1, 1))
         alpha, _ = torch.solve(a, big_C * F)
         R_squared = torch.dot(a.flatten(), alpha.flatten())
         variance = covariance[0, 0] / N * (1 - R_squared)
@@ -156,7 +156,7 @@ class ACVOptimizer(OptimizerBase):
         return sample_nums
 
     @abstractmethod
-    def _compute_acv_F_matrix(self, ratios):
+    def _compute_acv_F_and_F0(self, ratios):
         raise NotImplementedError
 
     @abstractmethod

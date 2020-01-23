@@ -11,9 +11,10 @@ class ACVKL(ACVOptimizer):
         self._k_models = kwargs['k']
         self._l_model = kwargs['l']
 
-    def _compute_acv_F_matrix(self, ratios):
+    def _compute_acv_F_and_F0(self, ratios):
         F = torch.zeros((self._num_models - 1, self._num_models - 1),
                         dtype=TORCHDTYPE)
+        F0 = torch.zeros(self._num_models - 1, dtype=TORCHDTYPE)
 
         rL = None if self._l_model is None else ratios[self._l_model-1]
 
@@ -32,11 +33,35 @@ class ACVKL(ACVOptimizer):
                 elif model_j in self._k_models:
                     F[i, j] = 1/rL - torch.min(rj, rL)/(rj * rL) - 1/ri
                 else:
-                    F[i, j] = 1/rL - 1/rj - 1/ri
-
+                    F[i, j] = 1/rL - torch.min(rj, rL)/(rj * rL) \
+                              - torch.min(ri, rL)/(ri * rL)
                 F[i, j] += torch.min(ri, rj)/(ri * rj)
 
-        return F
+            if model_i in self._k_models:
+                F0[i] = 1 - 1/ri
+            else:
+                F0[i] = 1/rL - 1/ri
+
+        return F, F0
 
     def _make_allocation(self, sample_nums):
-        return np.zeros([1, self._num_models * 2])
+        ordered_sample_nums = np.unique(sample_nums)
+
+        allocation = np.zeros([len(ordered_sample_nums), self._num_models * 2],
+                              dtype=int)
+        for i, samp in enumerate(sample_nums):
+            allocation[samp >= ordered_sample_nums, i * 2 + 1] = 1
+
+        for i in range(1, self._num_models):
+            if i in self._k_models:
+                reference_model = 0
+            else:
+                reference_model = self._l_model
+
+            allocation[sample_nums[reference_model] >= ordered_sample_nums,
+                       i * 2] = 1
+
+        allocation[0, 0] = ordered_sample_nums[0]
+        allocation[1:, 0] = ordered_sample_nums[1:] - ordered_sample_nums[:-1]
+
+        return allocation
