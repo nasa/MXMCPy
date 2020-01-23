@@ -36,7 +36,7 @@ class ACVOptimizer(OptimizerBase):
 
     def _solve_opt_problem(self, target_cost):
         initial_guess = self._model_costs[0] / self._model_costs[1:]
-        bounds = [(1 + 1e-14, np.inf)] * (self._num_models - 1)
+        bounds = [(1 + 1e-12, np.inf)] * (self._num_models - 1)
         constraints = self._get_constraints(target_cost)
 
         slsqp_ratios = self._perform_slsqp_optim(initial_guess, bounds,

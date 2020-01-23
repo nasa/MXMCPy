@@ -41,7 +41,6 @@ class ACVKLEnumerator(OptimizerBase):
             if best_result is None \
                     or sub_opt_result.variance < best_result.variance:
                 best_result = sub_opt_result
-            print(k, l, sub_opt_result.variance)
 
         if best_result is None:
             error_msg = "Specified acvkl parameters lead to no valid " + \
