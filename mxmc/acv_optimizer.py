@@ -36,7 +36,7 @@ class ACVOptimizer(OptimizerBase):
 
     def _solve_opt_problem(self, target_cost):
         initial_guess = self._model_costs[0] / self._model_costs[1:]
-        bounds = [(1, np.inf)] * (self._num_models - 1)
+        bounds = [(1 + 1e-14, np.inf)] * (self._num_models - 1)
         constraints = self._get_constraints(target_cost)
 
         slsqp_ratios = self._perform_slsqp_optim(initial_guess, bounds,
@@ -134,12 +134,12 @@ class ACVOptimizer(OptimizerBase):
         return penalty
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
-
         big_C = covariance[1:, 1:]
         c_bar = covariance[0, 1:] / torch.sqrt(covariance[0, 0])
 
         F, F0 = self._compute_acv_F_and_F0(ratios)
         a = (F0 * c_bar).reshape((-1, 1))
+
         alpha, _ = torch.solve(a, big_C * F)
         R_squared = torch.dot(a.flatten(), alpha.flatten())
         variance = covariance[0, 0] / N * (1 - R_squared)

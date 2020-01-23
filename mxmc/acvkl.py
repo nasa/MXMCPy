@@ -65,3 +65,28 @@ class ACVKL(ACVOptimizer):
         allocation[1:, 0] = ordered_sample_nums[1:] - ordered_sample_nums[:-1]
 
         return allocation
+
+    def _get_constraints(self, target_cost):
+        def n_constraint(ratios):
+            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
+            return N - 1
+
+        def constraint_func(ratios, ind):
+            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
+            return N * (ratios[ind] - 1) - 1
+
+        def rl_constraint(ratios, ind):
+            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
+            return N * abs(ratios[ind] - ratios[self._l_model-1]) - 1
+
+        constraints = [{"type": "ineq", "fun": n_constraint, "args": tuple()}]
+        for ind in range(self._num_models - 1):
+            constraints.append({"type": "ineq",
+                                "fun": constraint_func,
+                                "args": (ind, )})
+            if ind + 1 not in self._k_models:
+                constraints.append({"type": "ineq",
+                                    "fun": rl_constraint,
+                                    "args": (ind, )})
+
+        return constraints
