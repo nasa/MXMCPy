@@ -47,7 +47,16 @@ class OptimizerBase(metaclass=ABCMeta):
     def get_num_models(self):
         return self._num_models
 
-    def get_invalid_result(self):
+    def _get_invalid_result(self):
         allocation = np.ones((1, 2 * self._num_models))
         allocation[0, 0] = 0
         return OptimizationResult(0, np.inf, allocation)
+
+    def _get_monte_carlo_result(self, target_cost):
+        sample_nums = np.floor(np.array([target_cost / self._model_costs[0]]))
+        variance = self._covariance[0, 0] / sample_nums[0]
+        cost = self._model_costs * sample_nums[0]
+        allocation = np.zeros((1, 2 * self._num_models), dtype=int)
+        allocation[0, 0] = sample_nums[0]
+        allocation[0, 1] = 1
+        return OptimizationResult(cost, variance, allocation)

@@ -89,7 +89,7 @@ class MLMC(OptimizerBase):
     def optimize(self, target_cost):
 
         if self._target_cost_is_too_small(target_cost):
-            return self.get_invalid_result()
+            return self._get_invalid_result()
 
         return self._compute_optimization_result(target_cost)
 

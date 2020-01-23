@@ -6,7 +6,7 @@ from .acv_optimizer import ACVOptimizer, TORCHDTYPE
 
 class ACVIS(ACVOptimizer):
 
-    def _compute_acv_F_matrix(self, ratios):
+    def _compute_acv_F_and_F0(self, ratios):
 
         F = torch.zeros((self._num_models - 1, self._num_models - 1),
                         dtype=TORCHDTYPE)
@@ -17,7 +17,9 @@ class ACVIS(ACVOptimizer):
                 F[i, j] = ((ratios[i] - 1) / ratios[i]) * (
                             (ratios[j] - 1) / ratios[j])
                 F[j, i] = F[i, j]
-        return F
+
+        F0 = torch.diag(F)
+        return F, F0
 
     def _make_allocation(self, sample_nums):
 

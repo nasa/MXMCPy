@@ -5,7 +5,7 @@ from mxmc.estimator import Estimator
 from mxmc.optimizer import Optimizer
 from mxmc.sample_allocation import SampleAllocation
 
-ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis"]
+ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis", "acvkl"]
 
 
 def monomial_model_covariance(powers):

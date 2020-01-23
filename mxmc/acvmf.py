@@ -6,7 +6,7 @@ from .acv_optimizer import ACVOptimizer, TORCHDTYPE
 
 class ACVMF(ACVOptimizer):
 
-    def _compute_acv_F_matrix(self, ratios):
+    def _compute_acv_F_and_F0(self, ratios):
 
         F = torch.zeros((self._num_models - 1, self._num_models - 1),
                         dtype=TORCHDTYPE)
@@ -17,7 +17,9 @@ class ACVMF(ACVOptimizer):
                 min_ratio = torch.min(ratios[[i, j]])
                 F[i, j] = (min_ratio - 1) / min_ratio
                 F[j, i] = F[i, j]
-        return F
+
+        F0 = torch.diag(F)
+        return F, F0
 
     def _make_allocation(self, sample_nums):
         unique_nums = list(set(sample_nums[1:]))

@@ -13,9 +13,9 @@ class ACVOptimizer(OptimizerBase):
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
-            return self.get_invalid_result()
+            return self._get_invalid_result()
         if self._num_models == 1:
-            return self._get_monte_carlo_opt_result(target_cost)
+            return self._get_monte_carlo_result(target_cost)
 
         ratios = self._solve_opt_problem(target_cost)
 
@@ -30,20 +30,13 @@ class ACVOptimizer(OptimizerBase):
 
         return OptimizationResult(actual_cost, variance, allocation)
 
-    def _get_monte_carlo_opt_result(self, target_cost):
-        sample_nums = np.floor(np.array([target_cost / self._model_costs[0]]))
-        variance = self._covariance[0, 0] / sample_nums[0]
-        cost = self._compute_total_cost(sample_nums)
-        allocation = self._make_allocation(sample_nums)
-        return OptimizationResult(cost, variance, allocation)
-
     def _compute_total_cost(self, sample_nums):
         cost = np.dot(sample_nums, self._model_costs)
         return cost
 
     def _solve_opt_problem(self, target_cost):
         initial_guess = self._model_costs[0] / self._model_costs[1:]
-        bounds = [(1, np.inf)] * (self._num_models - 1)
+        bounds = [(1 + 1e-12, np.inf)] * (self._num_models - 1)
         constraints = self._get_constraints(target_cost)
 
         slsqp_ratios = self._perform_slsqp_optim(initial_guess, bounds,
@@ -142,18 +135,19 @@ class ACVOptimizer(OptimizerBase):
         return penalty
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
-
         big_C = covariance[1:, 1:]
         c_bar = covariance[0, 1:] / torch.sqrt(covariance[0, 0])
 
-        F = self._compute_acv_F_matrix(ratios)
-        a = (torch.diag(F) * c_bar).reshape((-1, 1))
+        F, F0 = self._compute_acv_F_and_F0(ratios)
+        a = (F0 * c_bar).reshape((-1, 1))
+
         alpha, _ = torch.solve(a, big_C * F)
         R_squared = torch.dot(a.flatten(), alpha.flatten())
         variance = covariance[0, 0] / N * (1 - R_squared)
         return variance
 
-    def _compute_ratios_from_sample_nums(self, sample_nums):
+    @staticmethod
+    def _compute_ratios_from_sample_nums(sample_nums):
         ratios = sample_nums[1:] / sample_nums[0]
         return ratios
 
@@ -163,7 +157,7 @@ class ACVOptimizer(OptimizerBase):
         return sample_nums
 
     @abstractmethod
-    def _compute_acv_F_matrix(self, ratios):
+    def _compute_acv_F_and_F0(self, ratios):
         raise NotImplementedError
 
     @abstractmethod
