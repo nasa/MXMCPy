@@ -5,12 +5,11 @@ import torch
 
 from .generic_numerical_optimization import perform_slsqp_then_nelder_mead
 from .optimizer_base import OptimizerBase, OptimizationResult
-from .acv_constraints import ACVConstraints
 
 TORCHDTYPE = torch.double
 
 
-class ACVOptimizer(OptimizerBase, ACVConstraints):
+class ACVOptimizer(OptimizerBase):
 
     def __init__(self, model_costs, covariance=None, *args, **kwargs):
         super().__init__(model_costs, covariance, *args, **kwargs)
@@ -83,7 +82,7 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         return N
 
     def _calculate_n_autodiff(self, ratios_tensor, target_cost):
-        eval_ratios = self._get_eval_ratios_autodiff(ratios_tensor)
+        eval_ratios = self._get_model_eval_ratios_autodiff(ratios_tensor)
         N = target_cost / (torch.dot(self._model_costs_tensor, eval_ratios))
         return N
 
@@ -119,12 +118,9 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         cost = np.dot(eval_samples_nums, self._model_costs)
         return cost
 
+    @abstractmethod
     def _get_constraints(self, target_cost):
-        constraints = self._constr_n_greater_than_1(target_cost)
-        nr_constraints = \
-            self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
-        constraints.extend(nr_constraints)
-        return constraints
+        raise NotImplementedError
 
     @abstractmethod
     def _compute_acv_F_and_F0(self, ratios):
@@ -134,14 +130,10 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
     def _make_allocation(self, sample_nums):
         raise NotImplementedError
 
-    @staticmethod
-    def _get_model_eval_ratios(ratios):
-        full_ratios = np.ones(len(ratios) + 1)
-        full_ratios[1:] = ratios
-        return full_ratios
+    @abstractmethod
+    def _get_model_eval_ratios(self, ratios):
+        raise NotImplementedError
 
-    @staticmethod
-    def _get_eval_ratios_autodiff(ratios_tensor):
-        full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
-        full_ratios[1:] = ratios_tensor
-        return full_ratios
+    @abstractmethod
+    def _get_model_eval_ratios_autodiff(self, ratios_tensor):
+        raise NotImplementedError

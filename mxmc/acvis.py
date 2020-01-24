@@ -1,10 +1,18 @@
 import numpy as np
 import torch
 
-from .acv_optimizer import ACVOptimizer, TORCHDTYPE
+from .acv_standard import ACVStandard, TORCHDTYPE
+from .acv_constraints import ACVConstraints
 
 
-class ACVIS(ACVOptimizer):
+class ACVIS(ACVStandard, ACVConstraints):
+
+    def _get_constraints(self, target_cost):
+        constraints = self._constr_n_greater_than_1(target_cost)
+        nr_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
+        constraints.extend(nr_constraints)
+        return constraints
 
     def _compute_acv_F_and_F0(self, ratios):
 
