@@ -21,14 +21,22 @@ def monomial_model_costs(powers):
     return np.power(10.0, -np.arange(len(powers)))
 
 
+def calculate_costs_from_sample_array(sample_array, model_costs):
+    evals = sample_array[:, 1:].transpose().dot(sample_array[:, 0])
+    evals = np.insert(evals, 0, 0).reshape((-1, 2))
+    cost = np.max(evals, axis=1).dot(model_costs)
+    return cost
+
+
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
 def test_monomial_model(algorithm):
-    exponents = [5, 4, 3, 2, 1]
+    exponents = [4, 3, 2, 1]
     covariance = monomial_model_covariance(exponents)
     model_costs = monomial_model_costs(exponents)
+    target_cost = 10
     optimizer = Optimizer(model_costs, covariance=covariance)
 
-    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10)
+    opt_result = optimizer.optimize(algorithm, target_cost)
     sample_allocation = SampleAllocation(opt_result.sample_array,
                                          method=algorithm)
     estimator = Estimator(sample_allocation, covariance)
@@ -37,3 +45,8 @@ def test_monomial_model(algorithm):
 
     assert estimator_approx_variance \
         == pytest.approx(optimizer_approx_variance)
+
+    actual_cost = calculate_costs_from_sample_array(opt_result.sample_array,
+                                                    model_costs)
+
+    assert actual_cost <= target_cost
