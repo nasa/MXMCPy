@@ -26,8 +26,8 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         ratios = self._compute_ratios_from_sample_nums(sample_nums)
         actual_cost = self._compute_total_cost(sample_nums)
 
-        variance, _ = self._compute_objective_function_and_gradient(ratios,
-                                                                    actual_cost)
+        variance = self._compute_objective_function(ratios, actual_cost,
+                                                    gradient=False)
         allocation = self._make_allocation(sample_nums)
 
         return OptimizationResult(actual_cost, variance, allocation)
@@ -41,12 +41,13 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         bounds = self._get_bounds()
         constraints = self._get_constraints(target_cost)
 
-        def obj_func(ratios):
-            return self._compute_objective_function(ratios, target_cost)
+        def obj_func(rat):
+            return self._compute_objective_function(rat, target_cost,
+                                                    gradient=False)
 
-        def obj_func_and_grad(ratios):
-            return self._compute_objective_function_and_gradient(ratios,
-                                                                 target_cost)
+        def obj_func_and_grad(rat):
+            return self._compute_objective_function(rat, target_cost,
+                                                    gradient=True)
 
         ratios = perform_slsqp_then_nelder_mead(bounds, constraints,
                                                 initial_guess, obj_func,
@@ -67,28 +68,21 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         constraints.extend(nr_constraints)
         return constraints
 
-    def _compute_objective_function_and_gradient(self, ratios, target_cost):
-        ratios_tensor = torch.tensor(ratios, requires_grad=True,
+    def _compute_objective_function(self, ratios, target_cost, gradient):
+        ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
                                      dtype=TORCHDTYPE)
         covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
         model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
         N = self._calculate_n_autodiff(ratios_tensor, model_costs, target_cost)
         variance = self._compute_acv_estimator_variance(covariance,
                                                         ratios_tensor, N)
+        if not gradient:
+            return variance.detach().numpy()
+
         variance.backward()
         result = (variance.detach().numpy(),
                   ratios_tensor.grad.detach().numpy())
         return result
-
-    def _compute_objective_function(self, ratios, target_cost):
-        ratios_tensor = torch.tensor(ratios, dtype=TORCHDTYPE)
-        covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
-        model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
-        N = self._calculate_n_autodiff(ratios_tensor, model_costs, target_cost)
-        variance = self._compute_acv_estimator_variance(covariance,
-                                                        ratios_tensor, N)
-        var = variance.detach().numpy()
-        return var
 
     @staticmethod
     def _get_eval_ratios(ratios_tensor):
