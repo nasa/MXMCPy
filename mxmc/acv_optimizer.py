@@ -5,11 +5,12 @@ import torch
 
 from .generic_numerical_optimization import perform_slsqp_then_nelder_mead
 from .optimizer_base import OptimizerBase, OptimizationResult
+from .acv_constraints import ACVConstraints
 
 TORCHDTYPE = torch.double
 
 
-class ACVOptimizer(OptimizerBase):
+class ACVOptimizer(OptimizerBase, ACVConstraints):
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
@@ -25,8 +26,8 @@ class ACVOptimizer(OptimizerBase):
         ratios = self._compute_ratios_from_sample_nums(sample_nums)
         actual_cost = self._compute_total_cost(sample_nums)
 
-        variance, _ = self._compute_objective_function_and_grad(ratios,
-                                                                actual_cost)
+        variance, _ = self._compute_objective_function_and_gradient(ratios,
+                                                                    actual_cost)
         allocation = self._make_allocation(sample_nums)
 
         return OptimizationResult(actual_cost, variance, allocation)
@@ -36,22 +37,28 @@ class ACVOptimizer(OptimizerBase):
         return cost
 
     def _solve_opt_problem(self, target_cost):
-        initial_guess = self._model_costs[0] / self._model_costs[1:]
-        bounds = [(1 + 1e-12, np.inf)] * (self._num_models - 1)
+        initial_guess = self._get_initial_guess()
+        bounds = self._get_bounds()
         constraints = self._get_constraints(target_cost)
 
         def obj_func(ratios):
             return self._compute_objective_function(ratios, target_cost)
 
         def obj_func_and_grad(ratios):
-            return self._compute_objective_function_and_grad(ratios,
-                                                             target_cost)
+            return self._compute_objective_function_and_gradient(ratios,
+                                                                 target_cost)
 
         ratios = perform_slsqp_then_nelder_mead(bounds, constraints,
                                                 initial_guess, obj_func,
                                                 obj_func_and_grad)
 
         return ratios
+
+    def _get_initial_guess(self):
+        return self._model_costs[0] / self._model_costs[1:]
+
+    def _get_bounds(self):
+        return [(1 + 1e-12, np.inf)] * (self._num_models - 1)
 
     def _get_constraints(self, target_cost):
         constraints = self._constr_n_greater_than_1(target_cost)
@@ -60,32 +67,12 @@ class ACVOptimizer(OptimizerBase):
         constraints.extend(nr_constraints)
         return constraints
 
-    def _constr_n_greater_than_1(self, target_cost):
-        def n_constraint(ratios):
-            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
-            return N - 1
-        return [{"type": "ineq", "fun": n_constraint, "args": tuple()}]
-
-    def _constr_ratios_result_in_samples_1_greater_than_n(self, target_cost):
-        def n_ratio_constraint(ratios, ind):
-            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
-            return N * (ratios[ind] - 1) - 1
-
-        nr_constraints = []
-        for ind in range(self._num_models - 1):
-            nr_constraints.append({"type": "ineq",
-                                "fun": n_ratio_constraint,
-                                "args": (ind, )})
-        return nr_constraints
-
-    def _compute_objective_function_and_grad(self, ratios, target_cost):
+    def _compute_objective_function_and_gradient(self, ratios, target_cost):
         ratios_tensor = torch.tensor(ratios, requires_grad=True,
                                      dtype=TORCHDTYPE)
-        full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
-        full_ratios[1:] = ratios_tensor
         covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
         model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
-        N = target_cost / (torch.dot(model_costs, full_ratios))
+        N = self._calculate_n_autodiff(ratios_tensor, model_costs, target_cost)
         variance = self._compute_acv_estimator_variance(covariance,
                                                         ratios_tensor, N)
         variance.backward()
@@ -95,15 +82,35 @@ class ACVOptimizer(OptimizerBase):
 
     def _compute_objective_function(self, ratios, target_cost):
         ratios_tensor = torch.tensor(ratios, dtype=TORCHDTYPE)
-        full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
-        full_ratios[1:] = ratios_tensor
         covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
         model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
-        N = target_cost / (torch.dot(model_costs, full_ratios))
+        N = self._calculate_n_autodiff(ratios_tensor, model_costs, target_cost)
         variance = self._compute_acv_estimator_variance(covariance,
                                                         ratios_tensor, N)
         var = variance.detach().numpy()
         return var
+
+    @staticmethod
+    def _get_eval_ratios(ratios_tensor):
+        full_ratios = np.ones(len(ratios_tensor) + 1)
+        full_ratios[1:] = ratios_tensor
+        return full_ratios
+
+    @staticmethod
+    def _get_eval_ratios_autodiff(ratios_tensor):
+        full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
+        full_ratios[1:] = ratios_tensor
+        return full_ratios
+
+    def _calculate_n(self, ratios, target_cost):
+        eval_ratios = self._get_eval_ratios(ratios)
+        N = target_cost / (np.dot(self._model_costs, eval_ratios))
+        return N
+
+    def _calculate_n_autodiff(self, ratios_tensor, model_costs, target_cost):
+        eval_ratios = self._get_eval_ratios_autodiff(ratios_tensor)
+        N = target_cost / (torch.dot(model_costs, eval_ratios))
+        return N
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
         big_C = covariance[1:, 1:]
@@ -123,7 +130,7 @@ class ACVOptimizer(OptimizerBase):
         return ratios
 
     def _compute_sample_nums_from_ratios(self, ratios, target_cost):
-        N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
+        N = self._calculate_n(ratios, target_cost)
         sample_nums = N * np.array([1] + list(ratios))
         return sample_nums
 
