@@ -1,0 +1,37 @@
+# Set python path
+export PYTHONPATH=.
+
+delete_all() {
+	# Run helper code for bash script "test".
+	find . -name '*.pyc' -delete
+	clear
+	find . -name '*.coverage.*' -delete
+	clear
+	export PYTHONDONTWRITEBYTECODE=1
+	clear
+	find . -name '*.coverage*' -delete
+	clear
+	find . -name '*.html' -delete
+	find . -name '*.css' -delete
+}
+
+delete_all_but_html() {
+	# Run helper code for bash script "test".
+	find . -name '*.pyc' -delete
+	clear
+	find . -name '*.coverage.*' -delete
+	clear
+	export PYTHONDONTWRITEBYTECODE=1
+	clear
+	find . -name '*.coverage*' -delete
+	clear
+}
+
+delete_all
+conda install pytest-html --yes
+conda install pytest-cov --yes
+clear
+pytest --html=test_report.html --cov=mxmc tests/
+firefox test_report.html
+#firefox cov_report.html
+delete_all
