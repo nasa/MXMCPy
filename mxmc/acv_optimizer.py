@@ -12,13 +12,20 @@ TORCHDTYPE = torch.double
 
 class ACVOptimizer(OptimizerBase, ACVConstraints):
 
+    def __init__(self, model_costs, covariance=None, *args, **kwargs):
+        super().__init__(model_costs, covariance, *args, **kwargs)
+        self._covariance_tensor = torch.tensor(self._covariance,
+                                               dtype=TORCHDTYPE)
+        self._model_costs_tensor = torch.tensor(self._model_costs,
+                                                dtype=TORCHDTYPE)
+
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
             return self._get_invalid_result()
         if self._num_models == 1:
             return self._get_monte_carlo_result(target_cost)
 
-        ratios = self._solve_opt_problem(target_cost)
+        ratios = self._solve_opt_problem(target_cost )
 
         sample_nums = self._compute_sample_nums_from_ratios(ratios,
                                                             target_cost)
@@ -71,11 +78,10 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
                                      dtype=TORCHDTYPE)
-        covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
-        model_costs = torch.tensor(self._model_costs, dtype=TORCHDTYPE)
-        N = self._calculate_n_autodiff(ratios_tensor, model_costs, target_cost)
-        variance = self._compute_acv_estimator_variance(covariance,
-                                                        ratios_tensor, N)
+        N = self._calculate_n_autodiff(ratios_tensor, target_cost)
+        variance = \
+            self._compute_acv_estimator_variance(self._covariance_tensor,
+                                                 ratios_tensor, N)
         if not gradient:
             return variance.detach().numpy()
 
@@ -101,9 +107,9 @@ class ACVOptimizer(OptimizerBase, ACVConstraints):
         N = target_cost / (np.dot(self._model_costs, eval_ratios))
         return N
 
-    def _calculate_n_autodiff(self, ratios_tensor, model_costs, target_cost):
+    def _calculate_n_autodiff(self, ratios_tensor, target_cost):
         eval_ratios = self._get_eval_ratios_autodiff(ratios_tensor)
-        N = target_cost / (torch.dot(model_costs, eval_ratios))
+        N = target_cost / (torch.dot(self._model_costs_tensor, eval_ratios))
         return N
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
