@@ -9,7 +9,7 @@ class ACVKL(ACVOptimizer):
     def __init__(self, model_costs, covariance, *args, **kwargs):
         super().__init__(model_costs, covariance, *args, **kwargs)
         self._k_models = kwargs['k']
-        self._l_model = kwargs['l']
+        self._l_model = kwargs['l_variable']
 
     def _compute_acv_F_and_F0(self, ratios):
         F = torch.zeros((self._num_models - 1, self._num_models - 1),

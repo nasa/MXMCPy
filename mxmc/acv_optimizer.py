@@ -92,8 +92,8 @@ class ACVOptimizer(OptimizerBase):
         nr_constraints = []
         for ind in range(self._num_models - 1):
             nr_constraints.append({"type": "ineq",
-                                "fun": n_ratio_constraint,
-                                "args": (ind, )})
+                                  "fun": n_ratio_constraint,
+                                   "args": (ind, )})
         return nr_constraints
 
     def _compute_variance_and_grad(self, ratios, target_cost):

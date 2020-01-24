@@ -34,4 +34,4 @@ clear
 pytest --html=test_report.html --cov=mxmc tests/
 firefox test_report.html
 #firefox cov_report.html
-delete_all
+delete_all_but_html

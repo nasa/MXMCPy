@@ -35,8 +35,9 @@ class ACVKLEnumerator(OptimizerBase):
             return self._get_monte_carlo_result(target_cost)
 
         best_result = None
-        for k, l in self._kl_enumerator():
-            sub_opt = ACVKL(self._model_costs, self._covariance, k=k, l=l)
+        for k, variable_l in self._kl_enumerator():
+            sub_opt = ACVKL(self._model_costs, self._covariance,
+                            k=k, l_variable=variable_l)
             sub_opt_result = sub_opt.optimize(target_cost)
             if best_result is None \
                     or sub_opt_result.variance < best_result.variance:
@@ -44,7 +45,7 @@ class ACVKLEnumerator(OptimizerBase):
 
         if best_result is None:
             error_msg = "Specified acvkl parameters lead to no valid " + \
-                        "combinations of k and l"
+                        "combinations of k and variable_l"
             raise NoMatchingCombosError(error_msg)
 
         return best_result
@@ -63,5 +64,3 @@ class ACVKLEnumerator(OptimizerBase):
                 subset = set(subset)
                 subset.add(0)
                 yield subset
-
-
