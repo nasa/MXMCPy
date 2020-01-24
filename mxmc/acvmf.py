@@ -1,10 +1,12 @@
 import numpy as np
 import torch
 
-from .acv_optimizer import ACVOptimizer, TORCHDTYPE
+from .acv_optimizer import TORCHDTYPE
+from .acv_standard import ACVStandard
+from .acv_constraints import ACVConstraints
 
 
-class ACVMF(ACVOptimizer):
+class ACVMFBase(ACVStandard):
 
     def _compute_acv_F_and_F0(self, ratios):
 
@@ -35,3 +37,13 @@ class ACVMF(ACVOptimizer):
             allocation[1:, i*2+1][sample_nums[i] >= unique_nums] = 1
 
         return allocation
+
+
+class ACVMF(ACVMFBase, ACVConstraints):
+
+    def _get_constraints(self, target_cost):
+        constraints = self._constr_n_greater_than_1(target_cost)
+        nr_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
+        constraints.extend(nr_constraints)
+        return constraints
