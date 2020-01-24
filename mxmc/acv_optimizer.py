@@ -72,20 +72,29 @@ class ACVOptimizer(OptimizerBase):
         return opt_result.x
 
     def _get_constraints(self, target_cost):
+        constraints = self._constr_n_greater_than_1(target_cost)
+        nr_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
+        constraints.extend(nr_constraints)
+        return constraints
+
+    def _constr_n_greater_than_1(self, target_cost):
         def n_constraint(ratios):
             N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
             return N - 1
+        return [{"type": "ineq", "fun": n_constraint, "args": tuple()}]
 
-        def constraint_func(ratios, ind):
+    def _constr_ratios_result_in_samples_1_greater_than_n(self, target_cost):
+        def n_ratio_constraint(ratios, ind):
             N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
             return N * (ratios[ind] - 1) - 1
 
-        constraints = [{"type": "ineq", "fun": n_constraint, "args": tuple()}]
+        nr_constraints = []
         for ind in range(self._num_models - 1):
-            constraints.append({"type": "ineq",
-                                "fun": constraint_func,
+            nr_constraints.append({"type": "ineq",
+                                "fun": n_ratio_constraint,
                                 "args": (ind, )})
-        return constraints
+        return nr_constraints
 
     def _compute_variance_and_grad(self, ratios, target_cost):
         ratios_tensor = torch.tensor(ratios, requires_grad=True,
