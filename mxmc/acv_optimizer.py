@@ -2,8 +2,8 @@ from abc import abstractmethod
 
 import numpy as np
 import torch
-from scipy import optimize as scipy_optimize
 
+from .generic_numerical_optimization import perform_slsqp_then_nelder_mead
 from .optimizer_base import OptimizerBase, OptimizationResult
 
 TORCHDTYPE = torch.double
@@ -23,9 +23,10 @@ class ACVOptimizer(OptimizerBase):
                                                             target_cost)
         sample_nums = np.floor(sample_nums)
         ratios = self._compute_ratios_from_sample_nums(sample_nums)
-
         actual_cost = self._compute_total_cost(sample_nums)
-        variance, _ = self._compute_variance_and_grad(ratios, actual_cost)
+
+        variance, _ = self._compute_objective_function_and_grad(ratios,
+                                                                actual_cost)
         allocation = self._make_allocation(sample_nums)
 
         return OptimizationResult(actual_cost, variance, allocation)
@@ -39,37 +40,18 @@ class ACVOptimizer(OptimizerBase):
         bounds = [(1 + 1e-12, np.inf)] * (self._num_models - 1)
         constraints = self._get_constraints(target_cost)
 
-        slsqp_ratios = self._perform_slsqp_optim(initial_guess, bounds,
-                                                 constraints, target_cost)
+        def obj_func(ratios):
+            return self._compute_objective_function(ratios, target_cost)
 
-        nm_ratios = self._perform_nelder_mead_optim(slsqp_ratios, bounds,
-                                                    constraints, target_cost)
+        def obj_func_and_grad(ratios):
+            return self._compute_objective_function_and_grad(ratios,
+                                                             target_cost)
 
-        return nm_ratios
+        ratios = perform_slsqp_then_nelder_mead(bounds, constraints,
+                                                initial_guess, obj_func,
+                                                obj_func_and_grad)
 
-    def _perform_slsqp_optim(self, initial_guess, bounds, constraints,
-                             target_cost):
-        options = {"disp": False, "ftol": 1e-10}
-        opt_result = scipy_optimize.minimize(
-                self._compute_variance_and_grad,
-                initial_guess, (target_cost,),
-                constraints=constraints,
-                bounds=bounds, jac=True,
-                method='SLSQP',
-                options=options)
-        return opt_result.x
-
-    def _perform_nelder_mead_optim(self, initial_guess, bounds, constraints,
-                                   target_cost):
-        options = {"disp": False, "xatol": 1e-12, "fatol": 1e-12,
-                   "maxfev": 500 * len(initial_guess)}
-        opt_result = scipy_optimize.minimize(
-                self._compute_variance_using_penalties,
-                initial_guess,
-                args=(target_cost, bounds, constraints),
-                method='Nelder-Mead',
-                options=options)
-        return opt_result.x
+        return ratios
 
     def _get_constraints(self, target_cost):
         constraints = self._constr_n_greater_than_1(target_cost)
@@ -96,7 +78,7 @@ class ACVOptimizer(OptimizerBase):
                                 "args": (ind, )})
         return nr_constraints
 
-    def _compute_variance_and_grad(self, ratios, target_cost):
+    def _compute_objective_function_and_grad(self, ratios, target_cost):
         ratios_tensor = torch.tensor(ratios, requires_grad=True,
                                      dtype=TORCHDTYPE)
         full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
@@ -111,8 +93,7 @@ class ACVOptimizer(OptimizerBase):
                   ratios_tensor.grad.detach().numpy())
         return result
 
-    def _compute_variance_using_penalties(self, ratios, target_cost,
-                                          bounds, constraints):
+    def _compute_objective_function(self, ratios, target_cost):
         ratios_tensor = torch.tensor(ratios, dtype=TORCHDTYPE)
         full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
         full_ratios[1:] = ratios_tensor
@@ -122,26 +103,7 @@ class ACVOptimizer(OptimizerBase):
         variance = self._compute_acv_estimator_variance(covariance,
                                                         ratios_tensor, N)
         var = variance.detach().numpy()
-        penalty = self._calaculate_penalty(bounds, constraints, ratios)
-
-        return var + penalty
-
-    @staticmethod
-    def _calaculate_penalty(bounds, constraints, input_ratios):
-        penalty_weight = 1e6
-        penalty = 0
-        for constr in constraints:
-            c_val = constr["fun"](input_ratios, *constr["args"])
-            if c_val < 0:
-                penalty -= c_val * penalty_weight
-        for r, (lb, ub) in zip(input_ratios, bounds):
-            lb_val = r - lb
-            ub_val = ub - r
-            if lb_val < 0:
-                penalty -= lb_val * penalty_weight
-            if ub_val < 0:
-                penalty -= ub_val * penalty_weight
-        return penalty
+        return var
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
         big_C = covariance[1:, 1:]
