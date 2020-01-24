@@ -39,7 +39,7 @@ class ACVMFBase(ACVStandard):
         return allocation
 
 
-class ACVMF(ACVMFBase, ACVConstraints):
+class ACVMFU(ACVMFBase, ACVConstraints):
 
     def _get_constraints(self, target_cost):
         constraints = self._constr_n_greater_than_1(target_cost)

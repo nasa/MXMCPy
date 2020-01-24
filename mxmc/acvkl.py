@@ -2,9 +2,10 @@ import numpy as np
 import torch
 
 from .acv_optimizer import ACVOptimizer, TORCHDTYPE
+from .acv_constraints import ACVConstraints
 
 
-class ACVKL(ACVOptimizer):
+class ACVMRBase(ACVOptimizer):
 
     def __init__(self, model_costs, covariance, *args, **kwargs):
         super().__init__(model_costs, covariance, *args, **kwargs)
@@ -66,27 +67,25 @@ class ACVKL(ACVOptimizer):
 
         return allocation
 
+    def _get_model_eval_ratios(self, ratios):
+        full_ratios = np.ones(len(ratios) + 1)
+        full_ratios[1:] = ratios
+        return full_ratios
+
+    def _get_model_eval_ratios_autodiff(self, ratios_tensor):
+        full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
+        full_ratios[1:] = ratios_tensor
+        return full_ratios
+
+
+class ACVKL(ACVMRBase, ACVConstraints):
+
     def _get_constraints(self, target_cost):
-        def n_constraint(ratios):
-            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
-            return N - 1
-
-        def constraint_func(ratios, ind):
-            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
-            return N * (ratios[ind] - 1) - 1
-
-        def rl_constraint(ratios, ind):
-            N = target_cost / np.dot(self._model_costs, [1] + list(ratios))
-            return N * abs(ratios[ind] - ratios[self._l_model-1]) - 1
-
-        constraints = [{"type": "ineq", "fun": n_constraint, "args": tuple()}]
-        for ind in range(self._num_models - 1):
-            constraints.append({"type": "ineq",
-                                "fun": constraint_func,
-                                "args": (ind, )})
-            if ind + 1 not in self._k_models:
-                constraints.append({"type": "ineq",
-                                    "fun": rl_constraint,
-                                    "args": (ind, )})
-
+        constraints = self._constr_n_greater_than_1(target_cost)
+        nr_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
+        rl_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_l(target_cost)
+        constraints.extend(nr_constraints)
+        constraints.extend(rl_constraints)
         return constraints
