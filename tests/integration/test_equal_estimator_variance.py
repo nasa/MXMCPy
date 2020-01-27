@@ -22,9 +22,12 @@ def monomial_model_costs(powers):
 
 
 def calculate_costs_from_sample_array(sample_array, model_costs):
-    evals = sample_array[:, 1:].transpose().dot(sample_array[:, 0])
-    evals = np.insert(evals, 0, 0).reshape((-1, 2))
-    cost = np.max(evals, axis=1).dot(model_costs)
+    alloc = sample_array[:, 1:].transpose()
+    evals = [alloc[0]]
+    for i in range(1, alloc.shape[0], 2):
+        evals.append(np.max(alloc[i:i+2], axis=0))
+    evals = np.array(evals)
+    cost = np.dot(evals.dot(sample_array[:, 0]), model_costs)
     return cost
 
 
@@ -48,5 +51,5 @@ def test_monomial_model(algorithm):
 
     actual_cost = calculate_costs_from_sample_array(opt_result.sample_array,
                                                     model_costs)
-
-    assert actual_cost <= target_cost
+    print(opt_result.sample_array)
+    assert actual_cost == opt_result.cost
