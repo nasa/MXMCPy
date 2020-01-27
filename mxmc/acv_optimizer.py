@@ -59,7 +59,7 @@ class ACVOptimizer(OptimizerBase):
         return self._model_costs[0] / self._model_costs[1:]
 
     def _get_bounds(self):
-        return [(1 + 1e-12, np.inf)] * (self._num_models - 1)
+        return [(1 + 1e-10, np.inf)] * (self._num_models - 1)
 
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
