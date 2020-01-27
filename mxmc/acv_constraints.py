@@ -21,6 +21,24 @@ class ACVConstraints:
                                    "args": (ind, )})
         return nr_constraints
 
+    def _constr_ratios_result_in_samples_1_greater_than_prev_ratio(
+            self, target_cost):
+        def n_ratio_constraint(ratios, ind):
+            N = self._calculate_n(ratios, target_cost)
+            return N * (ratios[ind] - 1) - 1
+
+        def r_ratio_constraint(ratios, ind):
+            N = self._calculate_n(ratios, target_cost)
+            return N * (ratios[ind] - ratios[ind-1]) - 1
+
+        nr_constraints = [{"type": "ineq", "fun": n_ratio_constraint,
+                           "args": (0, )}]
+        for ind in range(1, self._num_models - 1):
+            nr_constraints.append({"type": "ineq",
+                                   "fun": r_ratio_constraint,
+                                   "args": (ind, )})
+        return nr_constraints
+
     def _constr_ratios_result_in_samples_1_greater_than_l(self, target_cost):
         def ratio_l_constraint(ratios, ind):
             N = self._calculate_n(ratios, target_cost)

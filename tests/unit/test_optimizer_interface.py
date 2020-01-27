@@ -3,7 +3,7 @@ import pytest
 
 from mxmc.optimizer import Optimizer
 
-ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis", "acvkl"]
+ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvmfu", "acvis", "acvkl"]
 DUMMY_VAR = 999
 
 

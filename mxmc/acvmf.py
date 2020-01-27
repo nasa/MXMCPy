@@ -47,3 +47,14 @@ class ACVMFU(ACVMFBase, ACVConstraints):
             self._constr_ratios_result_in_samples_1_greater_than_n(target_cost)
         constraints.extend(nr_constraints)
         return constraints
+
+
+class ACVMF(ACVMFBase, ACVConstraints):
+
+    def _get_constraints(self, target_cost):
+        constraints = self._constr_n_greater_than_1(target_cost)
+        nr_constraints = \
+            self._constr_ratios_result_in_samples_1_greater_than_prev_ratio(
+                    target_cost)
+        constraints.extend(nr_constraints)
+        return constraints

@@ -5,7 +5,7 @@ from mxmc.estimator import Estimator
 from mxmc.optimizer import Optimizer
 from mxmc.sample_allocation import SampleAllocation
 
-ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis", "acvkl"]
+ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvmfu", "acvis", "acvkl"]
 
 
 def monomial_model_covariance(powers):
@@ -51,5 +51,5 @@ def test_monomial_model(algorithm):
 
     actual_cost = calculate_costs_from_sample_array(opt_result.sample_array,
                                                     model_costs)
-    print(opt_result.sample_array)
+    
     assert actual_cost == opt_result.cost
