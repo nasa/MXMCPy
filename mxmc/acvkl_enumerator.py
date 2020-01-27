@@ -2,7 +2,7 @@ from itertools import combinations
 import numpy as np
 
 from .optimizer_base import OptimizerBase
-from .acvkl import ACVKL
+from .acvkl import ACVSR
 
 
 class NoMatchingCombosError(RuntimeError):
@@ -36,7 +36,7 @@ class ACVKLEnumerator(OptimizerBase):
 
         best_result = None
         for k, l in self._kl_enumerator():
-            sub_opt = ACVKL(self._model_costs, self._covariance, k=k, l=l)
+            sub_opt = ACVSR(self._model_costs, self._covariance, k=k, l=l)
             sub_opt_result = sub_opt.optimize(target_cost)
             if best_result is None \
                     or sub_opt_result.variance < best_result.variance:

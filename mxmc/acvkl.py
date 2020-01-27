@@ -70,15 +70,23 @@ class ACVMRBase(ACVOptimizer):
     def _get_model_eval_ratios(self, ratios):
         full_ratios = np.ones(len(ratios) + 1)
         full_ratios[1:] = ratios
+        for i in range(self._num_models):
+            if i not in self._k_models:
+                full_ratios[i] = max(full_ratios[i],
+                                     full_ratios[self._l_model])
         return full_ratios
 
     def _get_model_eval_ratios_autodiff(self, ratios_tensor):
         full_ratios = torch.ones(len(ratios_tensor) + 1, dtype=TORCHDTYPE)
         full_ratios[1:] = ratios_tensor
+        for i in range(self._num_models):
+            if i not in self._k_models:
+                full_ratios[i] = max(full_ratios[i],
+                                     full_ratios[self._l_model])
         return full_ratios
 
 
-class ACVKL(ACVMRBase, ACVConstraints):
+class ACVSR(ACVMRBase, ACVConstraints):
 
     def _get_constraints(self, target_cost):
         constraints = self._constr_n_greater_than_1(target_cost)
