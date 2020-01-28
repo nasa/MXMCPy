@@ -32,7 +32,7 @@ def calculate_costs_from_sample_array(sample_array, model_costs):
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
-def test_monomial_model(algorithm):
+def test_opt_result_variance_and_cost_match_allocation(algorithm):
     exponents = [4, 3, 2, 1]
     covariance = monomial_model_covariance(exponents)
     model_costs = monomial_model_costs(exponents)
@@ -53,3 +53,17 @@ def test_monomial_model(algorithm):
                                                     model_costs)
     
     assert actual_cost == opt_result.cost
+
+
+def test_mfmc_and_acvmfmc_have_about_equal_variance():
+    exponents = [4, 3, 2, 1]
+    covariance = monomial_model_covariance(exponents)
+    model_costs = monomial_model_costs(exponents)
+    target_cost = 10
+    optimizer = Optimizer(model_costs, covariance=covariance)
+
+    analytical_result = optimizer.optimize("mfmc", target_cost)
+    numerical_result = optimizer.optimize("acvmfmc", target_cost)
+
+    assert analytical_result.variance \
+        == pytest.approx(numerical_result.variance)

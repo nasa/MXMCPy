@@ -11,9 +11,10 @@ def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
                                          sample_array_ref)
 
 
+@pytest.mark.parametrize("algorithm", ["acvmf", "acvmfu"])
 @pytest.mark.parametrize("cost_factor", [1, 4])
 @pytest.mark.parametrize("covariance_factor", [1, 4])
-def test_acvmf_three_models_known_solution(cost_factor,
+def test_acvmf_three_models_known_solution(algorithm, cost_factor,
                                            covariance_factor, mocker):
     covariance = np.array([[1, 0.75, 0.25],
                            [0.75, 1., 0.5],
@@ -22,7 +23,7 @@ def test_acvmf_three_models_known_solution(cost_factor,
     optimizer = Optimizer(model_costs, covariance)
 
     ratios_for_opt = np.array([2, 3])
-    mocker.patch.object(ALGORITHM_MAP['acvmf'],
+    mocker.patch.object(ALGORITHM_MAP[algorithm],
                         '_solve_opt_problem',
                         return_value=ratios_for_opt)
 
@@ -33,7 +34,8 @@ def test_acvmf_three_models_known_solution(cost_factor,
                                [1 * cost_factor, 0, 0, 0, 0, 1]], dtype=int)
 
     target_cost = 10 * cost_factor
-    opt_result = optimizer.optimize(algorithm="acvmf", target_cost=target_cost)
+    opt_result = optimizer.optimize(algorithm=algorithm,
+                                    target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_ref, var_ref, allocation_ref)
 
 
@@ -47,7 +49,7 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     optimizer = Optimizer(model_costs, covariance)
 
     ratios_for_opt = np.array([3, 2])
-    mocker.patch.object(ALGORITHM_MAP['acvmf'],
+    mocker.patch.object(ALGORITHM_MAP['acvmfu'],
                         '_solve_opt_problem',
                         return_value=ratios_for_opt)
 
@@ -58,7 +60,7 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
                                [1 * cost_factor, 0, 0, 1, 0, 0]], dtype=int)
 
     target_cost = 10 * cost_factor
-    opt_result = optimizer.optimize(algorithm="acvmf", target_cost=target_cost)
+    opt_result = optimizer.optimize(algorithm="acvmfu", target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_ref, var_ref, allocation_ref)
 
 
