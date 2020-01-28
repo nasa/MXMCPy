@@ -2,10 +2,10 @@ import numpy as np
 import pytest
 
 from mxmc.estimator import Estimator
-from mxmc.optimizer import Optimizer
+from mxmc.optimizer import Optimizer, ALGORITHM_MAP
 from mxmc.sample_allocation import SampleAllocation
 
-ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvmfu", "acvis", "acvkl"]
+ALGORITHMS = ALGORITHM_MAP.keys()
 
 
 def monomial_model_covariance(powers):
