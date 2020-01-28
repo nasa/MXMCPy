@@ -31,8 +31,10 @@ class ACVConstraints:
             N = self._calculate_n(ratios, target_cost)
             return N * (ratios[ind] - ratios[ind-1]) - 1
 
-        nr_constraints = [{"type": "ineq", "fun": n_ratio_constraint,
-                           "args": (0, )}]
+        nr_constraints = []
+        if self._num_models > 1:
+            nr_constraints.append({"type": "ineq", "fun": n_ratio_constraint,
+                                   "args": (0, )})
         for ind in range(1, self._num_models - 1):
             nr_constraints.append({"type": "ineq",
                                    "fun": r_ratio_constraint,
