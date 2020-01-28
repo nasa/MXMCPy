@@ -41,17 +41,26 @@ class ACVConstraints:
                                    "args": (ind, )})
         return nr_constraints
 
-    def _constr_ratios_result_in_samples_1_greater_than_l(self, target_cost):
-        def ratio_l_constraint(ratios, ind):
+    def _constr_ratios_result_in_samples_1_different_than_ref(self,
+                                                              target_cost):
+        def n_ratio_constraint(ratios, ind):
             N = self._calculate_n(ratios, target_cost)
-            return N * abs(ratios[ind] - ratios[self._l_model - 1]) - 1
+            return N * (ratios[ind] - 1) - 1
+
+        def ratio_ref_constraint(ratios, ind, ref):
+            N = self._calculate_n(ratios, target_cost)
+            return N * abs(ratios[ind] - ratios[ref - 1]) - 1
 
         rl_constraints = []
-        for ind in range(self._num_models - 1):
-            if ind + 1 not in self._k_models:
+        for ind, ref in enumerate(self._recursion_refs):
+            if ref == 0:
                 rl_constraints.append({"type": "ineq",
-                                       "fun": ratio_l_constraint,
+                                       "fun": n_ratio_constraint,
                                        "args": (ind,)})
+            else:
+                rl_constraints.append({"type": "ineq",
+                                       "fun": ratio_ref_constraint,
+                                       "args": (ind, ref)})
         return rl_constraints
 
     @abstractmethod

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import mxmc.generalized_multi_fidelity
 from mxmc import acvkl_enumerator as acvkl_enum_module
 from mxmc.acvkl_enumerator import NoMatchingCombosError
 from mxmc.optimizer import Optimizer
@@ -25,12 +26,13 @@ def test_kl_model_evals_in_enumeration(mocker, k_models, l_models,
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.ACVSR', return_value=mocked_optimizer)
+    mocker.patch('mxmc.acvkl_enumerator.GMFUnordered',
+                 return_value=mocked_optimizer)
 
     target_cost = 10
     if expected_evals > 0:
         _ = optimizer.optimize("acvkl", target_cost)
-        assert acvkl_enum_module.ACVSR.call_count == expected_evals
+        assert mxmc.acvkl_enumerator.GMFUnordered.call_count == expected_evals
 
     else:
         with pytest.raises(NoMatchingCombosError):
@@ -50,12 +52,13 @@ def test_full_kl_enumeration(mocker, num_models, num_combinations):
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.ACVSR', return_value=mocked_optimizer)
+    mocker.patch('mxmc.acvkl_enumerator.GMFUnordered',
+                 return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("acvkl", target_cost)
 
-    assert acvkl_enum_module.ACVSR.call_count == num_combinations
+    assert mxmc.acvkl_enumerator.GMFUnordered.call_count == num_combinations
 
 
 def test_acv_kl_inner_variance_calc(mocker):
@@ -66,7 +69,7 @@ def test_acv_kl_inner_variance_calc(mocker):
     optimizer = Optimizer(model_costs, covariance, k_models={1}, l_models={1})
 
     ratios_for_opt = np.array([2, 3])
-    mocker.patch('mxmc.acvkl_enumerator.ACVSR._solve_opt_problem',
+    mocker.patch('mxmc.acvkl_enumerator.GMFUnordered._solve_opt_problem',
                  return_value=ratios_for_opt)
 
     dummy_target_cost = 10

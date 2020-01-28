@@ -59,7 +59,7 @@ class ACVOptimizer(OptimizerBase):
         return self._model_costs[0] / self._model_costs[1:]
 
     def _get_bounds(self):
-        return [(1 + 1e-10, np.inf)] * (self._num_models - 1)
+        return [(1 + 1e-8, np.inf)] * (self._num_models - 1)
 
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
@@ -137,3 +137,10 @@ class ACVOptimizer(OptimizerBase):
     @abstractmethod
     def _get_model_eval_ratios_autodiff(self, ratios_tensor):
         raise NotImplementedError
+
+
+class ACVGeneralRecursion(ACVOptimizer):
+
+    def __init__(self, model_costs, covariance, *args, **kwargs):
+        super().__init__(model_costs, covariance, *args, **kwargs)
+        self._recursion_refs = kwargs['recursion_refs']

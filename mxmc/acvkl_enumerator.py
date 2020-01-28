@@ -2,7 +2,7 @@ from itertools import combinations
 import numpy as np
 
 from .optimizer_base import OptimizerBase
-from .acvkl import ACVSR
+from mxmc.generalized_multi_fidelity import GMFUnordered
 
 
 class NoMatchingCombosError(RuntimeError):
@@ -36,7 +36,13 @@ class ACVKLEnumerator(OptimizerBase):
 
         best_result = None
         for k, l in self._kl_enumerator():
-            sub_opt = ACVSR(self._model_costs, self._covariance, k=k, l=l)
+
+            recursion_refs = [0 if i in k else l
+                              for i in range(1, self._num_models)]
+
+            sub_opt = GMFUnordered(self._model_costs, self._covariance,
+                                   recursion_refs=recursion_refs)
+
             sub_opt_result = sub_opt.optimize(target_cost)
             if best_result is None \
                     or sub_opt_result.variance < best_result.variance:
