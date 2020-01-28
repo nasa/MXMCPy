@@ -7,9 +7,11 @@ DUMMYVALUE = None
 
 
 class MockedConstrained(ACVConstraints):
-    def __init__(self, num_models, n_value):
+    def __init__(self, num_models=DUMMYVALUE, n_value=DUMMYVALUE,
+                 recursion_refs=DUMMYVALUE):
         self._num_models = num_models
         self._n_value = n_value
+        self._recursion_refs = recursion_refs
 
     def _calculate_n(self, _ratios, _target_cost):
         return self._n_value
@@ -18,6 +20,7 @@ class MockedConstrained(ACVConstraints):
 def _count_constraints_violated(constraints, ratios):
     violated = 0
     for constr in constraints:
+        print(constr["fun"](ratios, *constr["args"]))
         if constr["fun"](ratios, *constr["args"]) < 0:
             violated += 1
     return violated
@@ -25,7 +28,7 @@ def _count_constraints_violated(constraints, ratios):
 
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_n_gt_1_constraint_has_1_entry(num_models):
-    opt = MockedConstrained(num_models, DUMMYVALUE)
+    opt = MockedConstrained(num_models=num_models)
     constraints = opt._constr_n_greater_than_1(target_cost=DUMMYVALUE)
     assert len(constraints) == 1
 
@@ -33,7 +36,7 @@ def test_n_gt_1_constraint_has_1_entry(num_models):
 @pytest.mark.parametrize("n_value, expected_violations",
                          [(0, 1), (0.999, 1), (1, 0), (10, 0)])
 def test_n_gt_1_constraint_is_accurate(n_value, expected_violations):
-    opt = MockedConstrained(DUMMYVALUE, n_value)
+    opt = MockedConstrained(n_value=n_value)
     constraints = opt._constr_n_greater_than_1(target_cost=DUMMYVALUE)
     constr_violated = _count_constraints_violated(constraints,
                                                   ratios=DUMMYVALUE)
@@ -42,7 +45,7 @@ def test_n_gt_1_constraint_is_accurate(n_value, expected_violations):
 
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_r_1_gt_n_constraints_correct_size(num_models):
-    opt = MockedConstrained(num_models, DUMMYVALUE)
+    opt = MockedConstrained(num_models=num_models)
     constraints = opt._constr_ratios_result_in_samples_1_greater_than_n(
             target_cost=DUMMYVALUE)
     assert len(constraints) == num_models - 1
@@ -68,7 +71,7 @@ def test_r_1_gt_n_constraints_are_accurate(r1_violates, r2_violates,
 
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_r_1_gt_prevr_constraints_correct_size(num_models):
-    opt = MockedConstrained(num_models, DUMMYVALUE)
+    opt = MockedConstrained(num_models=num_models)
     constraints = \
         opt._constr_ratios_result_in_samples_1_greater_than_prev_ratio(
             target_cost=DUMMYVALUE)
@@ -96,6 +99,43 @@ def test_r_1_gt_prevr_constraints_are_accurate(r1_violates, r2_violates,
     if r3_violates:
         ratios[2:] -= 0.1
         expected_violations += 1
+
+    constr_violated = _count_constraints_violated(constraints, ratios)
+    assert constr_violated == expected_violations
+
+
+@pytest.mark.parametrize("num_models", range(1, 4))
+def test_r_1_diff_refr_constraints_correct_size(num_models):
+    opt = MockedConstrained(num_models=num_models,
+                            recursion_refs=[0]*(num_models - 1) )
+    constraints = \
+        opt._constr_ratios_result_in_samples_1_different_than_ref(
+            target_cost=DUMMYVALUE)
+    assert len(constraints) == num_models - 1
+
+
+@pytest.mark.parametrize("r1_violates", [True, False])
+@pytest.mark.parametrize("r2_violates", [True, False])
+@pytest.mark.parametrize("r3_violates", [True, False])
+@pytest.mark.parametrize("addend", [-1, 1])
+def test_r_1_diff_refr_constraints_are_accurate(r1_violates, r2_violates,
+                                               r3_violates, addend):
+    opt = MockedConstrained(num_models=4, n_value=1, recursion_refs=[0, 3, 1])
+    constraints = \
+        opt._constr_ratios_result_in_samples_1_different_than_ref(
+            target_cost=DUMMYVALUE)
+
+    ratios = np.array([1., 1., 1.])
+    expected_violations = 3
+    if not r1_violates:
+        ratios += 1
+        expected_violations -= 1
+    if not r2_violates:
+        ratios[1] += addend
+        expected_violations -= 1
+    if not r3_violates:
+        ratios[1:] += addend
+        expected_violations -= 1
 
     constr_violated = _count_constraints_violated(constraints, ratios)
     assert constr_violated == expected_violations
