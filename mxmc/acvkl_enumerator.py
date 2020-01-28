@@ -61,6 +61,31 @@ class ACVKL(KLEnumerator):
         return GMFOrdered(*args, **kwargs)
 
 
+class SREnumerator(RecursionEnumerator):
+    def _recursion_iterator(self):
+        for subset in self._subsets_excluding_0():
+            if len(subset) == self._num_models - 1:
+                recursion_refs = [0] * (self._num_models - 1)
+                yield recursion_refs
+            else:
+                for ref in subset:
+                    recursion_refs = [0 if i in subset else ref
+                                      for i in range(1, self._num_models)]
+                    yield recursion_refs
+
+    def _subsets_excluding_0(self):
+        for i in range(self._num_models, 0, -1):
+            for subset in combinations(range(1, self._num_models), i):
+                subset = set(subset)
+                yield subset
+
+
+
+class GMFSR(SREnumerator):
+    def _get_sub_optimizer(self, *args, **kwargs):
+        return GMFUnordered(*args, **kwargs)
+
+
         # def _kl_enumerator(self):
         #     for k in self._k_subset_enumerator():
         #         if len(k) == self._num_models:
