@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
 
-from mxmc import acvkl_enumerator as acvkl_enum_module
+from mxmc.optimizers.approximate_control_variates.generalized_multifidelity \
+    import gmfsr, gmfmr
 from mxmc.optimizer import Optimizer
-from mxmc.optimizer_base import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizationResult
 
 
 @pytest.mark.parametrize("num_models, num_combinations", [(2, 1),
@@ -19,13 +20,14 @@ def test_sr_enumeration(mocker, num_models, num_combinations):
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.GMFUnordered',
+    mocker.patch('mxmc.optimizers.approximate_control_variates.'
+                 'generalized_multifidelity.gmfsr.GMFUnordered',
                  return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("gmfsr", target_cost)
 
-    assert acvkl_enum_module.GMFUnordered.call_count == num_combinations
+    assert gmfsr.GMFUnordered.call_count == num_combinations
 
 
 @pytest.mark.parametrize("num_models, num_combinations", [(2, 1),
@@ -41,11 +43,12 @@ def test_mr_enumeration(mocker, num_models, num_combinations):
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.GMFUnordered',
+    mocker.patch('mxmc.optimizers.approximate_control_variates.'
+                 'generalized_multifidelity.gmfmr.GMFUnordered',
                  return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("gmfmr", target_cost)
 
-    assert acvkl_enum_module.GMFUnordered.call_count == num_combinations
+    assert gmfmr.GMFUnordered.call_count == num_combinations
 

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mxmc.acvmf import ACVMFU
+from mxmc.optimizers.approximate_control_variates import ACVMFU
 from mxmc.optimizer import Optimizer
 
 

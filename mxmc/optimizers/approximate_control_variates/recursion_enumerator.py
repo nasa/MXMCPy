@@ -2,8 +2,7 @@ from itertools import combinations
 import numpy as np
 from abc import abstractmethod
 
-from .optimizer_base import OptimizerBase
-from mxmc.generalized_multi_fidelity import GMFUnordered, GMFOrdered
+from ..optimizer_base import OptimizerBase
 
 
 class NoMatchingCombosError(RuntimeError):
@@ -56,11 +55,6 @@ class KLEnumerator(RecursionEnumerator):
                     yield recursion_refs
 
 
-class ACVKL(KLEnumerator):
-    def _get_sub_optimizer(self, *args, **kwargs):
-        return GMFOrdered(*args, **kwargs)
-
-
 class SREnumerator(RecursionEnumerator):
     def _recursion_iterator(self):
         for subset in self._subsets_excluding_0():
@@ -78,12 +72,6 @@ class SREnumerator(RecursionEnumerator):
             for subset in combinations(range(1, self._num_models), i):
                 subset = set(subset)
                 yield subset
-
-
-
-class GMFSR(SREnumerator):
-    def _get_sub_optimizer(self, *args, **kwargs):
-        return GMFUnordered(*args, **kwargs)
 
 
 class MREnumerator(RecursionEnumerator):
@@ -119,10 +107,3 @@ class MREnumerator(RecursionEnumerator):
                 for r in MREnumerator._recursive_refs(new_refs, val,
                                                       new_banned):
                     yield r
-
-
-class GMFMR(MREnumerator):
-    def _get_sub_optimizer(self, *args, **kwargs):
-        return GMFUnordered(*args, **kwargs)
-
-

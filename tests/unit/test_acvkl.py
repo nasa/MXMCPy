@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
 
-from mxmc import acvkl_enumerator as acvkl_enum_module
+from mxmc.optimizers.approximate_control_variates.generalized_multifidelity \
+    import acvkl
 from mxmc.optimizer import Optimizer
-from mxmc.optimizer_base import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizationResult
+
 
 @pytest.mark.parametrize("num_models, num_combinations", [(2, 1),
                                                           (3, 2),
@@ -18,13 +20,14 @@ def test_kl_enumeration(mocker, num_models, num_combinations):
 
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
-    mocker.patch('mxmc.acvkl_enumerator.GMFOrdered',
+    mocker.patch('mxmc.optimizers.approximate_control_variates.'
+                 'generalized_multifidelity.acvkl.GMFOrdered',
                  return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("acvkl", target_cost)
 
-    assert acvkl_enum_module.GMFOrdered.call_count == num_combinations
+    assert acvkl.GMFOrdered.call_count == num_combinations
 
 
 def test_acv_kl_inner_variance_calc(mocker):
@@ -35,7 +38,9 @@ def test_acv_kl_inner_variance_calc(mocker):
     optimizer = Optimizer(model_costs, covariance, k_models={1}, l_models={1})
 
     ratios_for_opt = np.array([2, 3])
-    mocker.patch('mxmc.acvkl_enumerator.GMFOrdered._solve_opt_problem',
+    mocker.patch('mxmc.optimizers.approximate_control_variates.'
+                 'generalized_multifidelity.gmf_ordered.GMFOrdered.'
+                 '_solve_opt_problem',
                  return_value=ratios_for_opt)
 
     dummy_target_cost = 10

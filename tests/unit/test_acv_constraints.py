@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from mxmc.acv_constraints import ACVConstraints
+from mxmc.optimizers.approximate_control_variates.acv_constraints import ACVConstraints
 
 DUMMYVALUE = None
 

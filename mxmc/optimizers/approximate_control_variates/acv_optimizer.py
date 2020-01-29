@@ -3,8 +3,9 @@ from abc import abstractmethod
 import numpy as np
 import torch
 
-from .generic_numerical_optimization import perform_slsqp_then_nelder_mead
-from .optimizer_base import OptimizerBase, OptimizationResult
+from ...util.generic_numerical_optimization \
+    import perform_slsqp_then_nelder_mead
+from ..optimizer_base import OptimizerBase, OptimizationResult
 
 TORCHDTYPE = torch.double
 
@@ -144,8 +145,3 @@ class ACVOptimizer(OptimizerBase):
         raise NotImplementedError
 
 
-class ACVGeneralRecursion(ACVOptimizer):
-
-    def __init__(self, model_costs, covariance, *args, **kwargs):
-        super().__init__(model_costs, covariance, *args, **kwargs)
-        self._recursion_refs = kwargs['recursion_refs']

@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 
-from mxmc.acv_constraints import ACVConstraints
-from mxmc.acv_optimizer import TORCHDTYPE, ACVGeneralRecursion
+from ..acv_optimizer import TORCHDTYPE
+from ..recursion_optimizer import ACVRecursionOptimizer
 
 
-class GeneralizedMultiFidelity(ACVGeneralRecursion):
+class GMFOptimizer(ACVRecursionOptimizer):
 
     def _compute_acv_F_and_F0(self, ratios):
         ones = torch.ones(len(ratios), dtype=TORCHDTYPE)
@@ -58,23 +58,3 @@ class GeneralizedMultiFidelity(ACVGeneralRecursion):
         return eval_ratios
 
 
-class GMFUnordered(GeneralizedMultiFidelity, ACVConstraints):
-
-    def _get_constraints(self, target_cost):
-        constraints = self._constr_n_greater_than_1(target_cost)
-        ref_constraints = \
-            self._constr_ratios_result_in_samples_1_different_than_ref(
-                    target_cost)
-        constraints.extend(ref_constraints)
-        return constraints
-
-
-class GMFOrdered(GeneralizedMultiFidelity, ACVConstraints):
-
-    def _get_constraints(self, target_cost):
-        constraints = self._constr_n_greater_than_1(target_cost)
-        ref_constraints = \
-            self._constr_ratios_result_in_samples_1_greater_than_prev_ratio(
-                    target_cost)
-        constraints.extend(ref_constraints)
-        return constraints

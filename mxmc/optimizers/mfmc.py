@@ -1,7 +1,7 @@
 import numpy as np
 
 from .optimizer_base import OptimizationResult, OptimizerBase, \
-    InconsistentModelError
+                            InconsistentModelError
 
 
 class MFMC(OptimizerBase):

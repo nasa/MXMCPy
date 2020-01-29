@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.optimizer import Optimizer
-from mxmc.mlmc import MLMC
+from mxmc.optimizers.mlmc import MLMC
 
 dummy_var = 999
 
