@@ -2,12 +2,12 @@ from .acvis import ACVIS
 from .acvmf import ACVMFU, ACVMF, ACVMFMC
 from .mfmc import MFMC
 from .mlmc import MLMC
-from .acvkl_enumerator import ACVKL, GMFSR
+from .acvkl_enumerator import ACVKL, GMFSR, GMFMR
 from .model_selection import AutoModelSelection
 
 ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
                  "acvmfmc": ACVMFMC, "acvis": ACVIS, "acvkl": ACVKL,
-                 "gmfsr": GMFSR}
+                 "gmfsr": GMFSR, "gmfmr": GMFMR}
 
 
 class Optimizer:

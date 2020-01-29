@@ -86,19 +86,43 @@ class GMFSR(SREnumerator):
         return GMFUnordered(*args, **kwargs)
 
 
-        # def _kl_enumerator(self):
-        #     for k in self._k_subset_enumerator():
-        #         if len(k) == self._num_models:
-        #             yield k, None
-        #         else:
-        #             for l in k.intersection(self._l_models):
-        #                 yield k, l
-        #
-        # def _k_subset_enumerator(self):
-        #     for i in range(len(self._k_models), 0, -1):
-        #         for subset in combinations(self._k_models, i):
-        #             subset = set(subset)
-        #             subset.add(0)
-        #             yield subset
+class MREnumerator(RecursionEnumerator):
+    def _recursion_iterator(self):
+        starting_refs = [None] * (self._num_models - 1)
+        ref_iter = MREnumerator._recursive_refs(starting_refs)
+        possibilities = [i for i in ref_iter]
+        possibilities = list(set(possibilities))
+        for i in possibilities:
+            yield list(i)
+
+    @staticmethod
+    def _recursive_refs(refs, last=0, banned=None):
+        if banned is None:
+            banned = []
+        possible_indices = [i for i, r in enumerate(refs) if r is None]
+        if len(possible_indices) == 0:
+            yield tuple(refs)
+            return
+
+        for ind in possible_indices:
+            possible_values = [0] + [i + 1 for i, r in enumerate(refs)
+                                     if r is not None]
+            possible_values = [i for i in possible_values if
+                               i not in refs[ind:]]
+            possible_values = [i for i in possible_values if i not in banned]
+            for val in possible_values:
+                new_refs = list(refs)
+                new_refs[ind] = val
+                new_banned = list(banned)
+                if val != last:
+                    new_banned += [last]
+                for r in MREnumerator._recursive_refs(new_refs, val,
+                                                      new_banned):
+                    yield r
+
+
+class GMFMR(MREnumerator):
+    def _get_sub_optimizer(self, *args, **kwargs):
+        return GMFUnordered(*args, **kwargs)
 
 

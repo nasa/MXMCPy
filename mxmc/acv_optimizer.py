@@ -59,15 +59,20 @@ class ACVOptimizer(OptimizerBase):
         return self._model_costs[0] / self._model_costs[1:]
 
     def _get_bounds(self):
-        return [(1 + 1e-8, np.inf)] * (self._num_models - 1)
+        return [(1 + 1e-12, np.inf)] * (self._num_models - 1)
 
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
                                      dtype=TORCHDTYPE)
         N = self._calculate_n_autodiff(ratios_tensor, target_cost)
-        variance = \
-            self._compute_acv_estimator_variance(self._covariance_tensor,
-                                                 ratios_tensor, N)
+
+        try:
+            variance = \
+                self._compute_acv_estimator_variance(self._covariance_tensor,
+                                                     ratios_tensor, N)
+        except RuntimeError:
+            variance = 9e99*torch.dot(ratios_tensor, ratios_tensor)
+
         if not gradient:
             return variance.detach().numpy()
 
