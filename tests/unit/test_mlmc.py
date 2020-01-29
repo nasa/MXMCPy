@@ -169,6 +169,25 @@ def test_mlmc_with_model_selection():
     cov_matrix = np.array([[8, 6, 11/2.], [6, 6, 7/2.], [11/2., 7/2., 4.]])
     optimizer = Optimizer(model_costs, covariance=cov_matrix)
 
+    target_cost = 19
+
+    sample_array_expected = np.array([[2, 1, 0, 0, 1, 0],
+                                      [10, 0, 0, 0, 0, 1]])
+
+    variance_expected = .9
+    cost_expected = 18
+
+    opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
+                                    auto_model_selection=True)
+    assert_opt_result_equal(opt_result, cost_expected, variance_expected,
+                            sample_array_expected)
+
+
+def test_mlmc_with_model_selection_zero_q():
+    model_costs = np.array([3, 2, 1])
+    cov_matrix = np.array([[8, 6, 11/2.], [6, 6, 7/2.], [11/2., 7/2., 4.]])
+    optimizer = Optimizer(model_costs, covariance=cov_matrix)
+
     target_cost = 8
 
     sample_array_expected = np.array([[0, 1, 1, 0, 0, 0],
@@ -176,10 +195,13 @@ def test_mlmc_with_model_selection():
     variance_expected = 2
     cost_expected = 6
 
-    opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
-                                    auto_model_selection=True)
-    assert_opt_result_equal(opt_result, cost_expected, variance_expected,
-                            sample_array_expected)
+    with pytest.raises(UserWarning):
+        opt_result = optimizer.optimize(algorithm="mlmc",
+                                        target_cost=target_cost,
+                                        auto_model_selection=True)
+
+        assert_opt_result_equal(opt_result, cost_expected, variance_expected,
+                                sample_array_expected)
 
 
 @pytest.mark.parametrize('num_levels', list(range(2, 5)))

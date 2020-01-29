@@ -159,4 +159,11 @@ class MLMC(OptimizerBase):
             allocation[model_index, 2 * cost_index + 1] = 1
         allocation[0, 1] = 1
 
+        if allocation[0, 0] == 0:
+
+            msg1 = "No samples are allocated for the highest fidelity model!\n"
+            msg2 = "Is your target cost too low?"
+
+            raise UserWarning(msg1 + msg2)
+
         return allocation

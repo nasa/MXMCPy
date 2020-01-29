@@ -67,7 +67,7 @@ def test_optimize_results_are_correct_sizes(algorithm, num_models):
     model_costs = np.arange(num_models, 0, -1)
 
     optimizer = Optimizer(model_costs, covariance)
-    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10)
+    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=20)
 
     if algorithm in ["mfmc", "mlmc", "acvis"]:
         assert opt_result.sample_array.shape[0] == num_models
@@ -83,7 +83,7 @@ def test_opt_results_are_correct_sizes_using_model_selection(num_models,
     covariance[:, 0] = np.linspace(1.0, 0.6, num_models)
     model_costs = np.arange(num_models, 0, -1)
     optimizer = Optimizer(model_costs, covariance)
-    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=10,
+    opt_result = optimizer.optimize(algorithm=algorithm, target_cost=20,
                                     auto_model_selection=True)
     assert opt_result.sample_array.shape[1] == num_models * 2
 
