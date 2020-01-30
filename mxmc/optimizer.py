@@ -18,13 +18,20 @@ from mxmc.optimizers.approximate_control_variates.generalized_independent_sample
     import GISSR
 from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gismr \
     import GISMR
+from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.wrdiff \
+    import WRDiff
+from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grdsr \
+    import GRDSR
+from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grdmr \
+    import GRDMR
 
 from .optimizers.model_selection import AutoModelSelection
 
 ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
                  "acvmfmc": ACVMFMC, "acvkl": ACVKL,
                  "gmfsr": GMFSR, "gmfmr": GMFMR,
-                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR}
+                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
+                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
 
 
 class Optimizer:

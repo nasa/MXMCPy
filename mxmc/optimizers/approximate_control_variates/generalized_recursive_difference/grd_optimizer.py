@@ -42,7 +42,8 @@ class GRDOptimizer(ACVRecursionOptimizer, ACVConstraints):
             + rib * (modelib == modeljb).type(TORCHDTYPE) / (rib * rjb)
 
         F0 = torch.zeros(len(ratios), dtype=TORCHDTYPE)
-        F0[self._recursion_refs == 0] = 1
+        filter = [i == 0 for i in self._recursion_refs]
+        F0[filter] = 1
 
         return F, F0
 
@@ -74,14 +75,6 @@ class GRDOptimizer(ACVRecursionOptimizer, ACVConstraints):
         ref_ratios[1:] = full_ratios[self._recursion_refs]
         eval_ratios = full_ratios + ref_ratios
         return eval_ratios
-
-
-class ACVIS(GRDOptimizer):
-
-    def __init__(self, model_cost, covariance, *args, **kwargs):
-        recursion_refs = [0] * (len(model_cost) - 1)
-        super().__init__(model_cost, covariance, recursion_refs=recursion_refs,
-                         *args, **kwargs)
 
 
 
