@@ -86,8 +86,7 @@ def test_opt_result_variance_and_cost_match_allocation(algorithm):
     optimizer = Optimizer(model_costs, covariance=covariance)
 
     opt_result = optimizer.optimize(algorithm, target_cost)
-    _assert_opt_result_is_consistent(algorithm, covariance, model_costs,
-                                     opt_result)
+    _assert_opt_result_is_consistent(covariance, model_costs, opt_result)
 
 
 def test_mfmc_and_acvmfmc_have_about_equal_variance():
