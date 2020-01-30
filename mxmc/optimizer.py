@@ -1,6 +1,5 @@
 from .optimizers.mfmc import MFMC
 from .optimizers.mlmc import MLMC
-from .optimizers.approximate_control_variates.acvis import ACVIS
 from .optimizers.approximate_control_variates.generalized_multifidelity.acvmf \
     import ACVMF
 from .optimizers.approximate_control_variates.generalized_multifidelity.acvmfu\
@@ -13,11 +12,19 @@ from .optimizers.approximate_control_variates.generalized_multifidelity.gmfsr \
     import GMFSR
 from .optimizers.approximate_control_variates.generalized_multifidelity.acvkl \
     import ACVKL
+from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.acvis \
+    import ACVIS
+from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gissr \
+    import GISSR
+from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gismr \
+    import GISMR
+
 from .optimizers.model_selection import AutoModelSelection
 
 ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
-                 "acvmfmc": ACVMFMC, "acvis": ACVIS, "acvkl": ACVKL,
-                 "gmfsr": GMFSR, "gmfmr": GMFMR}
+                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
+                 "gmfsr": GMFSR, "gmfmr": GMFMR,
+                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR}
 
 
 class Optimizer:

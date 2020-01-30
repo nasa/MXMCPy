@@ -59,9 +59,6 @@ class ACVOptimizer(OptimizerBase):
     def _get_initial_guess(self):
         return self._model_costs[0] / self._model_costs[1:]
 
-    def _get_bounds(self):
-        return [(1 + 1e-12, np.inf)] * (self._num_models - 1)
-
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
                                      dtype=TORCHDTYPE)
@@ -123,6 +120,10 @@ class ACVOptimizer(OptimizerBase):
         eval_samples_nums = N * self._get_model_eval_ratios(ratios)
         cost = np.dot(eval_samples_nums, self._model_costs)
         return cost
+
+    @abstractmethod
+    def _get_bounds(self):
+        raise NotImplementedError
 
     @abstractmethod
     def _get_constraints(self, target_cost):
