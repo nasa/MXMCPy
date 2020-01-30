@@ -59,9 +59,10 @@ def _constraints_fulfilled(constraints, ratios):
     return True
 
 
-def _assert_opt_result_is_consistent(covariance, model_costs, opt_result):
+def _assert_opt_result_is_consistent(covariance, model_costs, opt_result,
+                                     algorithm="none"):
     sample_allocation = SampleAllocation(opt_result.sample_array,
-                                         method="test")
+                                         method=algorithm)
     estimator = Estimator(sample_allocation, covariance)
     estimator_approx_variance = estimator.approximate_variance
     optimizer_approx_variance = opt_result.variance
@@ -86,7 +87,8 @@ def test_opt_result_variance_and_cost_match_allocation(algorithm):
     optimizer = Optimizer(model_costs, covariance=covariance)
 
     opt_result = optimizer.optimize(algorithm, target_cost)
-    _assert_opt_result_is_consistent(covariance, model_costs, opt_result)
+    _assert_opt_result_is_consistent(covariance, model_costs, opt_result,
+                                     algorithm)
 
 
 def test_mfmc_and_acvmfmc_have_about_equal_variance():
@@ -152,7 +154,6 @@ def test_enum_acv_optimizers_give_consistent_output(enum_optimizer, mocker):
                                 return_value=valid_ratios)
 
             opt_result = optimizer.optimize(target_cost)
-            print(recursion_refs, valid_ratios)
             _assert_opt_result_is_consistent(covariance, model_costs,
                                              opt_result)
 
