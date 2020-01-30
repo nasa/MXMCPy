@@ -29,7 +29,7 @@ class ACVOptimizer(OptimizerBase):
 
         sample_nums = self._compute_sample_nums_from_ratios(ratios,
                                                             target_cost)
-        sample_nums = np.floor(sample_nums)
+        sample_nums = np.floor(sample_nums + 1e-15)
 
         variance = self._compute_variance_from_sample_nums(sample_nums)
         actual_cost = self._compute_total_cost_from_sample_nums(sample_nums)
