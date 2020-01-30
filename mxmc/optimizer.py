@@ -1,42 +1,20 @@
 from .optimizers.mfmc import MFMC
 from .optimizers.mlmc import MLMC
-from .optimizers.approximate_control_variates.generalized_multifidelity.acvmf \
-    import ACVMF
-from .optimizers.approximate_control_variates.generalized_multifidelity.acvmfu\
-    import ACVMFU
-from .optimizers.approximate_control_variates.generalized_multifidelity.acvmfmc\
-    import ACVMFMC
-from .optimizers.approximate_control_variates.generalized_multifidelity.gmfmr \
-    import GMFMR
-from .optimizers.approximate_control_variates.generalized_multifidelity.gmfsr \
-    import GMFSR
-from .optimizers.approximate_control_variates.generalized_multifidelity.acvkl \
-    import ACVKL
-from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.acvis \
-    import ACVIS
-from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gissr \
-    import GISSR
-from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gismr \
-    import GISMR
-from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.wrdiff \
-    import WRDiff
-from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grdsr \
-    import GRDSR
-from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grdmr \
-    import GRDMR
+#from .optimizers.approximate_control_variates import *
 
 from .optimizers.model_selection import AutoModelSelection
 
-ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
-                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
-                 "gmfsr": GMFSR, "gmfmr": GMFMR,
-                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
-                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
+ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC}#, "acvmfu": ACVMFU, "acvmf": ACVMF,
+#                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
+#                 "gmfsr": GMFSR, "gmfmr": GMFMR,
+#                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
+#                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
 
 
 class Optimizer:
 
     def __init__(self, *args, **kwargs):
+        import pdb; pdb.set_trace()
         self._args = args
         self._kwargs = kwargs
 
