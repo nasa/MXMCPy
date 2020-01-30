@@ -9,5 +9,9 @@ class GMFUnordered(GMFOptimizer, ACVConstraints):
         ref_constraints = \
             self._constr_ratios_result_in_samples_1_different_than_ref(
                     target_cost)
+        r1_constraints = \
+            self._constr_ratios_result_in_samples_greater_than_1(
+                target_cost)
         constraints.extend(ref_constraints)
+        constraints.extend(r1_constraints)
         return constraints

@@ -8,7 +8,7 @@ from ..recursion_optimizer import ACVRecursionOptimizer
 class GMFOptimizer(ACVRecursionOptimizer):
 
     def _get_bounds(self):
-        return [(1, np.inf)] * (self._num_models - 1)
+        return [(0, np.inf)] * (self._num_models - 1)
 
     def _compute_acv_F_and_F0(self, ratios):
         ones = torch.ones(len(ratios), dtype=TORCHDTYPE)
@@ -26,7 +26,8 @@ class GMFOptimizer(ACVRecursionOptimizer):
             - torch.min(rib, rja) / (rib * rja) \
             + torch.min(rib, rjb) / (rib * rjb)
 
-        F0 = 1/ref_ratios - 1/ratios
+        F0 = torch.min(ones, ref_ratios)/ref_ratios \
+             - torch.min(ones, ratios)/ratios
 
         return F, F0
 
