@@ -3,6 +3,9 @@ from ..recursion_enumerator import SREnumerator
 from ..recursion_enumerator import MREnumerator
 
 
+__all__ = ['ACVIS', 'GISSR', 'GISMR']
+
+
 class ACVIS(GISOptimizer):
 
     def __init__(self, model_cost, covariance, *args, **kwargs):

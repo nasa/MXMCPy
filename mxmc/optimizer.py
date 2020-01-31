@@ -1,20 +1,22 @@
 from .optimizers.mfmc import MFMC
 from .optimizers.mlmc import MLMC
-#from .optimizers.approximate_control_variates import *
+
+from .optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers import *
+from .optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers import *
+from .optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers import *
 
 from .optimizers.model_selection import AutoModelSelection
 
-ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC}#, "acvmfu": ACVMFU, "acvmf": ACVMF,
-#                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
-#                 "gmfsr": GMFSR, "gmfmr": GMFMR,
-#                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
-#                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
+ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
+                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
+                 "gmfsr": GMFSR, "gmfmr": GMFMR,
+                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
+                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
 
 
 class Optimizer:
 
     def __init__(self, *args, **kwargs):
-        import pdb; pdb.set_trace()
         self._args = args
         self._kwargs = kwargs
 
