@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.optimizers.approximate_control_variates.generalized_multifidelity \
-    import acvkl
+    import impl_optimizers
 from mxmc.optimizer import Optimizer
 from mxmc.optimizers.optimizer_base import OptimizationResult
 
@@ -21,13 +21,13 @@ def test_kl_enumeration(mocker, num_models, num_combinations):
     mocked_optimizer = mocker.Mock()
     mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
     mocker.patch('mxmc.optimizers.approximate_control_variates.'
-                 'generalized_multifidelity.acvkl.GMFOrdered',
+                 'generalized_multifidelity.impl_optimizers.GMFOrdered',
                  return_value=mocked_optimizer)
 
     target_cost = 100
     _ = optimizer.optimize("acvkl", target_cost)
 
-    assert acvkl.GMFOrdered.call_count == num_combinations
+    assert impl_optimizers.GMFOrdered.call_count == num_combinations
 
 
 def test_acv_kl_inner_variance_calc(mocker):
@@ -39,7 +39,7 @@ def test_acv_kl_inner_variance_calc(mocker):
 
     ratios_for_opt = np.array([2, 3])
     mocker.patch('mxmc.optimizers.approximate_control_variates.'
-                 'generalized_multifidelity.gmf_ordered.GMFOrdered.'
+                 'generalized_multifidelity.impl_optimizers.GMFOrdered.'
                  '_solve_opt_problem',
                  return_value=ratios_for_opt)
 
