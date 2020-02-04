@@ -6,10 +6,12 @@ def perform_slsqp_then_nelder_mead(bounds, constraints, initial_guess,
     slsqp_result = _slsqp(bounds, constraints, initial_guess,
                           obj_func_and_grad)
 
-    if slsqp_result.success or slsqp_result.status == 9:  # status=9: max iter
-        nm_initial_guess = slsqp_result.x
-    else:
+    slsqp_constr_violated = _calculate_penalty(slsqp_result.x, bounds,
+                                               constraints) > 0
+    if slsqp_constr_violated:
         nm_initial_guess = initial_guess
+    else:
+        nm_initial_guess = slsqp_result.x
 
     nm_x = perform_nelder_mead(bounds, constraints, nm_initial_guess, obj_func)
     return nm_x
