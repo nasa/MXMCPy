@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from mxmc.optimizer import Optimizer
+from mxmc.optimizer import Optimizer, ALGORITHM_MAP
 
-ALGORITHMS = ["mfmc", "mlmc", "acvmf", "acvis", "acvkl"]
+ALGORITHMS = ALGORITHM_MAP.keys()
 DUMMY_VAR = 999
 
 

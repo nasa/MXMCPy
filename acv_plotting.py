@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mxmc.acvmf import ACVMF
+from mxmc.optimizers.approximate_control_variates import ACVMFU
 from mxmc.optimizer import Optimizer
 
 
@@ -42,7 +42,7 @@ def get_variances_of_all_algos():
 
 
 def plot_3d_acvmf_vars():
-    optimizer = ACVMF(MODELCOSTS, covariance=COVARIANCE)
+    optimizer = ACVMFU(MODELCOSTS, covariance=COVARIANCE)
     sample_nums = [1, 1, 1]
 
     output = []
@@ -84,7 +84,7 @@ def plot_3d_acvmf_vars():
 
 
 def plot_2d_acvmf_vars(recent_opt_path):
-    optimizer = ACVMF(MODELCOSTS, covariance=COVARIANCE)
+    optimizer = ACVMFU(MODELCOSTS, covariance=COVARIANCE)
     output = []
     for r1 in np.linspace(1, 100, 100):
         for r2 in np.linspace(1, 1000, 500):

@@ -5,6 +5,8 @@ from mxmc.optimizer import Optimizer, ALGORITHM_MAP
 
 
 def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
+    print("opt", opt_result.sample_array)
+    print("ref", opt_result.sample_array)
     assert np.isclose(opt_result.cost, cost_ref)
     assert np.isclose(opt_result.variance, var_ref)
     np.testing.assert_array_almost_equal(opt_result.sample_array,
@@ -21,7 +23,7 @@ def test_acvmf_three_models_known_solution(cost_factor,
     model_costs = np.array([3, 2, 1])
     optimizer = Optimizer(model_costs, covariance)
 
-    ratios_for_opt = np.array([2, 3])
+    ratios_for_opt = np.array([1, 2])
     mocker.patch.object(ALGORITHM_MAP['acvis'],
                         '_solve_opt_problem',
                         return_value=ratios_for_opt)
@@ -46,7 +48,7 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     model_costs = np.array([3, 1, 2])
     optimizer = Optimizer(model_costs, covariance)
 
-    ratios_for_opt = np.array([3, 2])
+    ratios_for_opt = np.array([2, 1])
     mocker.patch.object(ALGORITHM_MAP['acvis'],
                         '_solve_opt_problem',
                         return_value=ratios_for_opt)
@@ -54,8 +56,8 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
     cost_ref = 10. * cost_factor
     var_ref = (63. / 88.) * covariance_factor / cost_factor
     allocation_ref = np.array([[1 * cost_factor, 1, 1, 1, 1, 1],
-                               [1 * cost_factor, 0, 0, 0, 0, 1],
-                               [2 * cost_factor, 0, 0, 1, 0, 0]], dtype=int)
+                               [2 * cost_factor, 0, 0, 1, 0, 0],
+                               [1 * cost_factor, 0, 0, 0, 0, 1]], dtype=int)
 
     target_cost = 10 * cost_factor
     opt_result = optimizer.optimize(algorithm="acvis", target_cost=target_cost)
