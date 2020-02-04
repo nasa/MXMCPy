@@ -8,6 +8,9 @@ from ..acv_constraints import ACVConstraints
 
 class GISOptimizer(ACVRecursionOptimizer, ACVConstraints):
 
+    def _get_initial_guess(self):
+        return np.ones(self._num_models - 1)
+
     def _get_bounds(self):
         return [(0, np.inf)] * (self._num_models - 1)
 
