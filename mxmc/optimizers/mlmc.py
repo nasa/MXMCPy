@@ -4,6 +4,7 @@ to find the sample allocation that yields the smallest variance for a target
 cost.
 """
 import numpy as np
+import warnings
 
 from .optimizer_base import OptimizationResult, OptimizerBase
 
@@ -163,7 +164,6 @@ class MLMC(OptimizerBase):
 
             msg1 = "No samples are allocated for the highest fidelity model!\n"
             msg2 = "Is your target cost too low?"
-
-            raise UserWarning(msg1 + msg2)
-
+            warnings.warn(msg1 + msg2)
+        
         return allocation
