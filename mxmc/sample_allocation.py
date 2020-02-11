@@ -168,7 +168,10 @@ class SampleAllocation:
 
     def write_sample_allocation_data_to_file(self, file):
 
-        file.attrs['Method'] = self.method
+        if not self.method:
+            file.attrs['Method'] = "None"
+        else:
+            file.attrs['Method'] = self.method
 
         if not self.samples.empty:
 
