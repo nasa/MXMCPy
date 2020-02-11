@@ -38,7 +38,7 @@ class Estimator:
         '''
         Compute MXMC expected value estimate.
 
-        :param model_outputs: array of outputs for each model evaluated at the
+        :param model_outputs: arrays of outputs for each model evaluated at the
             random inputs prescribed by the optimal sample allocation. Note:
             each output array must correspond exactly to the size/order of the
             random inputs given by the optimal SampleAllocation object.
