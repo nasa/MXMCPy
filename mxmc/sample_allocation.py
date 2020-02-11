@@ -89,7 +89,7 @@ class SampleAllocation:
         model_samples = []
         for model_index in range(self.num_models):
             sample_indices = self.get_sample_indices_for_model(model_index)
-            model_samples.append(all_inputs[sample_indices, :])
+            model_samples.append(all_inputs[sample_indices])
 
         return model_samples
 
