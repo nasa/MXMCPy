@@ -2,8 +2,19 @@ import numpy as np
 
 
 class Estimator:
-
+    '''
+    Class to create MXMC estimators given an optimal sample allocation and 
+    outputs from high & low fidelity models.
+    '''
     def __init__(self, allocation, covariance):
+        '''
+        :param allocation: SampleAllocation object defining the optimal sample
+            allocation using an MXMX optimizer.
+        :type allocation: SampleAllocation object
+        :param covariance: Covariance matrix defining covariance among all
+            models being used for estimator. Size MxM where M is # models.
+        :type covariance: (2D) np.array
+        '''
         self._allocation = allocation
         self._covariance = covariance
         self._num_models = self._allocation.num_models
@@ -24,6 +35,17 @@ class Estimator:
             raise ValueError("Covariance array must be symmetric")
 
     def get_estimate(self, model_outputs):
+        '''
+        Compute MXMC expected value estimate.
+
+        :param model_outputs: arrays of outputs for each model evaluated at the
+            random inputs prescribed by the optimal sample allocation. Note:
+            each output array must correspond exactly to the size/order of the
+            random inputs given by the optimal SampleAllocation object.
+        :type allocation: list of np.arrays
+        
+        :Returns: the expected value estimator (float)
+        '''
         self._validate_model_outputs(model_outputs)
         q = np.mean(model_outputs[0])
         for i in range(1, self._allocation.num_models):

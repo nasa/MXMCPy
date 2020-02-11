@@ -13,7 +13,7 @@ class MFMC(OptimizerBase):
         self._model_order_map.sort(key=lambda x: correlations[x], reverse=True)
         self._ordered_corr = correlations[self._model_order_map]
         self._ordered_corr = np.append(self._ordered_corr, 0.)
-        self._ordered_cost = model_costs[self._model_order_map]
+        self._ordered_cost = self._model_costs[self._model_order_map]
         self._ordered_stdev = stdev[self._model_order_map]
 
     def optimize(self, target_cost):

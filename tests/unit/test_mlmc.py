@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import warnings
 
 from mxmc.optimizer import Optimizer
 from mxmc.optimizers.mlmc import MLMC
@@ -195,13 +196,16 @@ def test_mlmc_with_model_selection_zero_q():
     variance_expected = 2
     cost_expected = 6
 
-    with pytest.raises(UserWarning):
+    with warnings.catch_warnings(record=True) as warning_log:
         opt_result = optimizer.optimize(algorithm="mlmc",
                                         target_cost=target_cost,
                                         auto_model_selection=True)
 
         assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                                 sample_array_expected)
+
+        assert len(warning_log) == 1
+        assert issubclass(warning_log[-1].category, UserWarning)
 
 
 @pytest.mark.parametrize('num_levels', list(range(2, 5)))

@@ -4,6 +4,7 @@ to find the sample allocation that yields the smallest variance for a target
 cost.
 """
 import numpy as np
+import warnings
 
 from .optimizer_base import OptimizationResult, OptimizerBase
 
@@ -28,7 +29,7 @@ class MLMC(OptimizerBase):
     def __init__(self, model_costs, covariance=None):
         super().__init__(model_costs, covariance)
         self._validate_inputs(model_costs)
-        self._level_costs = self._get_level_costs(model_costs)
+        self._level_costs = self._get_level_costs(self._model_costs)
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
 
@@ -163,7 +164,6 @@ class MLMC(OptimizerBase):
 
             msg1 = "No samples are allocated for the highest fidelity model!\n"
             msg2 = "Is your target cost too low?"
-
-            raise UserWarning(msg1 + msg2)
-
+            warnings.warn(msg1 + msg2)
+        
         return allocation

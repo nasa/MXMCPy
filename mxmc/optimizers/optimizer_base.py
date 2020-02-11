@@ -13,7 +13,7 @@ class InconsistentModelError(Exception):
 
 class OptimizerBase(metaclass=ABCMeta):
     def __init__(self, model_costs, covariance=None, *_, **__):
-        self._model_costs = model_costs
+        self._model_costs = np.array(model_costs)
         self._num_models = len(self._model_costs)
         self._covariance = covariance
 
