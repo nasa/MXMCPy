@@ -81,6 +81,18 @@ class SampleAllocation:
         sample_indices = self.get_sample_indices_for_model(model_index)
         return self.samples.iloc[sample_indices, :]
 
+    def get_samples_for_models(self, all_inputs):
+
+        if len(all_inputs) < self.num_total_samples:
+            raise ValueError("Too few inputs samples to allocate to models!")
+
+        model_samples = []
+        for model_index in range(self.num_models):
+            sample_indices = self.get_sample_indices_for_model(model_index)
+            model_samples.append(all_inputs[sample_indices, :])
+
+        return model_samples
+
     def get_k0_matrix(self):
 
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
