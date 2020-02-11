@@ -265,3 +265,22 @@ def test_method_flag_initialization_from_file(input_array):
                             category=UserWarning)
     sample_allocation = SampleAllocation('test_save.hdf5')
     assert sample_allocation.method == 'MFMC'
+
+def test_get_samples_for_models_not_enough_samples_error(sample_allocation):
+
+    too_few_inputs = np.random.rand(10, 3)
+    with pytest.raises(ValueError):
+        _ = sample_allocation.get_samples_for_models(too_few_inputs)
+
+def test_get_samples_for_models(sample_allocation, input_array):
+
+    inputs_0 = input_array[np.arange(0,1), :]
+    inputs_1 = input_array[np.arange(0,6), :]
+    inputs_2 = input_array[np.arange(1,16), :]
+    ref_samples = [inputs_0, inputs_1, inputs_2] 
+    
+    gen_samples = sample_allocation.get_samples_for_models(input_array)
+
+    for i, gen_samples_i in enumerate(gen_samples):
+        assert np.array_equal(ref_samples[i], gen_samples_i)
+
