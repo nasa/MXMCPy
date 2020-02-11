@@ -54,7 +54,8 @@ def test_acvmf_three_models_unordered(cost_factor, covariance_factor, mocker):
                                [1 * cost_factor, 0, 0, 1, 0, 0]], dtype=int)
 
     target_cost = 10 * cost_factor
-    opt_result = optimizer.optimize(algorithm="acvmfu", target_cost=target_cost)
+    opt_result = optimizer.optimize(algorithm="acvmfu",
+                                    target_cost=target_cost)
     assert_opt_result_equal(opt_result, cost_ref, var_ref, allocation_ref)
 
 

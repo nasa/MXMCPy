@@ -145,5 +145,3 @@ class ACVOptimizer(OptimizerBase):
     @abstractmethod
     def _get_model_eval_ratios_autodiff(self, ratios_tensor):
         raise NotImplementedError
-
-

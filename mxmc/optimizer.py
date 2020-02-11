@@ -1,17 +1,18 @@
 from .optimizers.mfmc import MFMC
 from .optimizers.mlmc import MLMC
 
-from .optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers import *
-from .optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers import *
-from .optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers import *
+from .optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers import *  # noqa: E501, F403
+from .optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers import *  # noqa: E501, F403
+from .optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers import *  # noqa: E501, F403
 
 from .optimizers.model_selection import AutoModelSelection
 
-ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU, "acvmf": ACVMF,
-                 "acvmfmc": ACVMFMC, "acvkl": ACVKL,
-                 "gmfsr": GMFSR, "gmfmr": GMFMR,
-                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,
-                 "wrdiff": WRDiff, "grdsr": GRDSR, "grdmr": GRDMR}
+ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU,     # noqa: F405
+                 "acvmf": ACVMF, "acvmfmc": ACVMFMC,               # noqa: F405
+                 "acvkl": ACVKL, "gmfsr": GMFSR, "gmfmr": GMFMR,   # noqa: F405
+                 "acvis": ACVIS, "gissr": GISSR, "gismr": GISMR,   # noqa: F405
+                 "wrdiff": WRDiff, "grdsr": GRDSR,                 # noqa: F405
+                 "grdmr": GRDMR}                                   # noqa: F405
 
 
 class Optimizer:
@@ -32,15 +33,16 @@ class Optimizer:
         :param algorithm: name of method to use for optimization (e.g., "mlmc",
             "mfmc", "acvkl").
         :type algorithm: string
-        :param target_cost: total target cost constraint so that optimizer finds
-            sample allocation that requires less than or equal computation time.
+        :param target_cost: total target cost constraint so that optimizer
+            finds sample allocation that requires less than or equal
+            computation time.
         :type target_cost: float
         :param auto_model_selection: flag to use automatic model selection in
             optimization to test all subsets of models for best set.
         :type auto_model_selection: Boolean
 
         :Returns: An OptimizationResult namedtuple with entries for cost,
-            variance, and sample_array. cost (float) is expected cost of all 
+            variance, and sample_array. cost (float) is expected cost of all
             model evaluations prescribed in sample_array (np.array). variance
             is the minimized variance from the optimization.
         '''

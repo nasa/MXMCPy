@@ -27,7 +27,7 @@ class GMFOptimizer(ACVRecursionOptimizer):
             + torch.min(rib, rjb) / (rib * rjb)
 
         F0 = torch.min(ones, ref_ratios)/ref_ratios \
-             - torch.min(ones, ratios)/ratios
+            - torch.min(ones, ratios)/ratios
 
         return F, F0
 
@@ -60,5 +60,3 @@ class GMFOptimizer(ACVRecursionOptimizer):
         ref_ratios = full_ratios[[0] + self._recursion_refs]
         eval_ratios = torch.max(full_ratios, ref_ratios)
         return eval_ratios
-
-

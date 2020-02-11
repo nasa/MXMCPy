@@ -3,7 +3,7 @@ import numpy as np
 
 class Estimator:
     '''
-    Class to create MXMC estimators given an optimal sample allocation and 
+    Class to create MXMC estimators given an optimal sample allocation and
     outputs from high & low fidelity models.
     '''
     def __init__(self, allocation, covariance):
@@ -43,7 +43,7 @@ class Estimator:
             each output array must correspond exactly to the size/order of the
             random inputs given by the optimal SampleAllocation object.
         :type allocation: list of np.arrays
-        
+
         :Returns: the expected value estimator (float)
         '''
         self._validate_model_outputs(model_outputs)

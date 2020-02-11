@@ -41,7 +41,7 @@ class SampleAllocation:
     def _init_from_data(self, compressed_allocation_data, method):
 
         # if method is None:
-        #     raise ValueError("Must specify method if initializing directly " +
+        #     raise ValueError("Must specify method if initializing directly "+
         #                      "with compressed allocation data.")
 
         self.compressed_allocation = np.array(compressed_allocation_data)

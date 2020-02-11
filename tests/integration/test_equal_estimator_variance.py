@@ -3,17 +3,11 @@ import pytest
 
 from mxmc.estimator import Estimator
 from mxmc.optimizer import Optimizer, ALGORITHM_MAP
-from mxmc.sample_allocation import SampleAllocation
-from mxmc.optimizers.approximate_control_variates.recursion_enumerator \
-    import MREnumerator
-from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered \
-    import GMFUnordered
-from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered \
-    import GMFOrdered
-from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer \
-    import GISOptimizer
-from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer \
-    import GRDOptimizer
+from mxmc.optimizers.approximate_control_variates.recursion_enumerator import MREnumerator  # noqa: E501
+from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered import GMFUnordered  # noqa: E501
+from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered import GMFOrdered  # noqa: E501
+from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer import GISOptimizer  # noqa: E501
+from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer import GRDOptimizer  # noqa: E501
 
 ALGORITHMS = ALGORITHM_MAP.keys()
 
@@ -66,7 +60,7 @@ def _assert_opt_result_is_consistent(covariance, model_costs, opt_result):
     estimator_approx_variance = estimator.approximate_variance
     optimizer_approx_variance = opt_result.variance
     assert estimator_approx_variance \
-           == pytest.approx(optimizer_approx_variance)
+        == pytest.approx(optimizer_approx_variance)
     actual_cost = _calculate_costs_from_allocation(opt_result.allocation,
                                                    model_costs)
     assert opt_result.cost == pytest.approx(actual_cost)
@@ -154,6 +148,3 @@ def test_enum_acv_optimizers_give_consistent_output(enum_optimizer, mocker):
             opt_result = optimizer.optimize(target_cost)
             _assert_opt_result_is_consistent(covariance, model_costs,
                                              opt_result)
-
-
-

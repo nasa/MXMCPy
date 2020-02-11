@@ -75,6 +75,3 @@ class GRDOptimizer(ACVRecursionOptimizer, ACVConstraints):
         ref_ratios[1:] = full_ratios[self._recursion_refs]
         eval_ratios = full_ratios + ref_ratios
         return eval_ratios
-
-
-

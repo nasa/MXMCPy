@@ -45,4 +45,3 @@ class GMFSR(SREnumerator):
 class GMFMR(MREnumerator):
     def _get_sub_optimizer(self, *args, **kwargs):
         return GMFUnordered(*args, **kwargs)
-

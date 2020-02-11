@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from mxmc.optimizers.approximate_control_variates.acv_constraints import ACVConstraints
+from mxmc.optimizers.approximate_control_variates.acv_constraints \
+    import ACVConstraints
 
 DUMMYVALUE = None
 
@@ -107,7 +108,7 @@ def test_r_1_gt_prevr_constraints_are_accurate(r1_violates, r2_violates,
 @pytest.mark.parametrize("num_models", range(1, 4))
 def test_r_1_diff_refr_constraints_correct_size(num_models):
     opt = MockedConstrained(num_models=num_models,
-                            recursion_refs=[0]*(num_models - 1) )
+                            recursion_refs=[0]*(num_models - 1))
     constraints = \
         opt._constr_ratios_result_in_samples_1_different_than_ref(
             target_cost=DUMMYVALUE)
@@ -119,7 +120,7 @@ def test_r_1_diff_refr_constraints_correct_size(num_models):
 @pytest.mark.parametrize("r3_violates", [True, False])
 @pytest.mark.parametrize("addend", [-1, 1])
 def test_r_1_diff_refr_constraints_are_accurate(r1_violates, r2_violates,
-                                               r3_violates, addend):
+                                                r3_violates, addend):
     opt = MockedConstrained(num_models=4, n_value=1, recursion_refs=[0, 3, 1])
     constraints = \
         opt._constr_ratios_result_in_samples_1_different_than_ref(
