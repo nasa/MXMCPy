@@ -17,7 +17,7 @@ def test_case_mfmc(target_cost_multiplier, covariance_multiplier):
 
     expected_cost = 14640 * target_cost_multiplier
     expected_variance = 61 / 240 * covariance_multiplier \
-                        / target_cost_multiplier
+        / target_cost_multiplier
     expected_sample_array = np.array([[3 * target_cost_multiplier, 1, 1, 1],
                                       [57 * target_cost_multiplier, 0, 0, 1]],
                                      dtype=int)

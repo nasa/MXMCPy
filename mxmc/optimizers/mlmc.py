@@ -167,5 +167,5 @@ class MLMC(OptimizerBase):
             msg1 = "No samples are allocated for the highest fidelity model!\n"
             msg2 = "Is your target cost too low?"
             warnings.warn(msg1 + msg2)
-        
+
         return allocation

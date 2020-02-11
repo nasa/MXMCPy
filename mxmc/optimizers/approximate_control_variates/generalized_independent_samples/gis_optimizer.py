@@ -41,8 +41,12 @@ class GISOptimizer(ACVRecursionOptimizer, ACVConstraints):
         rjb = torch.transpose(rib, 0, 1)
 
         F = ria * (modelia == modelja).type(TORCHDTYPE) / (ria * rja) \
-            - ria * ((modelia == modeljb) + (modelia == modelja)).type(TORCHDTYPE) / (ria * (rja + rjb)) \
-            - rja * ((modelib == modelja) + (modelia == modelja)).type(TORCHDTYPE) / ((ria + rib) * rja) \
+            - ria * ((modelia == modeljb)
+                     + (modelia == modelja)).type(TORCHDTYPE) \
+            / (ria * (rja + rjb)) \
+            - rja * ((modelib == modelja)
+                     + (modelia == modelja)).type(TORCHDTYPE) \
+            / ((ria + rib) * rja) \
             + (ria * (modelia == modelja).type(TORCHDTYPE)
                + ria * (modelia == modeljb).type(TORCHDTYPE)
                + rja * (modelib == modelja).type(TORCHDTYPE)
@@ -86,6 +90,3 @@ class GISOptimizer(ACVRecursionOptimizer, ACVConstraints):
         ref_ratios[1:] = full_ratios[self._recursion_refs]
         eval_ratios = full_ratios + ref_ratios
         return eval_ratios
-
-
-

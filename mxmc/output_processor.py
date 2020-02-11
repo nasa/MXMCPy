@@ -6,7 +6,7 @@ import pandas as pd
 
 class OutputProcessor:
     '''
-    Class to estimate covariance matrix from collection of output samples from  
+    Class to estimate covariance matrix from collection of output samples from
     multiple models. Handles the general case where each models' outputs were
     not computed from the same set of random inputs and pairwise overlaps
     between samples are identified using a SampleAllocation object.
@@ -29,11 +29,11 @@ class OutputProcessor:
         :type model_outputs: list of np.array
         :param sample_allocation: An MXMC sample allocation object defining the
             indices of samples that each model output was generated for, if
-            applicable. Default is None indicating that all supplied model 
-            output arrays are the same size and were generated for the same 
+            applicable. Default is None indicating that all supplied model
+            output arrays are the same size and were generated for the same
             inputs.
         :type sample_allocation: SampleAllocation object.
-        
+
         :Returns: covariance matrix among all model outputs (2D np.array with
             size equal to the number of models).
         '''

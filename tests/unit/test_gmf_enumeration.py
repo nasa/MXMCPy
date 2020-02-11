@@ -55,4 +55,3 @@ def test_mr_enumeration(mocker, num_models, num_combinations):
     _ = optimizer.optimize("gmfmr", target_cost)
 
     assert impl_optimizers.GMFUnordered.call_count == num_combinations
-
