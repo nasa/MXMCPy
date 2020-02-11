@@ -2,13 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.optimizer import Optimizer, ALGORITHM_MAP
-
-
-def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
-    assert np.isclose(opt_result.cost, cost_ref)
-    assert np.isclose(opt_result.variance, var_ref)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_ref)
+from mxmc.util.testing import assert_opt_result_equal
 
 
 @pytest.mark.parametrize("cost_factor", [1, 4])

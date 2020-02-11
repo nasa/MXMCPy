@@ -6,7 +6,8 @@ cost.
 import numpy as np
 import warnings
 
-from .optimizer_base import OptimizationResult, OptimizerBase
+from .optimizer_base import OptimizerBase
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 class MLMC(OptimizerBase):

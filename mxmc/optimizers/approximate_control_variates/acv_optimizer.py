@@ -5,7 +5,8 @@ import torch
 
 from ...util.generic_numerical_optimization \
     import perform_slsqp_then_nelder_mead
-from ..optimizer_base import OptimizerBase, OptimizationResult
+from ..optimizer_base import OptimizerBase
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 TORCHDTYPE = torch.double
 

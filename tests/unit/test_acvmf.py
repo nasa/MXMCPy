@@ -2,13 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.optimizer import Optimizer, ALGORITHM_MAP
-
-
-def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
-    assert np.isclose(opt_result.cost, cost_ref)
-    assert np.isclose(opt_result.variance, var_ref)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_ref)
+from mxmc.util.testing import assert_opt_result_equal
 
 
 @pytest.mark.parametrize("algorithm", ["acvmf", "acvmfu"])
@@ -76,7 +70,7 @@ def test_acvmf_optimizer_satisfies_constraints(seed):
     opt_result = optimizer.optimize(algorithm="acvmf",
                                     target_cost=target_cost)
 
-    sample_nums = np.cumsum(opt_result.sample_array[:, 0])
+    sample_nums = np.cumsum(opt_result.allocation.compressed_allocation[:, 0])
     assert sample_nums[0] >= 1
     for sample in sample_nums[1:]:
         assert sample > sample_nums[0]

@@ -4,15 +4,9 @@ import warnings
 
 from mxmc.optimizer import Optimizer
 from mxmc.optimizers.mlmc import MLMC
+from mxmc.util.testing import assert_opt_result_equal
 
 dummy_var = 999
-
-
-def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
-    assert np.isclose(opt_result.cost, cost_ref)
-    assert np.isclose(opt_result.variance, var_ref)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_ref)
 
 
 @pytest.fixture
@@ -204,7 +198,7 @@ def test_mlmc_with_model_selection_zero_q():
         assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                                 sample_array_expected)
 
-        assert len(warning_log) == 1
+        assert len(warning_log) == 2
         assert issubclass(warning_log[-1].category, UserWarning)
 
 

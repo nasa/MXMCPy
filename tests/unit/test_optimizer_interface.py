@@ -2,16 +2,10 @@ import numpy as np
 import pytest
 
 from mxmc.optimizer import Optimizer, ALGORITHM_MAP
+from mxmc.util.testing import assert_opt_result_equal
 
 ALGORITHMS = ALGORITHM_MAP.keys()
 DUMMY_VAR = 999
-
-
-def assert_opt_result_equal(opt_result, cost_ref, var_ref, sample_array_ref):
-    assert np.isclose(opt_result.cost, cost_ref)
-    assert np.isclose(opt_result.variance, var_ref)
-    np.testing.assert_array_almost_equal(opt_result.sample_array,
-                                         sample_array_ref)
 
 
 @pytest.fixture
@@ -27,13 +21,13 @@ def test_target_cost_too_low_to_run_models(ui_optimizer, algorithm,
                                            target_cost):
     opt_result = ui_optimizer.optimize(algorithm=algorithm,
                                        target_cost=target_cost)
-    assert_opt_result_equal(opt_result, 0, np.inf, np.array([[0, 1, 1, 1]]))
+    assert_opt_result_equal(opt_result, 0, np.inf, np.array([[1, 1, 0, 0]]))
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
 def test_optimizer_returns_tuple_with(ui_optimizer, algorithm):
     opt_result = ui_optimizer.optimize(algorithm="mfmc", target_cost=10)
-    for member in ["cost", "variance", "sample_array"]:
+    for member in ["cost", "variance", "allocation"]:
         assert member in dir(opt_result)
 
 
@@ -69,9 +63,10 @@ def test_optimize_results_are_correct_sizes(algorithm, num_models):
     optimizer = Optimizer(model_costs, covariance)
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=20)
 
+    opt_sample_array = opt_result.allocation.compressed_allocation
     if algorithm in ["mfmc", "mlmc", "acvis"]:
-        assert opt_result.sample_array.shape[0] == num_models
-    assert opt_result.sample_array.shape[1] == num_models * 2
+        assert opt_sample_array.shape[0] == num_models
+    assert opt_sample_array.shape[1] == num_models * 2
 
 
 @pytest.mark.parametrize("algorithm", ALGORITHMS)
@@ -85,7 +80,8 @@ def test_opt_results_are_correct_sizes_using_model_selection(num_models,
     optimizer = Optimizer(model_costs, covariance)
     opt_result = optimizer.optimize(algorithm=algorithm, target_cost=20,
                                     auto_model_selection=True)
-    assert opt_result.sample_array.shape[1] == num_models * 2
+    opt_sample_array = opt_result.allocation.compressed_allocation
+    assert opt_sample_array.shape[1] == num_models * 2
 
 
 def test_optimizer_can_initialize_with_extra_inputs():
@@ -109,6 +105,7 @@ def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
     variance_ref = covariance[0] / N_ref
     cost_ref = target_cost
 
+    opt_sample_array = opt_result.allocation.compressed_allocation
     assert np.isclose(variance_ref, opt_result.variance)
     assert np.isclose(cost_ref, opt_result.cost)
-    assert N_ref == opt_result.sample_array[0, 0]
+    assert N_ref == opt_sample_array[0, 0]
