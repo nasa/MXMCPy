@@ -26,7 +26,7 @@ class SampleAllocation:
 
         expanded_key = 'Expanded_Allocation/expanded_allocation'
         self.num_models = self._calculate_num_models()
-        self.expanded_allocation = pd.DataFrame(allocation_file[expanded_key])
+        self.expanded_allocation = self._expand_allocation()
 
         samples_key = 'Samples/samples'
         if samples_key in allocation_file.keys():
@@ -65,6 +65,8 @@ class SampleAllocation:
         return samples_per_model
 
     def get_sample_indices_for_model(self, model_index):
+
+        print("EXPANDED = ", self. expanded_allocation)
 
         if model_index == 0:
             return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
