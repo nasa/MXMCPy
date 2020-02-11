@@ -4,7 +4,7 @@ import pytest
 from mxmc.optimizers.approximate_control_variates.generalized_multifidelity \
     import impl_optimizers
 from mxmc.optimizer import Optimizer
-from mxmc.optimizers.optimizer_base import OptimizationResult
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 @pytest.mark.parametrize("num_models, num_combinations", [(2, 1),
@@ -19,7 +19,9 @@ def test_kl_enumeration(mocker, num_models, num_combinations):
     optimizer = Optimizer(model_costs, covariance)
 
     mocked_optimizer = mocker.Mock()
-    mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1, None)
+    dummy_samples = np.array([[1, 1] + [0]*(num_models*2-2)], dtype=int)
+    mocked_optimizer.optimize.return_value = OptimizationResult(10, 0.1,
+                                                                dummy_samples)
     mocker.patch('mxmc.optimizers.approximate_control_variates.'
                  'generalized_multifidelity.impl_optimizers.GMFOrdered',
                  return_value=mocked_optimizer)

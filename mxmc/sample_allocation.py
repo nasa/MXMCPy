@@ -8,7 +8,6 @@ import pandas as pd
 class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
-
         self.samples = None
         if isinstance(compressed_allocation, str):
             self._init_from_file(compressed_allocation)
@@ -41,9 +40,9 @@ class SampleAllocation:
 
     def _init_from_data(self, compressed_allocation_data, method):
 
-        if method is None:
-            raise ValueError("Must specify method if initializing directly " +
-                             "with compressed allocation data.")
+        # if method is None:
+        #     raise ValueError("Must specify method if initializing directly " +
+        #                      "with compressed allocation data.")
 
         self.compressed_allocation = np.array(compressed_allocation_data)
         self.num_models = self._calculate_num_models()

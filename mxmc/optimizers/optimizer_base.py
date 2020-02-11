@@ -1,10 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 
 import numpy as np
 
-OptimizationResult = namedtuple('OptimizationResult',
-                                'cost variance sample_array')
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 class InconsistentModelError(Exception):
@@ -48,8 +46,8 @@ class OptimizerBase(metaclass=ABCMeta):
         return self._num_models
 
     def _get_invalid_result(self):
-        allocation = np.ones((1, 2 * self._num_models))
-        allocation[0, 0] = 0
+        allocation = np.zeros((1, 2 * self._num_models), dtype=int)
+        allocation[0, :2] = 1
         return OptimizationResult(0, np.inf, allocation)
 
     def _get_monte_carlo_result(self, target_cost):

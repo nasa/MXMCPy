@@ -36,11 +36,6 @@ def expanded_allocation_dataframe(expanded_allocation):
                         data=expanded_allocation)
 
 
-def test_error_raised_if_no_method_specified(compressed_allocation):
-    with pytest.raises(ValueError):
-        SampleAllocation(compressed_allocation)
-
-
 def test_compressed_allocation(sample_allocation, compressed_allocation):
     assert np.array_equal(sample_allocation.compressed_allocation,
                           compressed_allocation)

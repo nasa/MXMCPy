@@ -2,7 +2,8 @@ from itertools import combinations
 
 import numpy as np
 
-from .optimizer_base import OptimizationResult, InconsistentModelError
+from .optimizer_base import InconsistentModelError
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 class AutoModelSelection:
@@ -22,9 +23,9 @@ class AutoModelSelection:
         if best_indices is None:
             return best_result
 
-        sample_array = \
-            self._gen_sample_array(best_result.sample_array,
-                                   best_indices, num_models)
+        best_sample_array = best_result.allocation.compressed_allocation
+        sample_array = self._gen_sample_array(best_sample_array, best_indices,
+                                              num_models)
 
         estimator_variance = best_result.variance
         actual_cost = best_result.cost
@@ -49,7 +50,8 @@ class AutoModelSelection:
     @staticmethod
     def _gen_sample_array(result_sample, indices, num_models):
 
-        sample_array = np.zeros((result_sample.shape[0], num_models * 2))
+        sample_array = np.zeros((result_sample.shape[0], num_models * 2),
+                                dtype=int)
         sample_array[:, indices * 2] = result_sample[:, 0:len(indices)*2:2]
         sample_array[:, indices * 2 + 1] = result_sample[:, 1:len(indices)*2:2]
 

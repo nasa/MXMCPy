@@ -6,7 +6,8 @@ cost.
 import numpy as np
 import warnings
 
-from .optimizer_base import OptimizationResult, OptimizerBase
+from .optimizer_base import OptimizerBase
+from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 class MLMC(OptimizerBase):
@@ -107,7 +108,8 @@ class MLMC(OptimizerBase):
                                     samples_per_level[nonzero_sample_nums])
 
         allocation = self._get_allocation_array(samples_per_level)
-        return OptimizationResult(actual_cost, estimator_variance, allocation)
+        return OptimizationResult(actual_cost, estimator_variance, allocation,
+                                  method="mlmc")
 
     def _get_num_samples_per_level(self, target_cost):
 
