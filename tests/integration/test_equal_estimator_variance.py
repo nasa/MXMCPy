@@ -31,7 +31,8 @@ def _monomial_model_costs(powers):
     return np.power(10.0, -np.arange(len(powers)))
 
 
-def _calculate_costs_from_sample_array(sample_array, model_costs):
+def _calculate_costs_from_allocation(allocation, model_costs):
+    sample_array = allocation.compressed_allocation
     alloc = sample_array[:, 1:].transpose()
     evals = [alloc[0]]
     for i in range(1, alloc.shape[0], 2):
@@ -59,17 +60,15 @@ def _constraints_fulfilled(constraints, ratios):
     return True
 
 
-def _assert_opt_result_is_consistent(covariance, model_costs, opt_result,
-                                     algorithm="none"):
-    sample_allocation = SampleAllocation(opt_result.sample_array,
-                                         method=algorithm)
+def _assert_opt_result_is_consistent(covariance, model_costs, opt_result):
+    sample_allocation = opt_result.allocation
     estimator = Estimator(sample_allocation, covariance)
     estimator_approx_variance = estimator.approximate_variance
     optimizer_approx_variance = opt_result.variance
     assert estimator_approx_variance \
            == pytest.approx(optimizer_approx_variance)
-    actual_cost = _calculate_costs_from_sample_array(opt_result.sample_array,
-                                                     model_costs)
+    actual_cost = _calculate_costs_from_allocation(opt_result.allocation,
+                                                   model_costs)
     assert opt_result.cost == pytest.approx(actual_cost)
 
 
@@ -87,8 +86,7 @@ def test_opt_result_variance_and_cost_match_allocation(algorithm):
     optimizer = Optimizer(model_costs, covariance=covariance)
 
     opt_result = optimizer.optimize(algorithm, target_cost)
-    _assert_opt_result_is_consistent(covariance, model_costs, opt_result,
-                                     algorithm)
+    _assert_opt_result_is_consistent(covariance, model_costs, opt_result)
 
 
 def test_mfmc_and_acvmfmc_have_about_equal_variance():
