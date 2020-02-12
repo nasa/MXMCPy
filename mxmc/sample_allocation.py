@@ -66,7 +66,7 @@ class SampleAllocation:
 
     def get_sample_indices_for_model(self, model_index):
 
-        print("EXPANDED = ", self. expanded_allocation)
+        print("EXPANDED = ", self.expanded_allocation)
 
         if model_index == 0:
             return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
@@ -217,7 +217,9 @@ class SampleAllocation:
         for row in self.compressed_allocation:
 
             sample_group_size = row[0]
-            row_data = [row[1:]] * sample_group_size
+            row_data = []
+            if sample_group_size > 0:
+                row_data = [row[1:]] * sample_group_size
 
             data_frame = pd.DataFrame(columns=columns, data=row_data)
             expanded_allocation_data_frames.append(data_frame)
