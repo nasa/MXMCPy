@@ -14,9 +14,11 @@ class SampleAllocation:
         else:
             self._init_from_data(compressed_allocation, method)
 
-        self.num_total_samples = len(self.expanded_allocation)
-        self._num_shared_samples = self._calculate_sample_sharing_matrix()
-        self.utilized_models = self._find_utilized_models()
+        self._expanded_allocation = None
+        self._num_shared_samples = None
+        self._utilized_models = None
+
+        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
 
     def _init_from_file(self, compressed_allocation_file_name):
 
@@ -24,9 +26,7 @@ class SampleAllocation:
         allocation_file = h5py.File(compressed_allocation_file_name, 'r')
         self.compressed_allocation = np.array(allocation_file[compressed_key])
 
-        expanded_key = 'Expanded_Allocation/expanded_allocation'
         self.num_models = self._calculate_num_models()
-        self.expanded_allocation = self._expand_allocation()
 
         samples_key = 'Samples/samples'
         if samples_key in allocation_file.keys():
@@ -40,15 +40,28 @@ class SampleAllocation:
 
     def _init_from_data(self, compressed_allocation_data, method):
 
-        # if method is None:
-        #     raise ValueError("Must specify method if initializing directly "+
-        #                      "with compressed allocation data.")
-
         self.compressed_allocation = np.array(compressed_allocation_data)
         self.num_models = self._calculate_num_models()
-        self.expanded_allocation = self._expand_allocation()
         self.samples = pd.DataFrame()
         self.method = method
+
+    @property
+    def expanded_allocation(self):
+        if self._expanded_allocation is None:
+            self._expanded_allocation = self._expand_allocation()
+        return self._expanded_allocation
+
+    @property
+    def num_shared_samples(self):
+        if self._num_shared_samples is None:
+            self._num_shared_samples = self._calculate_sample_sharing_matrix()
+        return self._num_shared_samples
+
+    @property
+    def utilized_models(self):
+        if self._utilized_models is None:
+            self._utilized_models = self._find_utilized_models()
+        return self._utilized_models
 
     def get_number_of_samples_per_model(self):
 
@@ -104,8 +117,8 @@ class SampleAllocation:
 
             i_1 = i * 2 + 1
             i_2 = i_1 + 1
-            k_0[i] = self._num_shared_samples[0, i_1] / n[0] / n[i_1] \
-                - self._num_shared_samples[0, i_2] / n[0] / n[i_2]
+            k_0[i] = self.num_shared_samples[0, i_1] / n[0] / n[i_1] \
+                - self.num_shared_samples[0, i_2] / n[0] / n[i_2]
 
         return k_0
 
@@ -113,7 +126,6 @@ class SampleAllocation:
 
         k_size = self.num_models - 1
         k = np.zeros((k_size, k_size))
-        self._num_shared_samples = self._calculate_sample_sharing_matrix()
         n = self.expanded_allocation.sum(axis=0).values
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
 
@@ -127,16 +139,16 @@ class SampleAllocation:
                 j_1 = j * 2 + 1
                 j_2 = j_1 + 1
                 k[i, j] = \
-                    self._num_shared_samples[i_1, j_1] / n[i_1] / n[j_1] \
-                    - self._num_shared_samples[i_1, j_2] / n[i_1] / n[j_2] \
-                    - self._num_shared_samples[i_2, j_1] / n[i_2] / n[j_1] \
-                    + self._num_shared_samples[i_2, j_2] / n[i_2] / n[j_2]
+                    self.num_shared_samples[i_1, j_1] / n[i_1] / n[j_1] \
+                    - self.num_shared_samples[i_1, j_2] / n[i_1] / n[j_2] \
+                    - self.num_shared_samples[i_2, j_1] / n[i_2] / n[j_1] \
+                    + self.num_shared_samples[i_2, j_2] / n[i_2] / n[j_2]
 
         return k
 
     def _calculate_sample_sharing_matrix(self):
 
-        keys = list(self.expanded_allocation.columns.values)
+        keys = self._get_column_names()
         sample_sharing = np.empty((len(keys), len(keys)))
 
         for i, key in enumerate(keys):
