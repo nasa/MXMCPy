@@ -1,15 +1,11 @@
 import numpy as np
 import torch
 
-from ..acv_optimizer import TORCHDTYPE
-from ..recursion_optimizer import ACVRecursionOptimizer
+from ..acv_optimizer import ACVOptimizer, TORCHDTYPE
 from ..acv_constraints import ACVConstraints
 
 
-class GISOptimizer(ACVRecursionOptimizer, ACVConstraints):
-
-    def _get_initial_guess(self):
-        return np.ones(self._num_models - 1)
+class GISOptimizer(ACVOptimizer, ACVConstraints):
 
     def _get_bounds(self):
         return [(0, np.inf)] * (self._num_models - 1)

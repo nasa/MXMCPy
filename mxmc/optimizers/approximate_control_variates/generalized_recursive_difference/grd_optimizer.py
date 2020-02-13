@@ -1,12 +1,11 @@
 import numpy as np
 import torch
 
-from ..acv_optimizer import TORCHDTYPE
-from ..recursion_optimizer import ACVRecursionOptimizer
+from ..acv_optimizer import ACVOptimizer, TORCHDTYPE
 from ..acv_constraints import ACVConstraints
 
 
-class GRDOptimizer(ACVRecursionOptimizer, ACVConstraints):
+class GRDOptimizer(ACVOptimizer, ACVConstraints):
 
     def _get_bounds(self):
         return [(0, np.inf)] * (self._num_models - 1)

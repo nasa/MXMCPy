@@ -6,8 +6,8 @@ from mxmc.optimizers.optimization_result import OptimizationResult
 
 
 class MFMC(OptimizerBase):
-    def __init__(self, model_costs, covariance, *args, **kwargs):
-        super().__init__(model_costs, covariance, *args, **kwargs)
+    def __init__(self, model_costs, covariance):
+        super().__init__(model_costs, covariance)
         stdev = np.sqrt(np.diag(covariance))
         correlations = covariance[0] / stdev[0] / stdev
         self._model_order_map = list(range(self._num_models))

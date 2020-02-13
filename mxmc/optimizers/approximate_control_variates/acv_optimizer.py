@@ -13,12 +13,15 @@ TORCHDTYPE = torch.double
 
 class ACVOptimizer(OptimizerBase):
 
-    def __init__(self, model_costs, covariance=None, *args, **kwargs):
-        super().__init__(model_costs, covariance, *args, **kwargs)
+    def __init__(self, model_costs, covariance=None, recursion_refs=None):
+        super().__init__(model_costs, covariance)
         self._covariance_tensor = torch.tensor(self._covariance,
                                                dtype=TORCHDTYPE)
         self._model_costs_tensor = torch.tensor(self._model_costs,
                                                 dtype=TORCHDTYPE)
+        if recursion_refs is None:
+            recursion_refs = [0] * (self._num_models - 1)
+        self._recursion_refs = recursion_refs
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
