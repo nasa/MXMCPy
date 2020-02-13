@@ -1,6 +1,15 @@
 from abc import abstractmethod
 
 
+def satisfies_constraints(x, constraints):
+    for constr in constraints:
+        c_val = constr["fun"](x, *constr["args"])
+        if c_val < 0:
+            print(constr["fun"])
+            return False
+    return True
+
+
 class ACVConstraints:
 
     def _constr_n_greater_than_1(self, target_cost):

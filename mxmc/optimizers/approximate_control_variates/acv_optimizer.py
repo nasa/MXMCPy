@@ -1,10 +1,12 @@
 from abc import abstractmethod
+import warnings
 
 import numpy as np
 import torch
 
 from ...util.generic_numerical_optimization \
     import perform_slsqp_then_nelder_mead
+from .acv_constraints import satisfies_constraints
 from ..optimizer_base import OptimizerBase
 from mxmc.optimizers.optimization_result import OptimizationResult
 
@@ -42,9 +44,9 @@ class ACVOptimizer(OptimizerBase):
         return OptimizationResult(actual_cost, variance, allocation)
 
     def _solve_opt_problem(self, target_cost):
-        initial_guess = self._get_initial_guess()
         bounds = self._get_bounds()
         constraints = self._get_constraints(target_cost)
+        initial_guess = self._get_initial_guess(constraints)
 
         def obj_func(rat):
             return self._compute_objective_function(rat, target_cost,
@@ -60,8 +62,47 @@ class ACVOptimizer(OptimizerBase):
 
         return ratios
 
-    def _get_initial_guess(self):
-        return self._model_costs[0] / self._model_costs[1:]
+    def _get_initial_guess(self, constraints):
+        # balanced_costs = self._model_costs[0] / self._model_costs[1:]
+        # if satisfies_constraints(balanced_costs, constraints):
+        #     return balanced_costs
+        #
+        # all_ones = np.ones(self._num_models - 1)
+        # if satisfies_constraints(all_ones, constraints):
+        #     return all_ones
+        #
+        # all_twos = np.full(self._num_models - 1, 2)
+        # if satisfies_constraints(all_twos, constraints):
+        #     return all_twos
+
+        increasing_values = np.arange(2, self._num_models + 1)
+        if satisfies_constraints(increasing_values, constraints):
+            warnings.warn("Could not identify an initial guess that satisfies"
+                          " constraints")
+        return increasing_values
+
+        # full_initial_guess = np.ones(self._num_models)
+        # for _ in range(self._num_models):
+        #     full_initial_guess[1:] = \
+        #         full_initial_guess[self._recursion_refs] + 1
+        # recursion_initial_guess = full_initial_guess[1:]
+        # if satisfies_constraints(recursion_initial_guess, constraints):
+        #     return recursion_initial_guess
+        #
+        # full_initial_guess = np.ones(self._num_models)
+        # for _ in range(self._num_models):
+        #     full_initial_guess[1:] = \
+        #         full_initial_guess[self._recursion_refs] + 1
+        #     full_initial_guess[1:] = \
+        #         full_initial_guess[self._recursion_refs] - 1
+        # full_initial_guess[1:] = \
+        #     full_initial_guess[self._recursion_refs] + 1
+        # recursion_initial_guess = full_initial_guess[1:]
+        # if satisfies_constraints(recursion_initial_guess, constraints):
+        #     return recursion_initial_guess
+
+        # raise RuntimeError("Could not identify an initial guess that satisfies"
+        #                    " constraints")
 
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
