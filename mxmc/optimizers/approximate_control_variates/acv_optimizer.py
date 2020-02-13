@@ -76,7 +76,7 @@ class ACVOptimizer(OptimizerBase):
         #     return all_twos
 
         increasing_values = np.arange(2, self._num_models + 1)
-        if satisfies_constraints(increasing_values, constraints):
+        if not satisfies_constraints(increasing_values, constraints):
             warnings.warn("Could not identify an initial guess that satisfies"
                           " constraints")
         return increasing_values
