@@ -7,3 +7,4 @@ pytest-mock
 torch
 scipy
 matplotlib
+sphinx
