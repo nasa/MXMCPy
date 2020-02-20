@@ -31,7 +31,7 @@ extensions = [
 ]
 
 # Mock any libraries not needed for documentation to avoid import errors.
-autodoc_mock_imports = ["pandas, h5py", "mfmc", "mlmc"]
+autodoc_mock_imports = ["pandas, h5py", "MFMC", "MLMC"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
