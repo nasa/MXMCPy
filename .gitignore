@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 test_save.hdf5
 *.css
+docs/doc_build/doctrees
