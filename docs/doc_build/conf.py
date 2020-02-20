@@ -16,7 +16,9 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute.
+
 sys.path.insert(0, os.path.abspath('../mxmc'))
+sys.path.insert(0, os.path.abspath('../../mxmc'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -31,7 +33,7 @@ extensions = [
 ]
 
 # Mock any libraries not needed for documentation to avoid import errors.
-autodoc_mock_imports = ["pandas, h5py", "MFMC", "MLMC"]
+autodoc_mock_imports = ["pandas, h5py"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
