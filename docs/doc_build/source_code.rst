@@ -5,28 +5,36 @@ Source Code Documentation
 
 Documentation for the core MXMC classes.
 
-Input Generator Module Documentation
+Input Generator Module 
 ------------------------------------
 
 .. automodule:: input_generator
+.. autoclass:: InputGenerator
+	:members:
 
-Optimizer Module Documentation
+Optimizer Module 
 ------------------------------
 
-.. automodule:: optimizer
 
-Sample Allocation Documentation
+
+Sample Allocation 
 -------------------------------
 
 .. automodule:: sample_allocation
+.. autoclass:: SampleAllocation
+	:members:
 
-Output Processor Module Documentation
+Output Processor Module 
 -------------------------------------
 
 .. automodule:: output_processor
+.. autoclass:: OutputProcessor
+	:members:
 
-Estimator Module Documentation
+Estimator Module 
 ------------------------------
 
 .. automodule:: estimator
+.. autoclass:: Estimator
+	:members:
 
