@@ -79,8 +79,6 @@ class SampleAllocation:
 
     def get_sample_indices_for_model(self, model_index):
 
-        print("EXPANDED = ", self.expanded_allocation)
-
         if model_index == 0:
             return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
 
