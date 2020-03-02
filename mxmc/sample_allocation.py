@@ -4,39 +4,27 @@ import h5py
 import numpy as np
 import pandas as pd
 
+def read_allocation(filename):
+    allocation_file = h5py.File(filename, 'r')
+    compressed_key = 'Compressed_Allocation/compressed_allocation'
+    compressed_allocation = np.array(allocation_file[compressed_key])
+    method = allocation_file.attrs['Method']
+
+    return SampleAllocation(compressed_allocation, method)
+
+
 
 class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
         self.samples = None
-        if isinstance(compressed_allocation, str):
-            self._init_from_file(compressed_allocation)
-        else:
-            self._init_from_data(compressed_allocation, method)
+        self._init_from_data(compressed_allocation, method)
 
         self._expanded_allocation = None
         self._num_shared_samples = None
         self._utilized_models = None
 
         self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
-
-    def _init_from_file(self, compressed_allocation_file_name):
-
-        compressed_key = 'Compressed_Allocation/compressed_allocation'
-        allocation_file = h5py.File(compressed_allocation_file_name, 'r')
-        self.compressed_allocation = np.array(allocation_file[compressed_key])
-
-        self.num_models = self._calculate_num_models()
-
-        samples_key = 'Samples/samples'
-        if samples_key in allocation_file.keys():
-            sample_data = np.array(allocation_file[samples_key])
-            self.samples = pd.DataFrame(sample_data)
-        else:
-            self.samples = pd.DataFrame()
-
-        self.method = allocation_file.attrs['Method']
-        allocation_file.close()
 
     def _init_from_data(self, compressed_allocation_data, method):
 
@@ -85,23 +73,15 @@ class SampleAllocation:
         allocation_sums = self._convert_2_to_1(model_index)
         return list(allocation_sums.nonzero()[0])
 
-    def generate_samples(self, input_generator):
-        self.samples = input_generator.generate_samples(self.num_total_samples)
+    def allocate_samples_to_models(self, all_samples):
 
-    def get_samples_for_model(self, model_index):
-
-        sample_indices = self.get_sample_indices_for_model(model_index)
-        return self.samples.iloc[sample_indices, :]
-
-    def get_samples_for_models(self, all_inputs):
-
-        if len(all_inputs) < self.num_total_samples:
+        if len(all_samples) < self.num_total_samples:
             raise ValueError("Too few inputs samples to allocate to models!")
 
         model_samples = []
         for model_index in range(self.num_models):
             sample_indices = self.get_sample_indices_for_model(model_index)
-            model_samples.append(all_inputs[sample_indices])
+            model_samples.append(all_samples[sample_indices])
 
         return model_samples
 
