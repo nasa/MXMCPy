@@ -1,11 +1,11 @@
-from .optimizers.mfmc import MFMC
-from .optimizers.mlmc import MLMC
+from mxmc.optimizers.mfmc import MFMC
+from mxmc.optimizers.mlmc import MLMC
 
-from .optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers import *  # noqa: E501, F403
-from .optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers import *  # noqa: E501, F403
-from .optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers import *  # noqa: E501, F403
+from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers import *  # noqa: E501, F403
+from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers import *  # noqa: E501, F403
+from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers import *  # noqa: E501, F403
 
-from .optimizers.model_selection import AutoModelSelection
+from mxmc.optimizers.model_selection import AutoModelSelection
 
 ALGORITHM_MAP = {"mfmc": MFMC, "mlmc": MLMC, "acvmfu": ACVMFU,     # noqa: F405
                  "acvmf": ACVMF, "acvmfmc": ACVMFMC,               # noqa: F405

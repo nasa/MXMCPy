@@ -42,8 +42,42 @@
 <dd></dd></dl>
 
 </div>
-<div class="section" id="optimizer-module">
-<h2>Optimizer Module<a class="headerlink" href="#optimizer-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-optimizer">
+<span id="optimizer-module"></span><h2>Optimizer Module<a class="headerlink" href="#module-optimizer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="optimizer.Optimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizer.</code><code class="sig-name descname">Optimizer</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>User interface for accessing all MXMC variance minimization optimizers for
+computing optimal sample allocations.</p>
+<dl class="method">
+<dt id="optimizer.Optimizer.optimize">
+<code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param">algorithm</em>, <em class="sig-param">target_cost</em>, <em class="sig-param">auto_model_selection=False</em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs variance minimization optimization to determine the optimal
+sample allocation across available models within a specified target
+computational cost.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> (<em>string</em>) – name of method to use for optimization (e.g., “mlmc”,
+“mfmc”, “acvkl”).</p></li>
+<li><p><strong>target_cost</strong> (<em>float</em>) – total target cost constraint so that optimizer
+finds sample allocation that requires less than or equal
+computation time.</p></li>
+<li><p><strong>auto_model_selection</strong> (<em>Boolean</em>) – flag to use automatic model selection in
+optimization to test all subsets of models for best set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An OptimizationResult namedtuple with entries for cost,
+variance, and sample_array. cost (float) is expected cost of all
+model evaluations prescribed in sample_array (np.array). variance
+is the minimized variance from the optimization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-sample_allocation">
 <span id="sample-allocation"></span><h2>Sample Allocation<a class="headerlink" href="#module-sample_allocation" title="Permalink to this headline">¶</a></h2>
@@ -144,7 +178,7 @@ random inputs given by the optimal SampleAllocation object.</p>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Example - EXAMPLE DESCRIPTION</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Source Code Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-input_generator">Input Generator Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#optimizer-module">Optimizer Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimizer">Optimizer Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-sample_allocation">Sample Allocation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output_processor">Output Processor Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-estimator">Estimator Module</a></li>
@@ -186,7 +220,7 @@ random inputs given by the optimal SampleAllocation object.</p>
       &copy;2020, NASA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

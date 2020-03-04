@@ -18,7 +18,6 @@ import os
 # documentation root, use os.path.abspath to make it absolute.
 
 sys.path.insert(0, os.path.abspath('../../mxmc'))
-sys.path.insert(0, os.path.abspath('../../mxmc/optimizers'))
 
 # -- General configuration -----------------------------------------------------
 

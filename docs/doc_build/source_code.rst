@@ -15,6 +15,9 @@ Input Generator Module
 Optimizer Module 
 ------------------------------
 
+.. automodule:: optimizer
+.. autoclass:: Optimizer
+	:members:
 
 
 Sample Allocation 
