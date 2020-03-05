@@ -13,7 +13,6 @@ def read_allocation(filename):
     return SampleAllocation(compressed_allocation, method)
 
 
-
 class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
