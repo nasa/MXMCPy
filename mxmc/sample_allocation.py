@@ -17,12 +17,11 @@ class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
         self._init_from_data(compressed_allocation, method)
+        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
 
         self._expanded_allocation = None
         self._num_shared_samples = None
         self._utilized_models = None
-
-        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
 
     def _init_from_data(self, compressed_allocation_data, method):
 
@@ -51,7 +50,6 @@ class SampleAllocation:
     def get_number_of_samples_per_model(self):
 
         samples_per_model = np.empty(self.num_models, dtype=int)
-
         model_0_allocation = self.expanded_allocation[['0']]
         samples_per_model[0] = model_0_allocation.sum(axis=0).values[0]
 
@@ -137,7 +135,6 @@ class SampleAllocation:
     def save(self, file_path):
 
         h5_file = h5py.File(file_path, 'w')
-        h5_file.create_group('Compressed_Allocation')
         self.write_file_data_set(h5_file, "Compressed_Allocation",
                                  self.compressed_allocation)
         if not self.method:
@@ -147,9 +144,9 @@ class SampleAllocation:
         h5_file.close()
 
     @staticmethod
-    def write_file_data_set(file, group_name, data_set):
-
-        file[group_name].create_dataset(name=group_name.lower(), data=data_set)
+    def write_file_data_set(h5file, group_name, dataset):
+        h5file.create_group(group_name)
+        h5file[group_name].create_dataset(name=group_name.lower(), data=dataset)
 
     def get_sample_split_for_model(self, model_index):
 
