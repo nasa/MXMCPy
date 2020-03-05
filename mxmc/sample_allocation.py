@@ -5,6 +5,13 @@ import numpy as np
 import pandas as pd
 
 def read_allocation(filename):
+    '''
+    Read sample allocation from file
+
+    :param filename: name of hdf5 sample allocation file
+    :type filename: string
+
+    '''
     allocation_file = h5py.File(filename, 'r')
     compressed_key = 'Compressed_Allocation/compressed_allocation'
     compressed_allocation = np.array(allocation_file[compressed_key])
