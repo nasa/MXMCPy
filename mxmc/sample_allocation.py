@@ -16,7 +16,6 @@ def read_allocation(filename):
 class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
-        self.samples = None
         self._init_from_data(compressed_allocation, method)
 
         self._expanded_allocation = None
@@ -29,7 +28,6 @@ class SampleAllocation:
 
         self.compressed_allocation = np.array(compressed_allocation_data)
         self.num_models = self._calculate_num_models()
-        self.samples = pd.DataFrame()
         self.method = method
 
     @property
@@ -139,48 +137,14 @@ class SampleAllocation:
     def save(self, file_path):
 
         h5_file = h5py.File(file_path, 'w')
-
-        self.create_file_structure(h5_file)
-        self.write_sample_allocation_data_to_file(h5_file)
-
-        h5_file.close()
-
-    def create_file_structure(self, file):
-
-        file.create_group('Compressed_Allocation')
-        file.create_group('Expanded_Allocation')
-        file.create_group('Samples')
-        file.create_group('Input_Names')
-
-        for model in range(self.num_models):
-
-            group_name = 'Samples_Model_' + str(model)
-            file.create_group(group_name)
-
-    def write_sample_allocation_data_to_file(self, file):
-
-        if not self.method:
-            file.attrs['Method'] = "None"
-        else:
-            file.attrs['Method'] = self.method
-
-        if not self.samples.empty:
-
-            for model_index in range(self.num_models):
-
-                group_name = 'Samples_Model_' + str(model_index)
-                data = self.get_samples_for_model(model_index)
-
-                self.write_file_data_set(file, group_name, data)
-
-        self.write_file_data_set(file, "Compressed_Allocation",
+        h5_file.create_group('Compressed_Allocation')
+        self.write_file_data_set(h5_file, "Compressed_Allocation",
                                  self.compressed_allocation)
-
-        self.write_file_data_set(file, "Expanded_Allocation",
-                                 self.expanded_allocation)
-
-        self.write_file_data_set(file, "Samples",
-                                 self.samples)
+        if not self.method:
+            h5_file.attrs['Method'] = "None"
+        else:
+            h5_file.attrs['Method'] = self.method
+        h5_file.close()
 
     @staticmethod
     def write_file_data_set(file, group_name, data_set):
