@@ -6,6 +6,13 @@ from mxmc.sample_allocation import SampleAllocation
 
 
 @pytest.fixture
+def sample_allocation():
+    compressed_allocation = np.array([[1, 1, 1, 1, 0, 0],
+                                      [5, 0, 1, 1, 1, 1],
+                                      [10, 0, 0, 0, 1, 1]])
+    return SampleAllocation(compressed_allocation, 'MFMC')
+
+@pytest.fixture
 def sample_model_outputs(sample_allocation):
     num_samples = sample_allocation.get_number_of_samples_per_model()
     return [np.random.random(n) for n in num_samples]
