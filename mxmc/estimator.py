@@ -49,11 +49,13 @@ class Estimator:
         self._validate_model_outputs(model_outputs)
         q = np.mean(model_outputs[0])
         for i in range(1, self._allocation.num_models):
-            filt_1, filt_2 = self._allocation.get_sample_split_for_model(i)
-            q_i1 = model_outputs[i][filt_1]
-            q_i2 = model_outputs[i][filt_2]
-            if len(q_i1) != 0 or len(q_i2) != 0:
-                q += self._alpha[i - 1] * (np.mean(q_i1) - np.mean(q_i2))
+            ranges_1, ranges_2 = self._allocation.get_sample_split_for_model(i)
+            n_1 = sum([len(i) for i in ranges_1])
+            n_2 = sum([len(i) for i in ranges_2])
+            for rng in ranges_1:
+                q += self._alpha[i - 1] * np.sum(model_outputs[i][rng]) / n_1
+            for rng in ranges_2:
+                q -= self._alpha[i - 1] * np.sum(model_outputs[i][rng]) / n_2
 
         return q
 

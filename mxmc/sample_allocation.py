@@ -70,10 +70,17 @@ class SampleAllocation:
     def get_sample_indices_for_model(self, model_index):
 
         if model_index == 0:
-            return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
-
-        allocation_sums = self._convert_2_to_1(model_index)
-        return list(allocation_sums.nonzero()[0])
+            ranges = self._get_ranges_from_samples_and_bool(
+                    self.compressed_allocation[:, 0],
+                    self.compressed_allocation[:, 1])
+        else:
+            col_1 = model_index * 2
+            col_2 = col_1 + 1
+            model_used = np.max(self.compressed_allocation[:, [col_1, col_2]],
+                                axis=1)
+            ranges = self._get_ranges_from_samples_and_bool(
+                    self.compressed_allocation[:, 0], model_used)
+        return np.hstack(ranges)
 
     def allocate_samples_to_models(self, all_samples):
 
@@ -156,15 +163,33 @@ class SampleAllocation:
         h5file[group_name].create_dataset(name=group_name.lower(), data=dataset)
 
     def get_sample_split_for_model(self, model_index):
+        col_1 = model_index * 2
+        col_2 = col_1 + 1
+        model_filter = np.logical_or(self.compressed_allocation[:, col_1] == 1,
+                                     self.compressed_allocation[:, col_2] == 1)
+        model_allocation = self.compressed_allocation[model_filter]
+        ranges_1 = self._get_ranges_from_samples_and_bool(model_allocation[:, 0],
+                                                   model_allocation[:, col_1])
+        ranges_2 = self._get_ranges_from_samples_and_bool(model_allocation[:, 0],
+                                                   model_allocation[:, col_2])
+        return ranges_1, ranges_2
 
-        col_1 = '%d_1' % model_index
-        col_2 = '%d_2' % model_index
-        model_filter = np.logical_or(self.expanded_allocation[col_1] == 1,
-                                     self.expanded_allocation[col_2] == 1)
-        filter_1 = self.expanded_allocation[col_1][model_filter] == 1
-        filter_2 = self.expanded_allocation[col_2][model_filter] == 1
-
-        return filter_1, filter_2
+    @staticmethod
+    def _get_ranges_from_samples_and_bool(n_samples, used_by_samples):
+        ranges = []
+        range_start = 0
+        range_end = 0
+        for n, is_used in zip(n_samples, used_by_samples):
+            if is_used:
+                range_end += n
+            else:
+                if range_start != range_end:
+                    ranges.append(range(range_start, range_end))
+                range_end += n
+                range_start = range_end
+        if range_start != range_end:
+            ranges.append(np.arange(range_start, range_end))
+        return ranges
 
     def _expand_allocation(self):
 
