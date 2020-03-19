@@ -11,7 +11,8 @@ class MFMC(OptimizerBase):
         stdev = np.sqrt(np.diag(covariance))
         correlations = covariance[0] / stdev[0] / stdev
         self._model_order_map = list(range(self._num_models))
-        self._model_order_map.sort(key=lambda x: correlations[x], reverse=True)
+        self._model_order_map.sort(key=lambda x: abs(correlations[x]),
+                                   reverse=True)
         self._ordered_corr = correlations[self._model_order_map]
         self._ordered_corr = np.append(self._ordered_corr, 0.)
         self._ordered_cost = self._model_costs[self._model_order_map]
