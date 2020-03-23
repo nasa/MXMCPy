@@ -97,7 +97,7 @@ class SampleAllocation:
 
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
         k_0 = np.empty(self.num_models - 1)
-        n = self.expanded_allocation.sum(axis=0).values
+        n = self._get_num_samples_per_column()
 
         for i in k_indices:
 
@@ -108,11 +108,21 @@ class SampleAllocation:
 
         return k_0
 
+    def _get_num_samples_per_column(self):
+       
+        samples_per_group = self.compressed_allocation[:, 0]
+        samples_per_col = np.zeros(2*self.num_models-1, dtype=int)
+
+        for i, col_inds in enumerate(self.compressed_allocation[:, 1:].T):
+            samples_per_col[i]  = np.sum(samples_per_group[col_inds==1])
+    
+        return samples_per_col
+
     def get_k_matrix(self):
 
         k_size = self.num_models - 1
         k = np.zeros((k_size, k_size))
-        n = self.expanded_allocation.sum(axis=0).values
+        n = self._get_num_samples_per_column()
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
 
         for i in k_indices:
