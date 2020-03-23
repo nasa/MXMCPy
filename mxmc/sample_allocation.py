@@ -232,36 +232,29 @@ class SampleAllocation:
 
         return column_names
 
-    def _convert_2_to_1(self, model_index):
-
-        column_names = [str(model_index) + '_1', str(model_index) + '_2']
-        temp_sums = self.expanded_allocation[column_names].sum(axis=1).values
-        temp_sums[temp_sums == 2] = 1
-
-        return temp_sums
-
     def _find_utilized_models(self):
 
         utilized_models = list()
 
-        if self.expanded_allocation.iloc[:, 0].sum() > 0:
+        samples_per_col = self._get_num_samples_per_column()
+    
+        if samples_per_col[0] > 0:
             utilized_models.append(0)
         else:
             warnings.warn("Allocation Warning: Model 0 is not evaluated,")
 
         for i in range(1, self.num_models):
 
-            i_1 = i * 2 - 1
+            i_1 = i * 2 
             i_2 = i_1 + 1
 
-            i_1_allocation = self.expanded_allocation.iloc[:, i_1]
-            i_2_allocation = self.expanded_allocation.iloc[:, i_2]
+            i_1_allocation = self.compressed_allocation[:, i_1]
+            i_2_allocation = self.compressed_allocation[:, i_2]
 
-            if not i_1_allocation.equals(i_2_allocation):
+            if not np.array_equal(i_1_allocation, i_2_allocation):
                 utilized_models.append(i)
             else:
-
-                num_evals = i_1_allocation.sum()
+                num_evals = samples_per_col[i_1-1]
                 if num_evals > 0:
                     warnings.warn("Allocation Warning: Model %d is " % (i + 1)
                                   + "evaluated %d times but does " % num_evals
