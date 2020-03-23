@@ -22,45 +22,12 @@ def sample_allocation(compressed_allocation):
                             category=UserWarning)
     return SampleAllocation(compressed_allocation, 'MFMC')
 
-
 @pytest.fixture
 def saved_allocation_path(sample_allocation, tmp_path):
     p = tmp_path / "test_allocation.h5"
     path_str = str(p)
     sample_allocation.save(path_str)
     return path_str
-
-
-@pytest.fixture
-def expanded_allocation():
-    return [[1, 1, 1, 0, 0],
-            [0, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1],
-            [0, 0, 0, 1, 1]]
-
-
-@pytest.fixture
-def expanded_allocation_dataframe(expanded_allocation):
-    return pd.DataFrame(columns=['0', '1_1', '1_2', '2_1', '2_2'],
-                        data=expanded_allocation)
-
-
-@pytest.fixture
-def input_names():
-    return ['input1', 'input2', 'input3']
-
 
 @pytest.fixture
 def input_array():
@@ -81,7 +48,6 @@ def input_array():
                      [72, 4.3, 4],
                      [27, 3, 9.4]])
 
-
 def test_compressed_allocation(sample_allocation, compressed_allocation):
     assert np.array_equal(sample_allocation.compressed_allocation,
                           compressed_allocation)
@@ -95,26 +61,22 @@ def test_get_column_names(sample_allocation):
     assert sample_allocation._get_column_names() == ['0', '1_1', '1_2', '2_1',
                                                      '2_2']
 
-
 def test_one_model_num_models():
     test_allocation = SampleAllocation(np.array([[10, 1]]), 'MFMC')
     assert test_allocation.num_models == 1
-
-
-def test_expand_allocation(sample_allocation, expanded_allocation_dataframe):
-    assert pd.DataFrame.equals(sample_allocation.expanded_allocation,
-                               expanded_allocation_dataframe)
 
 
 def test_get_number_of_samples_per_model(sample_allocation):
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
                           np.array([1, 6, 15]))
 
+
 def test_get_number_of_samples_per_model_MC():
     compressed_allocation = np.array([[10, 1, 0, 0, 0, 0]])
     sample_allocation = SampleAllocation(compressed_allocation, 'MC') 
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
                           np.array([10, 0, 0]))
+
 
 @pytest.mark.parametrize("model_num, expected_indices",
                          [(0, np.array([0])),

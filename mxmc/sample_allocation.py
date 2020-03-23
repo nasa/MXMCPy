@@ -37,12 +37,6 @@ class SampleAllocation:
         self.method = method
 
     @property
-    def expanded_allocation(self):
-        if self._expanded_allocation is None:
-            self._expanded_allocation = self._expand_allocation()
-        return self._expanded_allocation
-
-    @property
     def num_shared_samples(self):
         if self._num_shared_samples is None:
             self._num_shared_samples = self._calculate_sample_sharing_matrix()
@@ -199,25 +193,6 @@ class SampleAllocation:
         if range_start != range_end:
             ranges.append(np.arange(range_start, range_end))
         return ranges
-
-    def _expand_allocation(self):
-
-        expanded_allocation_data_frames = list()
-        columns = self._get_column_names()
-
-        for row in self.compressed_allocation:
-
-            sample_group_size = row[0]
-            row_data = []
-            if sample_group_size > 0:
-                row_data = [row[1:]] * sample_group_size
-
-            data_frame = pd.DataFrame(columns=columns, data=row_data)
-            expanded_allocation_data_frames.append(data_frame)
-
-        expanded_dataframe = pd.concat(expanded_allocation_data_frames,
-                                       ignore_index=True)
-        return expanded_dataframe
 
     def _calculate_num_models(self):
         return int(1 + (np.shape(self.compressed_allocation)[1] - 2) / 2)
