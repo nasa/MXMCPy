@@ -57,13 +57,9 @@ class SampleAllocation:
     def get_number_of_samples_per_model(self):
 
         samples_per_model = np.empty(self.num_models, dtype=int)
-        model_0_allocation = self.expanded_allocation[['0']]
-        samples_per_model[0] = model_0_allocation.sum(axis=0).values[0]
-
-        for model_index in range(1, self.num_models):
-
-            allocation_sums = self._convert_2_to_1(model_index)
-            samples_per_model[model_index] = np.sum(allocation_sums)
+        for model_index in range(self.num_models):
+            samples_per_model[model_index] = \
+                len(self.get_sample_indices_for_model(model_index))
 
         return samples_per_model
 
