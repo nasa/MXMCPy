@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 from ...util.generic_numerical_optimization \
-    import perform_slsqp_then_nelder_mead
+    import perform_slsqp_then_nelder_mead, perform_nelder_mead
 from .acv_constraints import satisfies_constraints
 from ..optimizer_base import OptimizerBase
 from mxmc.optimizers.optimization_result import OptimizationResult
@@ -59,6 +59,9 @@ class ACVOptimizer(OptimizerBase):
         ratios = perform_slsqp_then_nelder_mead(bounds, constraints,
                                                 initial_guess, obj_func,
                                                 obj_func_and_grad)
+
+        # ratios = perform_nelder_mead(bounds, constraints,  initial_guess,
+        #                              obj_func)
 
         return ratios
 

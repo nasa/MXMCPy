@@ -2,54 +2,38 @@ import warnings
 
 import h5py
 import numpy as np
-import pandas as pd
+
+def read_allocation(filename):
+    '''
+    Read sample allocation from file
+
+    :param filename: name of hdf5 sample allocation file
+    :type filename: string
+
+    '''
+    allocation_file = h5py.File(filename, 'r')
+    compressed_key = 'Compressed_Allocation/compressed_allocation'
+    compressed_allocation = np.array(allocation_file[compressed_key])
+    method = allocation_file.attrs['Method']
+
+    return SampleAllocation(compressed_allocation, method)
 
 
 class SampleAllocation:
 
     def __init__(self, compressed_allocation, method=None):
-        self.samples = None
-        if isinstance(compressed_allocation, str):
-            self._init_from_file(compressed_allocation)
-        else:
-            self._init_from_data(compressed_allocation, method)
+        self._init_from_data(compressed_allocation, method)
+        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
 
         self._expanded_allocation = None
         self._num_shared_samples = None
         self._utilized_models = None
 
-        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
-
-    def _init_from_file(self, compressed_allocation_file_name):
-
-        compressed_key = 'Compressed_Allocation/compressed_allocation'
-        allocation_file = h5py.File(compressed_allocation_file_name, 'r')
-        self.compressed_allocation = np.array(allocation_file[compressed_key])
-
-        self.num_models = self._calculate_num_models()
-
-        samples_key = 'Samples/samples'
-        if samples_key in allocation_file.keys():
-            sample_data = np.array(allocation_file[samples_key])
-            self.samples = pd.DataFrame(sample_data)
-        else:
-            self.samples = pd.DataFrame()
-
-        self.method = allocation_file.attrs['Method']
-        allocation_file.close()
-
     def _init_from_data(self, compressed_allocation_data, method):
 
         self.compressed_allocation = np.array(compressed_allocation_data)
         self.num_models = self._calculate_num_models()
-        self.samples = pd.DataFrame()
         self.method = method
-
-    @property
-    def expanded_allocation(self):
-        if self._expanded_allocation is None:
-            self._expanded_allocation = self._expand_allocation()
-        return self._expanded_allocation
 
     @property
     def num_shared_samples(self):
@@ -66,42 +50,39 @@ class SampleAllocation:
     def get_number_of_samples_per_model(self):
 
         samples_per_model = np.empty(self.num_models, dtype=int)
-
-        model_0_allocation = self.expanded_allocation[['0']]
-        samples_per_model[0] = model_0_allocation.sum(axis=0).values[0]
-
-        for model_index in range(1, self.num_models):
-
-            allocation_sums = self._convert_2_to_1(model_index)
-            samples_per_model[model_index] = np.sum(allocation_sums)
+        for model_index in range(self.num_models):
+            samples_per_model[model_index] = \
+                len(self.get_sample_indices_for_model(model_index))
 
         return samples_per_model
 
     def get_sample_indices_for_model(self, model_index):
 
         if model_index == 0:
-            return list(self.expanded_allocation['0'].to_numpy().nonzero()[0])
+            ranges = self._get_ranges_from_samples_and_bool(
+                self.compressed_allocation[:, 0],
+                self.compressed_allocation[:, 1])
+        else:
+            col_1 = model_index * 2
+            col_2 = col_1 + 1
+            model_used = np.max(self.compressed_allocation[:, [col_1, col_2]],
+                                axis=1)
+            ranges = self._get_ranges_from_samples_and_bool(
+                self.compressed_allocation[:, 0], model_used)
+        if ranges:
+            ranges = np.hstack(ranges)
 
-        allocation_sums = self._convert_2_to_1(model_index)
-        return list(allocation_sums.nonzero()[0])
+        return ranges
 
-    def generate_samples(self, input_generator):
-        self.samples = input_generator.generate_samples(self.num_total_samples)
+    def allocate_samples_to_models(self, all_samples):
 
-    def get_samples_for_model(self, model_index):
-
-        sample_indices = self.get_sample_indices_for_model(model_index)
-        return self.samples.iloc[sample_indices, :]
-
-    def get_samples_for_models(self, all_inputs):
-
-        if len(all_inputs) < self.num_total_samples:
+        if len(all_samples) < self.num_total_samples:
             raise ValueError("Too few inputs samples to allocate to models!")
 
         model_samples = []
         for model_index in range(self.num_models):
             sample_indices = self.get_sample_indices_for_model(model_index)
-            model_samples.append(all_inputs[sample_indices])
+            model_samples.append(all_samples[sample_indices])
 
         return model_samples
 
@@ -109,7 +90,7 @@ class SampleAllocation:
 
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
         k_0 = np.empty(self.num_models - 1)
-        n = self.expanded_allocation.sum(axis=0).values
+        n = self._get_num_samples_per_column()
 
         for i in k_indices:
 
@@ -120,11 +101,21 @@ class SampleAllocation:
 
         return k_0
 
+    def _get_num_samples_per_column(self):
+
+        samples_per_group = self.compressed_allocation[:, 0]
+        samples_per_col = np.zeros(2*self.num_models-1, dtype=int)
+
+        for i, col_inds in enumerate(self.compressed_allocation[:, 1:].T):
+            samples_per_col[i] = np.sum(samples_per_group[col_inds == 1])
+
+        return samples_per_col
+
     def get_k_matrix(self):
 
         k_size = self.num_models - 1
         k = np.zeros((k_size, k_size))
-        n = self.expanded_allocation.sum(axis=0).values
+        n = self._get_num_samples_per_column()
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
 
         for i in k_indices:
@@ -146,97 +137,61 @@ class SampleAllocation:
 
     def _calculate_sample_sharing_matrix(self):
 
-        keys = self._get_column_names()
-        sample_sharing = np.empty((len(keys), len(keys)))
+        pseudo_expanded = self.compressed_allocation[:, 0].reshape((-1, 1)) * \
+                          self.compressed_allocation[:, 1:]
+        num_cols = 2*self.num_models - 1
+        sample_sharing = np.empty((num_cols, num_cols))
 
-        for i, key in enumerate(keys):
-
-            shared_with_key = self.expanded_allocation[key] == 1
-            sample_sharing[i] = \
-                self.expanded_allocation[shared_with_key].sum(axis=0).values
+        for i in range(num_cols):
+            shared_with_key = self.compressed_allocation[:, i+1] == 1
+            sample_sharing[i] = np.sum(pseudo_expanded[shared_with_key], axis=0)
 
         return sample_sharing
 
     def save(self, file_path):
 
         h5_file = h5py.File(file_path, 'w')
-
-        self.create_file_structure(h5_file)
-        self.write_sample_allocation_data_to_file(h5_file)
-
+        self.write_file_data_set(h5_file, "Compressed_Allocation",
+                                 self.compressed_allocation)
+        if not self.method:
+            h5_file.attrs['Method'] = "None"
+        else:
+            h5_file.attrs['Method'] = self.method
         h5_file.close()
 
-    def create_file_structure(self, file):
-
-        file.create_group('Compressed_Allocation')
-        file.create_group('Expanded_Allocation')
-        file.create_group('Samples')
-        file.create_group('Input_Names')
-
-        for model in range(self.num_models):
-
-            group_name = 'Samples_Model_' + str(model)
-            file.create_group(group_name)
-
-    def write_sample_allocation_data_to_file(self, file):
-
-        if not self.method:
-            file.attrs['Method'] = "None"
-        else:
-            file.attrs['Method'] = self.method
-
-        if not self.samples.empty:
-
-            for model_index in range(self.num_models):
-
-                group_name = 'Samples_Model_' + str(model_index)
-                data = self.get_samples_for_model(model_index)
-
-                self.write_file_data_set(file, group_name, data)
-
-        self.write_file_data_set(file, "Compressed_Allocation",
-                                 self.compressed_allocation)
-
-        self.write_file_data_set(file, "Expanded_Allocation",
-                                 self.expanded_allocation)
-
-        self.write_file_data_set(file, "Samples",
-                                 self.samples)
-
     @staticmethod
-    def write_file_data_set(file, group_name, data_set):
-
-        file[group_name].create_dataset(name=group_name.lower(), data=data_set)
+    def write_file_data_set(h5file, group_name, dataset):
+        h5file.create_group(group_name)
+        h5file[group_name].create_dataset(name=group_name.lower(), data=dataset)
 
     def get_sample_split_for_model(self, model_index):
+        col_1 = model_index * 2
+        col_2 = col_1 + 1
+        model_filter = np.logical_or(self.compressed_allocation[:, col_1] == 1,
+                                     self.compressed_allocation[:, col_2] == 1)
+        model_alloc = self.compressed_allocation[model_filter]
+        ranges_1 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                          model_alloc[:, col_1])
+        ranges_2 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                          model_alloc[:, col_2])
+        return ranges_1, ranges_2
 
-        col_1 = '%d_1' % model_index
-        col_2 = '%d_2' % model_index
-        model_filter = np.logical_or(self.expanded_allocation[col_1] == 1,
-                                     self.expanded_allocation[col_2] == 1)
-        filter_1 = self.expanded_allocation[col_1][model_filter] == 1
-        filter_2 = self.expanded_allocation[col_2][model_filter] == 1
-
-        return filter_1, filter_2
-
-    def _expand_allocation(self):
-
-        expanded_allocation_data_frames = list()
-        columns = self._get_column_names()
-
-        for row in self.compressed_allocation:
-
-            sample_group_size = row[0]
-            row_data = []
-            if sample_group_size > 0:
-                row_data = [row[1:]] * sample_group_size
-
-            data_frame = pd.DataFrame(columns=columns, data=row_data)
-            expanded_allocation_data_frames.append(data_frame)
-
-        expanded_dataframe = pd.concat(expanded_allocation_data_frames,
-                                       ignore_index=True)
-        return expanded_dataframe
+    @staticmethod
+    def _get_ranges_from_samples_and_bool(n_samples, used_by_samples):
+        ranges = []
+        range_start = 0
+        range_end = 0
+        for n, is_used in zip(n_samples, used_by_samples):
+            if is_used:
+                range_end += n
+            else:
+                if range_start != range_end:
+                    ranges.append(range(range_start, range_end))
+                range_end += n
+                range_start = range_end
+        if range_start != range_end:
+            ranges.append(np.arange(range_start, range_end))
+        return ranges
 
     def _calculate_num_models(self):
         return int(1 + (np.shape(self.compressed_allocation)[1] - 2) / 2)
@@ -251,36 +206,29 @@ class SampleAllocation:
 
         return column_names
 
-    def _convert_2_to_1(self, model_index):
-
-        column_names = [str(model_index) + '_1', str(model_index) + '_2']
-        temp_sums = self.expanded_allocation[column_names].sum(axis=1).values
-        temp_sums[temp_sums == 2] = 1
-
-        return temp_sums
-
     def _find_utilized_models(self):
 
         utilized_models = list()
 
-        if self.expanded_allocation.iloc[:, 0].sum() > 0:
+        samples_per_col = self._get_num_samples_per_column()
+
+        if samples_per_col[0] > 0:
             utilized_models.append(0)
         else:
             warnings.warn("Allocation Warning: Model 0 is not evaluated,")
 
         for i in range(1, self.num_models):
 
-            i_1 = i * 2 - 1
+            i_1 = i * 2
             i_2 = i_1 + 1
 
-            i_1_allocation = self.expanded_allocation.iloc[:, i_1]
-            i_2_allocation = self.expanded_allocation.iloc[:, i_2]
+            i_1_allocation = self.compressed_allocation[:, i_1]
+            i_2_allocation = self.compressed_allocation[:, i_2]
 
-            if not i_1_allocation.equals(i_2_allocation):
+            if not np.array_equal(i_1_allocation, i_2_allocation):
                 utilized_models.append(i)
             else:
-
-                num_evals = i_1_allocation.sum()
+                num_evals = samples_per_col[i_1-1]
                 if num_evals > 0:
                     warnings.warn("Allocation Warning: Model %d is " % (i + 1)
                                   + "evaluated %d times but does " % num_evals
