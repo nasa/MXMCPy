@@ -2,7 +2,6 @@ import warnings
 
 import h5py
 import numpy as np
-import pandas as pd
 
 def read_allocation(filename):
     '''
@@ -61,15 +60,15 @@ class SampleAllocation:
 
         if model_index == 0:
             ranges = self._get_ranges_from_samples_and_bool(
-                    self.compressed_allocation[:, 0],
-                    self.compressed_allocation[:, 1])
+                self.compressed_allocation[:, 0],
+                self.compressed_allocation[:, 1])
         else:
             col_1 = model_index * 2
             col_2 = col_1 + 1
             model_used = np.max(self.compressed_allocation[:, [col_1, col_2]],
                                 axis=1)
             ranges = self._get_ranges_from_samples_and_bool(
-                    self.compressed_allocation[:, 0], model_used)
+                self.compressed_allocation[:, 0], model_used)
         if ranges:
             ranges = np.hstack(ranges)
 
@@ -103,13 +102,13 @@ class SampleAllocation:
         return k_0
 
     def _get_num_samples_per_column(self):
-       
+
         samples_per_group = self.compressed_allocation[:, 0]
         samples_per_col = np.zeros(2*self.num_models-1, dtype=int)
 
         for i, col_inds in enumerate(self.compressed_allocation[:, 1:].T):
-            samples_per_col[i]  = np.sum(samples_per_group[col_inds==1])
-    
+            samples_per_col[i] = np.sum(samples_per_group[col_inds == 1])
+
         return samples_per_col
 
     def get_k_matrix(self):
@@ -138,8 +137,8 @@ class SampleAllocation:
 
     def _calculate_sample_sharing_matrix(self):
 
-        pseudo_expanded = self.compressed_allocation[:,0].reshape((-1,1)) * \
-                          self.compressed_allocation[:,1:]
+        pseudo_expanded = self.compressed_allocation[:, 0].reshape((-1, 1)) * \
+                          self.compressed_allocation[:, 1:]
         num_cols = 2*self.num_models - 1
         sample_sharing = np.empty((num_cols, num_cols))
 
@@ -170,11 +169,11 @@ class SampleAllocation:
         col_2 = col_1 + 1
         model_filter = np.logical_or(self.compressed_allocation[:, col_1] == 1,
                                      self.compressed_allocation[:, col_2] == 1)
-        model_allocation = self.compressed_allocation[model_filter]
-        ranges_1 = self._get_ranges_from_samples_and_bool(model_allocation[:, 0],
-                                                   model_allocation[:, col_1])
-        ranges_2 = self._get_ranges_from_samples_and_bool(model_allocation[:, 0],
-                                                   model_allocation[:, col_2])
+        model_alloc = self.compressed_allocation[model_filter]
+        ranges_1 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                          model_alloc[:, col_1])
+        ranges_2 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                          model_alloc[:, col_2])
         return ranges_1, ranges_2
 
     @staticmethod
@@ -212,7 +211,7 @@ class SampleAllocation:
         utilized_models = list()
 
         samples_per_col = self._get_num_samples_per_column()
-    
+
         if samples_per_col[0] > 0:
             utilized_models.append(0)
         else:
@@ -220,7 +219,7 @@ class SampleAllocation:
 
         for i in range(1, self.num_models):
 
-            i_1 = i * 2 
+            i_1 = i * 2
             i_2 = i_1 + 1
 
             i_1_allocation = self.compressed_allocation[:, i_1]
