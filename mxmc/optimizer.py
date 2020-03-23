@@ -19,6 +19,12 @@ class Optimizer:
     '''
     User interface for accessing all MXMC variance minimization optimizers for
     computing optimal sample allocations.
+
+    :param model_costs: cost (run time) of all models
+    :type model_costs: list of floats
+    :param covariance: Covariance matrix defining covariance (of outputs) among         all available models. Size MxM where M is # models.
+    :type covariance: 2D np.array
+
     '''
     def __init__(self, *args, **kwargs):
         self._args = args

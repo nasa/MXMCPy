@@ -10,6 +10,7 @@ def read_allocation(filename):
     :param filename: name of hdf5 sample allocation file
     :type filename: string
 
+    :Returns: a SampleAllocation object
     '''
     allocation_file = h5py.File(filename, 'r')
     compressed_key = 'Compressed_Allocation/compressed_allocation'
@@ -20,8 +21,32 @@ def read_allocation(filename):
 
 
 class SampleAllocation:
+    '''
+    Class for managing the allocation of random input samples (model
+    evaluations) across available models. Provides a user with number of
+    model evaluations required to generate an estimator and how to partition 
+    input samples to do so, after the sample allocation optimization problem
+    is solved.
 
+    :param compressed_allocation: a two dimensional array completely
+        describing a MXMC sample allocation; returned by each optimizer
+        class as the result of sample allocation optimization. See docs
+        for a description and example of the format.
+    :type compressed_allocation: 2D np.array
+    :param method: name of method used to generate the sample allocation (e.g.,
+        "mlmc", "mfmc", "acvkl").
+    :type method: string
+
+    :ivar num_total_samples: number of total input samples needed across all
+        available models
+    :ivar utilized_models: list of indices corresponding to models with samples
+        allocated to them
+    :ivar num_models: total number of available models
+    :ivar method: name of method used to generate the sample allocation
+
+    '''
     def __init__(self, compressed_allocation, method=None):
+
         self._init_from_data(compressed_allocation, method)
         self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
 
@@ -48,7 +73,10 @@ class SampleAllocation:
         return self._utilized_models
 
     def get_number_of_samples_per_model(self):
-
+        '''
+        :Returns: The total number of samples allocated to each available model
+            (list of integers)
+        '''
         samples_per_model = np.empty(self.num_models, dtype=int)
         for model_index in range(self.num_models):
             samples_per_model[model_index] = \
@@ -57,7 +85,14 @@ class SampleAllocation:
         return samples_per_model
 
     def get_sample_indices_for_model(self, model_index):
-
+        '''
+        :param model_index: index of model to return indices for (from 0 to 
+            #models-1) 
+        :type model_index: int
+    
+        :Returns: binary array with indices of samples required by the specified
+            model (np.array with length of num_total_samples)
+        '''
         if model_index == 0:
             ranges = self._get_ranges_from_samples_and_bool(
                 self.compressed_allocation[:, 0],
@@ -75,7 +110,17 @@ class SampleAllocation:
         return ranges
 
     def allocate_samples_to_models(self, all_samples):
+        '''
+        Allocates a given array of all input samples across all available models
+        according to the sample allocation determined by an MXMX optimizer.
 
+        :param all_samples: array of user-generated random input samples with
+            length equal to num_total_samples
+        :type all_samples: 2D np.array
+
+        :Returns: individual arrays of input samples for all available models
+            (list of np.arrays with length equal to num_models) 
+        '''
         if len(all_samples) < self.num_total_samples:
             raise ValueError("Too few inputs samples to allocate to models!")
 
