@@ -76,7 +76,10 @@ class SampleAllocation:
                                 axis=1)
             ranges = self._get_ranges_from_samples_and_bool(
                     self.compressed_allocation[:, 0], model_used)
-        return np.hstack(ranges)
+        if ranges:
+            ranges = np.hstack(ranges)
+
+        return ranges
 
     def allocate_samples_to_models(self, all_samples):
 

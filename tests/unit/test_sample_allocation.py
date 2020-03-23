@@ -15,7 +15,6 @@ def compressed_allocation():
                      [5, 0, 1, 1, 1, 1],
                      [10, 0, 0, 0, 1, 1]])
 
-
 @pytest.fixture
 def sample_allocation(compressed_allocation):
     warnings.filterwarnings("ignore",
@@ -111,6 +110,11 @@ def test_get_number_of_samples_per_model(sample_allocation):
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
                           np.array([1, 6, 15]))
 
+def test_get_number_of_samples_per_model_MC():
+    compressed_allocation = np.array([[10, 1, 0, 0, 0, 0]])
+    sample_allocation = SampleAllocation(compressed_allocation, 'MC') 
+    assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
+                          np.array([10, 0, 0]))
 
 @pytest.mark.parametrize("model_num, expected_indices",
                          [(0, np.array([0])),
