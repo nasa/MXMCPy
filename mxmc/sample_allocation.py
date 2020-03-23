@@ -144,14 +144,14 @@ class SampleAllocation:
 
     def _calculate_sample_sharing_matrix(self):
 
-        keys = self._get_column_names()
-        sample_sharing = np.empty((len(keys), len(keys)))
+        pseudo_expanded = self.compressed_allocation[:,0].reshape((-1,1)) * \
+                          self.compressed_allocation[:,1:]
+        num_cols = 2*self.num_models - 1
+        sample_sharing = np.empty((num_cols, num_cols))
 
-        for i, key in enumerate(keys):
-
-            shared_with_key = self.expanded_allocation[key] == 1
-            sample_sharing[i] = \
-                self.expanded_allocation[shared_with_key].sum(axis=0).values
+        for i in range(num_cols):
+            shared_with_key = self.compressed_allocation[:, i+1] == 1
+            sample_sharing[i] = np.sum(pseudo_expanded[shared_with_key], axis=0)
 
         return sample_sharing
 
