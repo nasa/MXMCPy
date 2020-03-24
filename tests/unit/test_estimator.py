@@ -30,7 +30,6 @@ def test_error_for_mismatched_num_models(sample_allocation):
     with pytest.raises(ValueError):
         Estimator(sample_allocation, covariance)
 
-
 def test_error_on_non_symmetric_covariance(sample_allocation):
     covariance = np.eye(sample_allocation.num_models)
     covariance[0, 1] = 1
@@ -104,3 +103,13 @@ def test_three_model_approximate_variance(sample_allocation):
     est = Estimator(sample_allocation, covariance)
 
     assert est.approximate_variance == pytest.approx(1)
+
+def test_get_estimate_raises_error_for_multiple_outputs(sample_allocation):
+    covariance = np.array([[1, 0.5, 0.25], [0.5, 1, 0.5], [0.25, 0.5, 1]])
+    est = Estimator(sample_allocation, covariance)
+    num_samples = sample_allocation.get_number_of_samples_per_model()
+    model_multi_outputs = [np.random.random((n, 2)) for n in num_samples]
+
+    with pytest.raises(ValueError):
+        est.get_estimate(model_multi_outputs)
+
