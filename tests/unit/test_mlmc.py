@@ -198,7 +198,7 @@ def test_mlmc_with_model_selection_zero_q():
         assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                                 sample_array_expected)
 
-        assert len(warning_log) == 2
+        assert len(warning_log) == 1
         assert issubclass(warning_log[-1].category, UserWarning)
 
 
