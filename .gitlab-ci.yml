@@ -1,11 +1,11 @@
 before_script:
   - lsb_release -a
-#  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-#  - bash ~/miniconda.sh -b -p $HOME/miniconda
+  #  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+  #  - bash ~/miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - python --version
   - which python
-#  - pip install virtualenv
+  #  - pip install virtualenv
   - python -m venv tmp_env
   - source tmp_env/bin/activate
 
@@ -16,21 +16,22 @@ stages:
 pylint:
   stage: Static Analysis
   script:
-  - pip install pylint
-  - pylint mxmc
+    - pip install -r requirements.txt
+    - pip install pylint
+    - pylint mxmc --exit-zero
 
 flake8:
   stage: Static Analysis
   script:
-  - pip install flake8
-  - flake8 mxmc/
-  
+    - pip install flake8
+    - flake8 mxmc/
+
 pytest:
   stage: Test
   script:
-  - pip install pytest
-  - pip install pytest-cov
-  - pip install pytest-mock
-  - pip install -r requirements.txt
-  - export PYTHONPATH=$PYTHONPATH:`pwd`
-  - pytest --cov=mxmc --cov-report=term-missing tests/
+    - pip install pytest
+    - pip install pytest-cov
+    - pip install pytest-mock
+    - pip install -r requirements.txt
+    - export PYTHONPATH=$PYTHONPATH:`pwd`
+    - pytest --cov=mxmc --cov-report=term-missing tests/
