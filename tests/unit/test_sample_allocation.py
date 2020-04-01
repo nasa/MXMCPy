@@ -107,11 +107,12 @@ def test_sample_allocation_read(saved_allocation_path, sample_allocation):
     assert loaded_allocation.method == sample_allocation.method
 
 
-def test_allocate_samples_to_models_not_enough_samples_error(sample_alloc):
+def test_allocate_samples_to_models_not_enough_samples_error(
+        sample_allocation):
 
     too_few_inputs = np.random.rand(10, 3)
     with pytest.raises(ValueError):
-        _ = sample_alloc.allocate_samples_to_models(too_few_inputs)
+        _ = sample_allocation.allocate_samples_to_models(too_few_inputs)
 
 
 def test_allocate_samples_to_models(sample_allocation, input_array):
