@@ -3,6 +3,7 @@ import warnings
 import h5py
 import numpy as np
 
+
 def read_allocation(filename):
     '''
     Read sample allocation from file
@@ -24,7 +25,7 @@ class SampleAllocation:
     '''
     Class for managing the allocation of random input samples (model
     evaluations) across available models. Provides a user with number of
-    model evaluations required to generate an estimator and how to partition 
+    model evaluations required to generate an estimator and how to partition
     input samples to do so, after the sample allocation optimization problem
     is solved.
 
@@ -86,12 +87,12 @@ class SampleAllocation:
 
     def get_sample_indices_for_model(self, model_index):
         '''
-        :param model_index: index of model to return indices for (from 0 to 
-            #models-1) 
+        :param model_index: index of model to return indices for (from 0 to
+            #models-1)
         :type model_index: int
-    
-        :Returns: binary array with indices of samples required by the specified
-            model (np.array with length of num_total_samples)
+
+        :Returns: binary array with indices of samples required by the
+            specified model (np.array with length of num_total_samples)
         '''
         if model_index == 0:
             ranges = self._get_ranges_from_samples_and_bool(
@@ -111,15 +112,16 @@ class SampleAllocation:
 
     def allocate_samples_to_models(self, all_samples):
         '''
-        Allocates a given array of all input samples across all available models
-        according to the sample allocation determined by an MXMX optimizer.
+        Allocates a given array of all input samples across all available
+        models according to the sample allocation determined by an MXMX
+        optimizer.
 
         :param all_samples: array of user-generated random input samples with
             length equal to num_total_samples
         :type all_samples: 2D np.array
 
         :Returns: individual arrays of input samples for all available models
-            (list of np.arrays with length equal to num_models) 
+            (list of np.arrays with length equal to num_models)
         '''
         if len(all_samples) < self.num_total_samples:
             raise ValueError("Too few inputs samples to allocate to models!")
@@ -189,7 +191,8 @@ class SampleAllocation:
 
         for i in range(num_cols):
             shared_with_key = self.compressed_allocation[:, i+1] == 1
-            sample_sharing[i] = np.sum(pseudo_expanded[shared_with_key], axis=0)
+            sample_sharing[i] = np.sum(pseudo_expanded[shared_with_key],
+                                       axis=0)
 
         return sample_sharing
 
@@ -207,7 +210,8 @@ class SampleAllocation:
     @staticmethod
     def write_file_data_set(h5file, group_name, dataset):
         h5file.create_group(group_name)
-        h5file[group_name].create_dataset(name=group_name.lower(), data=dataset)
+        h5file[group_name].create_dataset(name=group_name.lower(),
+                                          data=dataset)
 
     def get_sample_split_for_model(self, model_index):
         col_1 = model_index * 2
@@ -215,10 +219,12 @@ class SampleAllocation:
         model_filter = np.logical_or(self.compressed_allocation[:, col_1] == 1,
                                      self.compressed_allocation[:, col_2] == 1)
         model_alloc = self.compressed_allocation[model_filter]
-        ranges_1 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
-                                                          model_alloc[:, col_1])
-        ranges_2 = self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
-                                                          model_alloc[:, col_2])
+        ranges_1 = \
+            self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                   model_alloc[:, col_1])
+        ranges_2 = \
+            self._get_ranges_from_samples_and_bool(model_alloc[:, 0],
+                                                   model_alloc[:, col_2])
         return ranges_1, ranges_2
 
     @staticmethod

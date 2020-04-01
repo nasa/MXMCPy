@@ -101,8 +101,6 @@ class Estimator:
             if len(outputs) != num_samps:
                 raise ValueError("Number of outputs per model does not match "
                                  "the sample allocation")
-            if len(outputs.shape) > 1:
-                if outputs.shape[1] != 1:
-                    raise ValueError("Estimators are not currently implemented "
-                                     "for multiple outputs")
-
+            if len(outputs.shape) > 1 and outputs.shape[1] != 1:
+                raise ValueError("Estimators are not currently implemented "
+                                 "for multiple outputs")

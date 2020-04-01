@@ -1,12 +1,10 @@
 import os.path
 import warnings
 
-import h5py
-import numpy as np
-import pandas as pd
 import pytest
+import numpy as np
 
-from mxmc.sample_allocation import *
+from mxmc.sample_allocation import SampleAllocation, read_allocation
 
 
 @pytest.fixture
@@ -15,6 +13,7 @@ def compressed_allocation():
                      [5, 0, 1, 1, 1, 1],
                      [10, 0, 0, 0, 1, 1]])
 
+
 @pytest.fixture
 def sample_allocation(compressed_allocation):
     warnings.filterwarnings("ignore",
@@ -22,12 +21,14 @@ def sample_allocation(compressed_allocation):
                             category=UserWarning)
     return SampleAllocation(compressed_allocation, 'MFMC')
 
+
 @pytest.fixture
 def saved_allocation_path(sample_allocation, tmp_path):
     p = tmp_path / "test_allocation.h5"
     path_str = str(p)
     sample_allocation.save(path_str)
     return path_str
+
 
 @pytest.fixture
 def input_array():
@@ -48,6 +49,7 @@ def input_array():
                      [72, 4.3, 4],
                      [27, 3, 9.4]])
 
+
 def test_compressed_allocation(sample_allocation, compressed_allocation):
     assert np.array_equal(sample_allocation.compressed_allocation,
                           compressed_allocation)
@@ -61,6 +63,7 @@ def test_get_column_names(sample_allocation):
     assert sample_allocation._get_column_names() == ['0', '1_1', '1_2', '2_1',
                                                      '2_2']
 
+
 def test_one_model_num_models():
     test_allocation = SampleAllocation(np.array([[10, 1]]), 'MFMC')
     assert test_allocation.num_models == 1
@@ -73,7 +76,7 @@ def test_get_number_of_samples_per_model(sample_allocation):
 
 def test_get_number_of_samples_per_model_MC():
     compressed_allocation = np.array([[10, 1, 0, 0, 0, 0]])
-    sample_allocation = SampleAllocation(compressed_allocation, 'MC') 
+    sample_allocation = SampleAllocation(compressed_allocation, 'MC')
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
                           np.array([10, 0, 0]))
 
@@ -104,11 +107,11 @@ def test_sample_allocation_read(saved_allocation_path, sample_allocation):
     assert loaded_allocation.method == sample_allocation.method
 
 
-def test_allocate_samples_to_models_not_enough_samples_error(sample_allocation):
+def test_allocate_samples_to_models_not_enough_samples_error(sample_alloc):
 
     too_few_inputs = np.random.rand(10, 3)
     with pytest.raises(ValueError):
-        _ = sample_allocation.allocate_samples_to_models(too_few_inputs)
+        _ = sample_alloc.allocate_samples_to_models(too_few_inputs)
 
 
 def test_allocate_samples_to_models(sample_allocation, input_array):

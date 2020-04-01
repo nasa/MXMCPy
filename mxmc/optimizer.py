@@ -22,7 +22,8 @@ class Optimizer:
 
     :param model_costs: cost (run time) of all models
     :type model_costs: list of floats
-    :param covariance: Covariance matrix defining covariance (of outputs) among         all available models. Size MxM where M is # models.
+    :param covariance: Covariance matrix defining covariance (of outputs) among
+        all available models. Size MxM where M is # models.
     :type covariance: 2D np.array
 
     '''

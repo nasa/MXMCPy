@@ -12,12 +12,14 @@ def compressed_allocation():
                      [5, 0, 1, 1, 1, 1],
                      [10, 0, 0, 0, 1, 1]])
 
+
 @pytest.fixture
 def sample_allocation(compressed_allocation):
     warnings.filterwarnings("ignore",
                             message="Allocation Warning",
                             category=UserWarning)
     return SampleAllocation(compressed_allocation, 'MFMC')
+
 
 @pytest.fixture
 def sample_model_outputs(sample_allocation):
@@ -29,6 +31,7 @@ def test_error_for_mismatched_num_models(sample_allocation):
     covariance = np.eye(sample_allocation.num_models - 1)
     with pytest.raises(ValueError):
         Estimator(sample_allocation, covariance)
+
 
 def test_error_on_non_symmetric_covariance(sample_allocation):
     covariance = np.eye(sample_allocation.num_models)
@@ -104,6 +107,7 @@ def test_three_model_approximate_variance(sample_allocation):
 
     assert est.approximate_variance == pytest.approx(1)
 
+
 def test_get_estimate_raises_error_for_multiple_outputs(sample_allocation):
     covariance = np.array([[1, 0.5, 0.25], [0.5, 1, 0.5], [0.25, 0.5, 1]])
     est = Estimator(sample_allocation, covariance)
@@ -112,4 +116,3 @@ def test_get_estimate_raises_error_for_multiple_outputs(sample_allocation):
 
     with pytest.raises(ValueError):
         est.get_estimate(model_multi_outputs)
-

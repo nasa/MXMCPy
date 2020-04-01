@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 from ...util.generic_numerical_optimization \
-    import perform_slsqp_then_nelder_mead, perform_nelder_mead
+    import perform_slsqp_then_nelder_mead
 from .acv_constraints import satisfies_constraints
 from ..optimizer_base import OptimizerBase
 from mxmc.optimizers.optimization_result import OptimizationResult
@@ -104,8 +104,8 @@ class ACVOptimizer(OptimizerBase):
         # if satisfies_constraints(recursion_initial_guess, constraints):
         #     return recursion_initial_guess
 
-        # raise RuntimeError("Could not identify an initial guess that satisfies"
-        #                    " constraints")
+        # raise RuntimeError("Could not identify an initial guess that
+        # satisfies constraints")
 
     def _compute_objective_function(self, ratios, target_cost, gradient):
         ratios_tensor = torch.tensor(ratios, requires_grad=gradient,
