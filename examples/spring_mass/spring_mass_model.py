@@ -38,7 +38,7 @@ class SpringMassModel():
     def evaluate(self, inputs):
         """
         Returns the max displacement over the course of the simulation.
-        MLMCPy convention is that evaluated takes in an array and returns an
+        MXMC convention is that evaluated takes in an array and returns an
         array (even for 1D examples like this one).
         """
         stiffness = inputs[0]
