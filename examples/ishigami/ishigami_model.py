@@ -10,40 +10,40 @@ class IshigamiModel:
     ........................
     """
 
-    def __init__(self, a=7., b=.1, state0=None, time_step=None, cost=None):
+    def __init__(self, a=7., b=.1, cost=None):
 
         self._a = a
         self._b = b
+        self._cost = cost
 
     def simulate(self, inputs):
         """
-        Run Ishigami function for inputs x1...x3 drawn from
+        Run Ishigami function for inputs z1...z3 drawn from
         uniform distributions in the range -pi to pi.
         """
-        if inputs.size != 3:
-            raise ValueError("Inputs to simulate should have 3 elements.")
+        assert inputs.size == 3
+        z1, z2, z3 = inputs
 
-        x1, x2, x3 = inputs
-
-        return self._ishigami_func(x1, x2, x3)
+        return self._ishigami_func(z1, z2, z3)
 
     def evaluate(self, inputs):
         """
-        Returns the max displacement over the course of the simulation.
-        MLMCPy convention is that evaluated takes in an array and returns an
-        array (even for 1D examples like this one).
+        Run Ishigami for each row of inputs and return outputs.
+        Each row should have three inputs as defined by Ishigami.
         """
-        return self.simulate(inputs)
+        assert len(inputs.shape) == 2 and inputs.shape[1] == 3
 
-    def _ishigami_func(self, x1, x2, x3):
+        return np.apply_along_axis(self.simulate, 1, inputs)
+
+    def _ishigami_func(self, z1, z2, z3):
         """
-        Return result of Ishigami function for given xi, i=1...3
+        Return result of Ishigami function for given zi, i=1...3
         """
 
         # Compute each term.
-        term1 = sin(x1)
-        term2 = self._a * sin(x2) ** 2
-        term3 = self._b * x3 ** 4 * sin(x1)
+        term1 = sin(z1)
+        term2 = self._a * sin(z2) ** 2
+        term3 = self._b * z3 ** 4 * sin(z1)
 
         # Return the sum of the terms.
         return term1 + term2 + term3
