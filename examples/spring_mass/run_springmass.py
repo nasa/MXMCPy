@@ -25,7 +25,7 @@ model_hifi = SpringMassModel(time_step=0.001)
 model_medfi = SpringMassModel(time_step=0.01)
 model_lofi = SpringMassModel(time_step=1)
 
-#Step 1a) - run pilot samples / get pilot outputs
+# Step 1: Compute model outputs for pilot samples.
 pilot_inputs = get_sample_beta_distribution(num_pilot_samples)
 
 pilot_outputs_hifi = np.zeros(num_pilot_samples)
@@ -37,19 +37,18 @@ for i, pilot_input in enumerate(pilot_inputs):
     pilot_outputs_medfi[i] = model_medfi.evaluate([pilot_input])
     pilot_outputs_lofi[i] = model_lofi.evaluate([pilot_input])
 
-# Step 1b) - get covariance matrix
+# Get covariance matrix from model outputs.
 pilot_outputs = [pilot_outputs_hifi, pilot_outputs_medfi, pilot_outputs_lofi]
 covariance_matrix = OutputProcessor.compute_covariance_matrix(pilot_outputs)
 
-# Step 2) - perform variance minimization optimization for select algorithms:
-algorithms = ["acvmf", "acvkl", "grdmr"]
+# Step 2: Perform sample allocation optimization.
 target_cost = 10000
 variance_results = {}
 sample_allocation_results = {}
 
 mxmc_optimizer = Optimizer(model_costs, covariance_matrix)
 
-for algorithm in algorithms:
+for algorithm in ["acvmf", "acvkl", "grdmr"]:
     opt_result = mxmc_optimizer.optimize(algorithm, target_cost)
     variance_results[algorithm] = opt_result.variance
     sample_allocation_results[algorithm] = opt_result.allocation
@@ -59,11 +58,11 @@ sample_allocation = sample_allocation_results[best_method]
 
 print("Best method = ", best_method)
 
-# Step 3) Generate input samples for models
+# Step 3: Generate input samples for models.
 all_samples = get_sample_beta_distribution(sample_allocation.num_total_samples)
 model_input_samples = sample_allocation.allocate_samples_to_models(all_samples)
 
-# Step 4) Run models with prescribed inputs, store outputs
+# Step 4: Compute model outputs for prescribed inputs.
 input_samples_hifi = model_input_samples[0]
 outputs_hifi = np.zeros(len(input_samples_hifi))
 for i, input_hifi in enumerate(input_samples_hifi):
@@ -79,11 +78,8 @@ outputs_lofi = np.zeros(len(input_samples_lofi))
 for i, input_lofi in enumerate(input_samples_lofi):
     outputs_lofi[i] = model_lofi.evaluate([input_lofi])
 
-#Step 5) Make an estimate
+# Step 5. Form estimator.
 model_outputs = [outputs_hifi, outputs_medfi, outputs_lofi]
 estimator = Estimator(sample_allocation, covariance_matrix)
 estimate = estimator.get_estimate(model_outputs)
 print("estimate = ", estimate)
-
-
-
