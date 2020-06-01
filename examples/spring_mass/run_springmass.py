@@ -33,7 +33,7 @@ pilot_outputs_medfi = np.zeros(num_pilot_samples)
 pilot_outputs_lofi = np.zeros(num_pilot_samples)
 
 for i, pilot_input in enumerate(pilot_inputs):
-    pilot_outputs_hifi[i] = model_hifi.evaluate([pilot_input]) 
+    pilot_outputs_hifi[i] = model_hifi.evaluate([pilot_input])
     pilot_outputs_medfi[i] = model_medfi.evaluate([pilot_input])
     pilot_outputs_lofi[i] = model_lofi.evaluate([pilot_input])
 

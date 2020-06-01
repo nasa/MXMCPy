@@ -2,14 +2,14 @@ import numpy as np
 import sys
 from scipy.integrate import odeint
 
+
 class SpringMassModel():
     """
     Defines Spring Mass model with 1 free param (stiffness of spring, k). The
     quantity of interest that is returned by the evaluate() function is the
     maximum displacement over the specified time interval
     """
-
-    def __init__(self, mass=1.5, gravity=9.8, state0=None, time_step=None, 
+    def __init__(self, mass=1.5, gravity=9.8, state0=None, time_step=None,
                  cost=None):
 
         self._mass = mass
@@ -45,32 +45,32 @@ class SpringMassModel():
         state = self.simulate(stiffness)
         return np.array([max(state[:, 0])])
 
-    @staticmethod 
+    @staticmethod
     def _integration_func(state, t, k, m, g):
         """
         Return velocity/acceleration given velocity/position and values for
         stiffness and mass. Helper function for numerical integrator
         """
 
-        # unpack the state vector
+        # Unpack the state vector.
         x = state[0]
         xd = state[1]
 
-        # compute acceleration xdd
+        # Compute acceleration xdd.
         xdd = ((-k * x) / m) + g
 
-        # return the two state derivatives
+        # Return the two state derivatives.
         return [xd, xdd]
 
 
 if __name__ == "__main__":
-    
-    #Read commmand line arguments
+
+    # Read command line arguments.
     inputfile = sys.argv[1]
     outputfile = sys.argv[2]
 
-    #Parse parameters from input file (convention: gravity, mass,
-    #time_step, cost, stiffness)
+    # Parse parameters from input file (convention: gravity, mass,
+    # time_step, cost, stiffness).
     inputs = np.genfromtxt(inputfile, delimiter=",", filling_values=None)
 
     gravity = inputs[0]
@@ -79,10 +79,9 @@ if __name__ == "__main__":
     cost = inputs[3]
     stiffness = inputs[4]
 
-    #Initialize / evaluate model
+    # Initialize / evaluate model.
     model = SpringMassModel(mass=mass, gravity=gravity, time_step=time_step)
     max_disp = model.evaluate([stiffness])
- 
-    #Write max. displacement to output file
-    np.savetxt(outputfile, max_disp)
 
+    # Write max displacement to output file.
+    np.savetxt(outputfile, max_disp)

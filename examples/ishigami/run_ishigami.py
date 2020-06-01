@@ -1,13 +1,14 @@
 import numpy as np
 
 from mxmc import Optimizer
+from mxmc import ALGORITHM_MAP
 from mxmc import OutputProcessor
 from mxmc import Estimator
 
 from ishigami_model import IshigamiModel
 
 
-# Acquires a uniform sample distribution based on Ishigami requirements.
+# Samples from a uniform distribution based on Ishigami requirements.
 def get_uniform_sample_distribution(num_samples):
 
     return np.random.uniform(low=-np.pi,
@@ -30,7 +31,8 @@ pilot_outputs = list()
 for model in models:
     pilot_outputs.append(model.evaluate(pilot_inputs))
 
-# Get covariance matrix from model outputs.
+# MXMC's OutputProcessor provides a convenient way to compute the
+# covariance matrix from the model's pilot outputs.
 covariance_matrix = OutputProcessor.compute_covariance_matrix(pilot_outputs)
 
 # Step 2: Perform sample allocation optimization.
@@ -38,21 +40,36 @@ target_cost = 10000
 variance_results = dict()
 sample_allocation_results = dict()
 
+# MXMC's Optimizer computes optimal sample allocation and can be used with
+# a variety of algorithms. Here we test every algorithm available in order
+# to find the algorithm that produces the lowest variance given the pilot
+# samples' covariance matrix.
 mxmc_optimizer = Optimizer(model_costs, covariance_matrix)
 
-for algorithm in ["acvmf", "acvkl", "grdmr"]:
+algorithms = ALGORITHM_MAP.keys()
+for algorithm in algorithms:
     opt_result = mxmc_optimizer.optimize(algorithm, target_cost)
     variance_results[algorithm] = opt_result.variance
     sample_allocation_results[algorithm] = opt_result.allocation
 
+    print("{} method variance: {}".format(algorithm, opt_result.variance))
+
 best_method = min(variance_results, key=variance_results.get)
 sample_allocation = sample_allocation_results[best_method]
 
-print("Best method = ", best_method)
+print("Best method: ", best_method)
 
 # Step 3: Generate input samples for models.
-all_samples = get_uniform_sample_distribution(sample_allocation.num_total_samples)
-model_input_samples = sample_allocation.allocate_samples_to_models(all_samples)
+num_total_samples = sample_allocation.num_total_samples
+all_samples = get_uniform_sample_distribution(num_total_samples)
+model_input_samples = \
+    sample_allocation.allocate_samples_to_models(all_samples)
+
+print("MXMC prescribed samples per model: ", end="")
+for samples in model_input_samples:
+    print("{} ".format(samples.shape[0]), end="")
+
+print("\n")
 
 # Step 4: Compute model outputs for prescribed inputs.
 model_outputs = list()
@@ -60,7 +77,12 @@ for input_sample, model in zip(model_input_samples, models):
     model_outputs.append(model.evaluate(input_sample))
 
 # Step 5. Form estimator.
+
+# MXMC's Estimator can be used to run the models with the
+# given sample allocation to produce an estimate of the
+# quantity of interest.
+
 estimator = Estimator(sample_allocation, covariance_matrix)
 estimate = estimator.get_estimate(model_outputs)
 
-print("estimate = ", estimate)
+print("Estimate = ", estimate)
