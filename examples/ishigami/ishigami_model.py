@@ -12,10 +12,18 @@ class IshigamiModel:
         and K. Willcox
     URL: https://epubs.siam.org/doi/abs/10.1137/17M1151006
     """
-    def __init__(self, a=7., b=.1):
+    def __init__(self, a, b, c):
+
+        # Ishigami takes three input random variables abc, usually drawn
+        # from a uniform distribution with values between negative and
+        # positive pi. It produces outputs via this function with three
+        # inputs z1-z3:
+
+        # f(z) = sin(z1) + a * sin^2(z2) + b * x3^c * sin(z1)
 
         self._a = a
         self._b = b
+        self._c = c
 
     def evaluate(self, inputs):
         """
@@ -46,7 +54,7 @@ class IshigamiModel:
         # Compute each term.
         term1 = sin(z1)
         term2 = self._a * sin(z2) ** 2
-        term3 = self._b * z3 ** 4 * sin(z1)
+        term3 = self._b * z3 ** self._c * sin(z1)
 
         # Return the sum of the terms.
         return term1 + term2 + term3
