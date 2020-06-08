@@ -31,6 +31,19 @@ class Optimizer:
         self._args = args
         self._kwargs = kwargs
 
+    @staticmethod
+    def get_algorithm_names():
+        return ALGORITHM_MAP.keys()
+
+    @staticmethod
+    def get_algorithm(algorithm_name):
+
+        if algorithm_name not in ALGORITHM_MAP.keys():
+            message = "Algorithm {} not available.".format(algorithm_name)
+            raise KeyError(message)
+
+        return ALGORITHM_MAP[algorithm_name]
+
     def optimize(self, algorithm, target_cost, auto_model_selection=False):
         '''
         Performs variance minimization optimization to determine the optimal

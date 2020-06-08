@@ -1,7 +1,6 @@
 import numpy as np
 
 from mxmc import Optimizer
-from mxmc import ALGORITHM_MAP
 from mxmc import OutputProcessor
 from mxmc import Estimator
 
@@ -20,9 +19,9 @@ np.random.seed(1)
 num_pilot_samples = 10
 model_costs = np.array([1, .05, .001])
 
-high_fidelity_model = IshigamiModel(a=5., b=.1)
-medium_fidelity_model = IshigamiModel(a=4.75, b=.1)
-low_fidelity_model = IshigamiModel(a=3., b=.9)
+high_fidelity_model = IshigamiModel(a=5., b=.1, c=4.)
+medium_fidelity_model = IshigamiModel(a=4.75, b=.1, c=4.)
+low_fidelity_model = IshigamiModel(a=3., b=.9, c=2.)
 models = [high_fidelity_model, medium_fidelity_model, low_fidelity_model]
 
 # Step 1: Compute model outputs for pilot samples.
@@ -46,7 +45,7 @@ sample_allocation_results = dict()
 # samples' covariance matrix.
 mxmc_optimizer = Optimizer(model_costs, covariance_matrix)
 
-algorithms = ALGORITHM_MAP.keys()
+algorithms = Optimizer.get_algorithm_names()
 for algorithm in algorithms:
     opt_result = mxmc_optimizer.optimize(algorithm, target_cost)
     variance_results[algorithm] = opt_result.variance
@@ -81,7 +80,6 @@ for input_sample, model in zip(model_input_samples, models):
 # MXMC's Estimator can be used to run the models with the
 # given sample allocation to produce an estimate of the
 # quantity of interest.
-
 estimator = Estimator(sample_allocation, covariance_matrix)
 estimate = estimator.get_estimate(model_outputs)
 

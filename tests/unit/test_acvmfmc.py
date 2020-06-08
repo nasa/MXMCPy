@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from mxmc.optimizer import Optimizer, ALGORITHM_MAP
+from mxmc.optimizer import Optimizer
 from mxmc.util.testing import assert_opt_result_equal
 
 
@@ -13,7 +13,7 @@ def test_acvmfmc_known_solution(cost_factor, covariance_factor, mocker):
     optimizer = Optimizer(model_costs, covariance)
 
     ratios_for_opt = np.array([20])
-    mocker.patch.object(ALGORITHM_MAP["acvmfmc"],
+    mocker.patch.object(Optimizer.get_algorithm("acvmfmc"),
                         '_solve_opt_problem',
                         return_value=ratios_for_opt)
 
