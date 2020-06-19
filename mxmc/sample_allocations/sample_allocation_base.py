@@ -3,8 +3,8 @@ import warnings
 import h5py
 import numpy as np
 
-d
-class AllocationBase:
+
+class SampleAllocationBase:
     '''
     Base class for managing the allocations of random input samples (model
     evaluations) across available models. Provides a user with number of
@@ -17,9 +17,6 @@ class AllocationBase:
         class as the result of sample allocation optimization. See docs
         for a description and example of the format.
     :type compressed_allocation: 2D np.array
-    :param method: name of method used to generate the sample allocation (e.g.,
-        "mlmc", "mfmc", "acvkl").
-    :type method: string
 
     :ivar num_total_samples: number of total input samples needed across all
         available models
@@ -29,11 +26,10 @@ class AllocationBase:
     :ivar method: name of method used to generate the sample allocation
 
     '''
-    def __init__(self, compressed_allocation, method=None):
+    def __init__(self, compressed_allocation):
 
-        self.compressed_allocation = np.array(compressed_allocation_data)
+        self.compressed_allocation = np.array(compressed_allocation)
         self.num_models = self._calculate_num_models()
-        self.method = method
         self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
         self._utilized_models = None
 
@@ -118,10 +114,7 @@ class AllocationBase:
         h5_file = h5py.File(file_path, 'w')
         self.write_file_data_set(h5_file, "Compressed_Allocation",
                                  self.compressed_allocation)
-        if not self.method:
-            h5_file.attrs['Method'] = "None"
-        else:
-            h5_file.attrs['Method'] = self.method
+        h5_file.attrs['Method'] = "ACV"
         h5_file.close()
 
     @staticmethod
