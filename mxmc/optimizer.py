@@ -33,11 +33,17 @@ class Optimizer:
 
     @staticmethod
     def get_algorithm_names():
+        '''
+        Returns a list of strings containing the names of all available
+        optimization algorithms.
+        '''
         return ALGORITHM_MAP.keys()
 
     @staticmethod
     def get_algorithm(algorithm_name):
-
+        '''
+        Returns a reference to a class indicated by the provided name.
+        '''
         if algorithm_name not in ALGORITHM_MAP.keys():
             message = "Algorithm {} not available.".format(algorithm_name)
             raise KeyError(message)
