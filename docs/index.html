@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Welcome to MXMC’s documentation! &#8212; MXMC 1.0 documentation</title>
@@ -12,6 +12,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="intro.html" />
@@ -37,13 +38,19 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example.html">Example - EXAMPLE DESCRIPTION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishigami_example.html">Example - Ishigami</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ishigami_example.html#step-1-compute-model-outputs-for-pilot-samples">Step 1: Compute model outputs for pilot samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ishigami_example.html#step-2-perform-sample-allocation-optimization">Step 2: Perform sample allocation optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ishigami_example.html#step-3-generate-input-samples-for-models">Step 3: Generate input samples for models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ishigami_example.html#step-4-compute-model-outputs-for-prescribed-inputs">Step 4: Compute model outputs for prescribed inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ishigami_example.html#step-5-form-estimator">Step 5: Form estimator</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="source_code.html">Source Code Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source_code.html#module-input_generator">Input Generator Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_code.html#module-optimizer">Optimizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_code.html#module-sample_allocation">Sample Allocation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_code.html#module-output_processor">Output Processor Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_code.html#module-estimator">Estimator Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_code.html#optimizer-module">Optimizer Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_code.html#sample-allocation">Sample Allocation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_code.html#output-processor-module">Output Processor Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source_code.html#estimator-module">Estimator Module</a></li>
 </ul>
 </li>
 </ul>
@@ -77,7 +84,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example.html">Example - EXAMPLE DESCRIPTION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishigami_example.html">Example - Ishigami</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source_code.html">Source Code Documentation</a></li>
 </ul>
 
@@ -115,7 +122,7 @@
       &copy;2020, NASA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -9,7 +9,7 @@ Contents:
    :maxdepth: 2
 
    intro
-   example
+   ishigami_example
    source_code
 
 

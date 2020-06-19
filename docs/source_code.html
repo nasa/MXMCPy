@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Source Code Documentation &#8212; MXMC 1.0 documentation</title>
@@ -12,9 +12,10 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Example - EXAMPLE DESCRIPTION" href="example.html" />
+    <link rel="prev" title="Example - Ishigami" href="ishigami_example.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,125 +35,17 @@
   <div class="section" id="source-code-documentation">
 <span id="sourcecode-section"></span><h1>Source Code Documentation<a class="headerlink" href="#source-code-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Documentation for the core MXMC classes.</p>
-<div class="section" id="module-input_generator">
-<span id="input-generator-module"></span><h2>Input Generator Module<a class="headerlink" href="#module-input_generator" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="input_generator.InputGenerator">
-<em class="property">class </em><code class="sig-prename descclassname">input_generator.</code><code class="sig-name descname">InputGenerator</code><span class="sig-paren">(</span><em class="sig-param">input_name_list</em>, <em class="sig-param">input_array</em>, <em class="sig-param">shuffle_data=False</em><span class="sig-paren">)</span><a class="headerlink" href="#input_generator.InputGenerator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="optimizer-module">
+<h2>Optimizer Module<a class="headerlink" href="#optimizer-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-optimizer">
-<span id="optimizer-module"></span><h2>Optimizer Module<a class="headerlink" href="#module-optimizer" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="optimizer.Optimizer">
-<em class="property">class </em><code class="sig-prename descclassname">optimizer.</code><code class="sig-name descname">Optimizer</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>User interface for accessing all MXMC variance minimization optimizers for
-computing optimal sample allocations.</p>
-<dl class="method">
-<dt id="optimizer.Optimizer.optimize">
-<code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param">algorithm</em>, <em class="sig-param">target_cost</em>, <em class="sig-param">auto_model_selection=False</em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.optimize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs variance minimization optimization to determine the optimal
-sample allocation across available models within a specified target
-computational cost.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>algorithm</strong> (<em>string</em>) – name of method to use for optimization (e.g., “mlmc”,
-“mfmc”, “acvkl”).</p></li>
-<li><p><strong>target_cost</strong> (<em>float</em>) – total target cost constraint so that optimizer
-finds sample allocation that requires less than or equal
-computation time.</p></li>
-<li><p><strong>auto_model_selection</strong> (<em>Boolean</em>) – flag to use automatic model selection in
-optimization to test all subsets of models for best set.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An OptimizationResult namedtuple with entries for cost,
-variance, and sample_array. cost (float) is expected cost of all
-model evaluations prescribed in sample_array (np.array). variance
-is the minimized variance from the optimization.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="sample-allocation">
+<h2>Sample Allocation<a class="headerlink" href="#sample-allocation" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-sample_allocation">
-<span id="sample-allocation"></span><h2>Sample Allocation<a class="headerlink" href="#module-sample_allocation" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="sample_allocation.SampleAllocation">
-<em class="property">class </em><code class="sig-prename descclassname">sample_allocation.</code><code class="sig-name descname">SampleAllocation</code><span class="sig-paren">(</span><em class="sig-param">compressed_allocation</em>, <em class="sig-param">method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#sample_allocation.SampleAllocation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="output-processor-module">
+<h2>Output Processor Module<a class="headerlink" href="#output-processor-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-output_processor">
-<span id="output-processor-module"></span><h2>Output Processor Module<a class="headerlink" href="#module-output_processor" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="output_processor.OutputProcessor">
-<em class="property">class </em><code class="sig-prename descclassname">output_processor.</code><code class="sig-name descname">OutputProcessor</code><a class="headerlink" href="#output_processor.OutputProcessor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class to estimate covariance matrix from collection of output samples from
-multiple models. Handles the general case where each models’ outputs were
-not computed from the same set of random inputs and pairwise overlaps
-between samples are identified using a SampleAllocation object.</p>
-<dl class="method">
-<dt id="output_processor.OutputProcessor.compute_covariance_matrix">
-<em class="property">static </em><code class="sig-name descname">compute_covariance_matrix</code><span class="sig-paren">(</span><em class="sig-param">model_outputs</em>, <em class="sig-param">sample_allocation=None</em><span class="sig-paren">)</span><a class="headerlink" href="#output_processor.OutputProcessor.compute_covariance_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Estimate covariance matrix from collection of output samples from
-multiple models. In the simple case, the outputs for each model were
-generated from the same collection of inputs and covariance can be
-straightforwardly computed. In the general case, the outputs were not
-computed from the same inputs and a SampleAllocation object must be
-supplied to identify overlap between samples to compute covariance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_outputs</strong> (<em>list of np.array</em>) – list of arrays of outputs for each model. Each
-array must be the same size unless a sample allocation is provided.</p></li>
-<li><p><strong>sample_allocation</strong> (<em>SampleAllocation object.</em>) – An MXMC sample allocation object defining the
-indices of samples that each model output was generated for, if
-applicable. Default is None indicating that all supplied model
-output arrays are the same size and were generated for the same
-inputs.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>covariance matrix among all model outputs (2D np.array with
-size equal to the number of models).</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-estimator">
-<span id="estimator-module"></span><h2>Estimator Module<a class="headerlink" href="#module-estimator" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="estimator.Estimator">
-<em class="property">class </em><code class="sig-prename descclassname">estimator.</code><code class="sig-name descname">Estimator</code><span class="sig-paren">(</span><em class="sig-param">allocation</em>, <em class="sig-param">covariance</em><span class="sig-paren">)</span><a class="headerlink" href="#estimator.Estimator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class to create MXMC estimators given an optimal sample allocation and
-outputs from high &amp; low fidelity models.</p>
-<dl class="method">
-<dt id="estimator.Estimator.get_estimate">
-<code class="sig-name descname">get_estimate</code><span class="sig-paren">(</span><em class="sig-param">model_outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#estimator.Estimator.get_estimate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute MXMC expected value estimate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>model_outputs</strong> – arrays of outputs for each model evaluated at the
-random inputs prescribed by the optimal sample allocation. Note:
-each output array must correspond exactly to the size/order of the
-random inputs given by the optimal SampleAllocation object.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the expected value estimator (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="estimator-module">
+<h2>Estimator Module<a class="headerlink" href="#estimator-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -175,13 +68,12 @@ random inputs given by the optimal SampleAllocation object.</p>
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example.html">Example - EXAMPLE DESCRIPTION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishigami_example.html">Example - Ishigami</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Source Code Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-input_generator">Input Generator Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-optimizer">Optimizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-sample_allocation">Sample Allocation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-output_processor">Output Processor Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-estimator">Estimator Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimizer-module">Optimizer Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-allocation">Sample Allocation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-processor-module">Output Processor Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#estimator-module">Estimator Module</a></li>
 </ul>
 </li>
 </ul>
@@ -190,7 +82,7 @@ random inputs given by the optimal SampleAllocation object.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="example.html" title="previous chapter">Example - EXAMPLE DESCRIPTION</a></li>
+      <li>Previous: <a href="ishigami_example.html" title="previous chapter">Example - Ishigami</a></li>
   </ul></li>
 </ul>
 </div>
@@ -220,7 +112,7 @@ random inputs given by the optimal SampleAllocation object.</p>
       &copy;2020, NASA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
