@@ -77,10 +77,11 @@ for input_sample, model in zip(model_input_samples, models):
 
 # Step 5. Form estimator.
 
-# MXMC's Estimator can be used to run the models with the
-# given sample allocation to produce an estimate of the
-# quantity of interest.
-estimator = Estimator(sample_allocation, covariance_matrix)
+output_cov_matrix = OutputProcessor.compute_covariance_matrix(pilot_outputs)
+
+# MXMC's Estimator can be used to analyse the model outputs
+# to produce an estimate of the quantity of interest.
+estimator = Estimator(sample_allocation, output_cov_matrix)
 estimate = estimator.get_estimate(model_outputs)
 
 print("Estimate = ", estimate)
