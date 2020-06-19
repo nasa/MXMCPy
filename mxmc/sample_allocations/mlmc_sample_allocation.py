@@ -1,7 +1,7 @@
-from .sample_allocation_base import SampleAllocationBase
+from .acv_sample_allocation import ACVSampleAllocation
 
 
-class MLMCSampleAllocation(SampleAllocationBase):
+class MLMCSampleAllocation(ACVSampleAllocation):
 
     def __init__(self, compressed_allocation):
-        pass
+        super().__init__(compressed_allocation)
