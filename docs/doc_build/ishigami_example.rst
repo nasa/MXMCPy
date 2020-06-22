@@ -11,12 +11,13 @@ which is computed to be 2.5.
 
 
 .. math::
-    \begin{gather*}
-    f^{(1)}\ =\ sin(z_1)\ +\ 5\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1) \\
-    f^{(2)}\ =\ sin(z_1)\ +\ 4.75\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1) \\
-    f^{(3)}\ =\ sin(z_1)\ +\ 3\ sin^{2}(z_2)\ +\ \frac{9}{10}\ z_3^{2} sin(z_1) \\
-    with\ \ z_i\sim\textit{U}(-\pi,\ \pi)
-    \end{gather*} \\
+    f^{(1)}\ =\ sin(z_1)\ +\ 5\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1)
+.. math::
+    f^{(2)}\ =\ sin(z_1)\ +\ 4.75\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1)
+.. math::
+    f^{(3)}\ =\ sin(z_1)\ +\ 3\ sin^{2}(z_2)\ +\ \frac{9}{10}\ z_3^{2} sin(z_1)
+.. math::
+    with\ \ z_i \sim \textit{U} (-\pi,\ \pi)
 
 This example covers each step for utilizing MXMCPy: computing model
 outputs for pilot samples, performing sample allocation optimization,
