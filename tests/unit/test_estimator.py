@@ -3,7 +3,7 @@ import pytest
 import warnings
 
 from mxmc.estimator import Estimator
-from mxmc.sample_allocation import SampleAllocation
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def sample_allocation(compressed_allocation):
     warnings.filterwarnings("ignore",
                             message="Allocation Warning",
                             category=UserWarning)
-    return SampleAllocation(compressed_allocation, 'MFMC')
+    return ACVSampleAllocation(compressed_allocation)
 
 
 @pytest.fixture
@@ -65,7 +65,7 @@ def test_estimate_for_monte_carlo(num_models, num_samples):
     compressed_allocation = np.zeros((1, num_models * 2), dtype=int)
     compressed_allocation[0, 0] = num_samples
     compressed_allocation[0, 1] = 1
-    mc_allocation = SampleAllocation(compressed_allocation, "mc")
+    mc_allocation = ACVSampleAllocation(compressed_allocation)
     mc_outputs = [np.empty(0) for _ in range(num_models)]
     mc_outputs[0] = np.random.random(num_samples)
 
@@ -80,7 +80,7 @@ def test_two_model_estimate():
     compressed_allocation = np.array([[1, 1, 1, 1],
                                       [5, 1, 1, 0],
                                       [10, 0, 0, 1]])
-    allocation = SampleAllocation(compressed_allocation, "test case")
+    allocation = ACVSampleAllocation(compressed_allocation)
     model_outputs = [np.arange(1, 7), np.arange(1, 17)]
     covariance = np.array([[1, 0.5], [0.5, 1]])
 
@@ -93,7 +93,7 @@ def test_two_model_estimate():
 def test_two_model_approximate_variance():
     compressed_allocation = np.array([[3, 1, 1, 1],
                                       [57, 0, 0, 1]], dtype=int)
-    allocation = SampleAllocation(compressed_allocation, "test case")
+    allocation = ACVSampleAllocation(compressed_allocation)
     covariance = np.array([[1, 0.5], [0.5, 1]])
 
     est = Estimator(allocation, covariance)

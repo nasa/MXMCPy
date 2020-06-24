@@ -1,4 +1,5 @@
 import numpy as np
+from .sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 
 
 class Estimator:
@@ -77,7 +78,7 @@ class Estimator:
         return variance
 
     def _calculate_alpha(self):
-        if self._allocation.method != "mlmc":
+        if self._allocation.__class__ != MLMCSampleAllocation:
             alpha = self._calculate_acv_alphas()
         else:
             alpha = - np.ones(self._num_models - 1)
