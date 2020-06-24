@@ -78,13 +78,6 @@ class ACVEstimator:
         return variance
 
     def _calculate_alpha(self):
-        if self._allocation.__class__ != MLMCSampleAllocation:
-            alpha = self._calculate_acv_alphas()
-        else:
-            alpha = - np.ones(self._num_models - 1)
-        return alpha
-
-    def _calculate_acv_alphas(self):
         k_indices = [i - 1 for i in self._allocation.utilized_models if i != 0]
         temp_cov_delta_delta = self._cov_delta_delta[k_indices][:, k_indices]
         temp_cov_q_delta = self._cov_q_delta[k_indices]

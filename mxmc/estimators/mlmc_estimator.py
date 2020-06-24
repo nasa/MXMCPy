@@ -1,4 +1,8 @@
+import numpy as np
 
-class MLMCEstimator:
-    def __init__(self, allocation, covariance):
-        pass
+from .acv_estimator import ACVEstimator
+
+class MLMCEstimator(ACVEstimator):
+
+    def _calculate_alpha(self):
+        return -1.0*np.ones(self._num_models - 1)
