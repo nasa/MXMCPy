@@ -164,13 +164,13 @@ def test_mlmc_with_model_selection():
     cov_matrix = np.array([[8, 6, 11/2.], [6, 6, 7/2.], [11/2., 7/2., 4.]])
     optimizer = Optimizer(model_costs, covariance=cov_matrix)
 
-    target_cost = 19
+    target_cost = 17
 
     sample_array_expected = np.array([[2, 1, 0, 0, 1, 0],
-                                      [10, 0, 0, 0, 0, 1]])
+                                      [8, 0, 0, 0, 0, 1]])
 
-    variance_expected = .9
-    cost_expected = 18
+    variance_expected = 1.
+    cost_expected = 16
 
     opt_result = optimizer.optimize(algorithm="mlmc", target_cost=target_cost,
                                     auto_model_selection=True)
@@ -185,10 +185,10 @@ def test_mlmc_with_model_selection_zero_q():
 
     target_cost = 8
 
-    sample_array_expected = np.array([[0, 1, 1, 0, 0, 0],
-                                      [3, 0, 0, 1, 0, 0]])
-    variance_expected = 2
-    cost_expected = 6
+    sample_array_expected = np.array([[1, 1, 0, 0, 1, 0],
+                                      [4, 0, 0, 0, 0, 1]])
+    variance_expected = 2.
+    cost_expected = 8.
 
     with warnings.catch_warnings(record=True) as warning_log:
         opt_result = optimizer.optimize(algorithm="mlmc",
@@ -200,29 +200,3 @@ def test_mlmc_with_model_selection_zero_q():
 
         assert len(warning_log) == 1
         assert issubclass(warning_log[-1].category, UserWarning)
-
-
-@pytest.mark.parametrize('num_levels', list(range(2, 5)))
-@pytest.mark.parametrize('random_seed', list(range(3)))
-def test_adjust_samples_per_level(num_levels, random_seed):
-
-    np.random.seed(random_seed)
-    level_costs = np.arange(num_levels, 0, -1)
-    cov_matrix = np.identity(num_levels)
-
-    mlmc = MLMC(level_costs, cov_matrix)
-    mlmc._level_costs = level_costs
-
-    samples = np.sort(np.random.rand(num_levels)*10)
-    int_samples = samples.astype(np.int)
-    max_samples = int_samples + 1
-
-    min_cost = np.dot(int_samples, level_costs)
-    max_cost = np.dot(max_samples, level_costs)
-
-    for target_cost in np.linspace(min_cost, max_cost, 10):
-
-        result = mlmc._adjust_samples_per_level(target_cost, samples)
-        cost_result = np.dot(result, level_costs)
-
-        assert min_cost <= cost_result <= max_cost
