@@ -48,18 +48,14 @@ class SampleAllocation:
     '''
     def __init__(self, compressed_allocation, method=None):
 
-        self._init_from_data(compressed_allocation, method)
-        self.num_total_samples = np.sum(self.compressed_allocation[:, 0])
+        self.compressed_allocation = compressed_allocation
+        self.num_total_samples = np.sum(compressed_allocation[:, 0])
+        self.num_models = self._calculate_num_models()
+        self.method = method
 
         self._expanded_allocation = None
         self._num_shared_samples = None
         self._utilized_models = None
-
-    def _init_from_data(self, compressed_allocation_data, method):
-
-        self.compressed_allocation = np.array(compressed_allocation_data)
-        self.num_models = self._calculate_num_models()
-        self.method = method
 
     @property
     def num_shared_samples(self):
