@@ -224,11 +224,11 @@ class SampleAllocation:
         return ranges_1, ranges_2
 
     @staticmethod
-    def _get_ranges_from_samples_and_bool(n_samples, used_by_samples):
+    def _get_ranges_from_samples_and_bool(num_samples, used_by_samples):
         ranges = []
         range_start = 0
         range_end = 0
-        for n, is_used in zip(n_samples, used_by_samples):
+        for n, is_used in zip(num_samples, used_by_samples):
             if is_used:
                 range_end += n
             else:
@@ -237,7 +237,8 @@ class SampleAllocation:
                 range_end += n
                 range_start = range_end
         if range_start != range_end:
-            ranges.append(np.arange(range_start, range_end))
+            ranges.append(range(range_start, range_end))
+
         return ranges
 
     def _calculate_num_models(self):

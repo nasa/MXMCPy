@@ -21,14 +21,15 @@ class Estimator:
         self._num_samples_per_model = \
             self._allocation.get_number_of_samples_per_model()
         if covariance is not None:
-            self._validation(covariance)
+            self._validate_covariance(covariance)
 
         self._cov_delta_delta, self._cov_q_delta = \
             self._calculate_cov_delta_terms()
         self._alpha = self._calculate_alpha()
         self.approximate_variance = self._get_approximate_variance()
 
-    def _validation(self, covariance):
+    def _validate_covariance(self, covariance):
+
         if len(covariance) != self._num_models:
             raise ValueError("Covariance and allocation dimensions must match")
         if not np.allclose(covariance.transpose(), covariance):
@@ -47,19 +48,23 @@ class Estimator:
         :Returns: the expected value estimator (float)
         '''
         self._validate_model_outputs(model_outputs)
-        q = np.mean(model_outputs[0])
+        estimate = np.mean(model_outputs[0])
         for i in range(1, self._allocation.num_models):
-            ranges_1, ranges_2 = self._allocation.get_sample_split_for_model(i)
-            n_1 = sum([len(i) for i in ranges_1])
-            n_2 = sum([len(i) for i in ranges_2])
-            for rng in ranges_1:
-                q += self._alpha[i - 1] * np.sum(model_outputs[i][rng]) / n_1
-            for rng in ranges_2:
-                q -= self._alpha[i - 1] * np.sum(model_outputs[i][rng]) / n_2
 
-        return q
+            ranges_1, ranges_2 = self._allocation.get_sample_split_for_model(i)
+            samples_1 = sum([len(j) for j in ranges_1])
+            samples_2 = sum([len(j) for j in ranges_2])
+            alpha = self._alpha[i - 1]
+
+            for rng in ranges_1:
+                estimate += alpha * np.sum(model_outputs[i][rng]) / samples_1
+            for rng in ranges_2:
+                estimate -= alpha * np.sum(model_outputs[i][rng]) / samples_2
+
+        return estimate
 
     def _calculate_cov_delta_terms(self):
+
         k_0 = self._allocation.get_k0_matrix()
         k = self._allocation.get_k_matrix()
         cov_q_delta = k_0 * self._covariance[0, 1:]
@@ -67,6 +72,7 @@ class Estimator:
         return cov_delta_delta, cov_q_delta
 
     def _get_approximate_variance(self):
+
         n_0 = self._allocation.get_number_of_samples_per_model()[0]
         var_q0 = self._covariance[0, 0]
 
@@ -77,13 +83,14 @@ class Estimator:
         return variance
 
     def _calculate_alpha(self):
-        if self._allocation.method != "mlmc":
-            alpha = self._calculate_acv_alphas()
-        else:
-            alpha = - np.ones(self._num_models - 1)
-        return alpha
+
+        if self._allocation.method == "mlmc":
+            return -np.ones(self._num_models - 1)
+
+        return self._calculate_acv_alphas()
 
     def _calculate_acv_alphas(self):
+
         k_indices = [i - 1 for i in self._allocation.utilized_models if i != 0]
         temp_cov_delta_delta = self._cov_delta_delta[k_indices][:, k_indices]
         temp_cov_q_delta = self._cov_q_delta[k_indices]
@@ -93,12 +100,14 @@ class Estimator:
         return alpha
 
     def _validate_model_outputs(self, model_outputs):
+
         if len(model_outputs) != self._num_models:
             raise ValueError("Number of models in model output did not match "
                              "the number in sample allocation")
-        for outputs, num_samps in zip(model_outputs,
-                                      self._num_samples_per_model):
-            if len(outputs) != num_samps:
+
+        for outputs, num_samples in zip(model_outputs,
+                                        self._num_samples_per_model):
+            if len(outputs) != num_samples:
                 raise ValueError("Number of outputs per model does not match "
                                  "the sample allocation")
             if len(outputs.shape) > 1 and outputs.shape[1] != 1:
