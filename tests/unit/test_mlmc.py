@@ -3,7 +3,6 @@ import pytest
 import warnings
 
 from mxmc.optimizer import Optimizer
-from mxmc.optimizers.mlmc import MLMC
 from mxmc.util.testing import assert_opt_result_equal
 
 dummy_var = 999

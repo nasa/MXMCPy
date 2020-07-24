@@ -40,7 +40,8 @@ def test_maximize_sample_allocation_variance_increases_samples():
                                                               covariance)
 
     num_base_samples = np.sum(compressed_allocation[:, 0])
-    num_adjusted_samples = np.sum(adjusted_allocation.compressed_allocation[:, 0])
+    num_adjusted_samples = \
+        np.sum(adjusted_allocation.compressed_allocation[:, 0])
 
     assert num_base_samples < num_adjusted_samples
 
