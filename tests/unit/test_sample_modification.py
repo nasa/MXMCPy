@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from mxmc.estimator import Estimator
 from mxmc.sample_allocation import SampleAllocation
@@ -114,3 +115,51 @@ def test_get_cost_per_sample_by_group():
     expected_group_sample_costs = np.array([11., 1.])
 
     assert np.array_equal(group_sample_costs, expected_group_sample_costs)
+
+@pytest.mark.parametrize("initial_num_samples", [1, 2, 3, 4]) 
+def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
+
+    covariance = np.array([[4.]])
+    model_costs = np.array([1.])
+    target_cost = 4
+
+    base_allocation = SampleAllocation(np.array([[initial_num_samples, 1]]))
+    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
+                                                              target_cost,
+                                                              model_costs,
+                                                              covariance)
+    N = int(target_cost / model_costs[0])
+    compressed_allocation_expected = np.array([[N, 1]])
+
+    assert np.array_equal(adjusted_allocation.compressed_allocation, 
+                          compressed_allocation_expected)
+    
+
+
+def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
+
+    DUMMY = 1.0    
+    base_allocation_compressed = np.array([[1, 1]])
+    target_cost = DUMMY
+    model_costs = np.array([DUMMY])
+    covariance = np.array([[DUMMY]])
+
+    #forcing algorithm to return # samples = 4 as lowest variance
+    mock_test_samplings = [(2,), (3,), (4,)]
+    mock_variances = [5 , 4., 3., 2.]
+
+    mocker.patch("mxmc.util.sample_modification._generate_test_samplings",
+                 return_value=mock_test_samplings)
+    mocker.patch("mxmc.util.sample_modification._get_estimator_variance",
+                 side_effect=mock_variances)
+
+    base_allocation = SampleAllocation(base_allocation_compressed)
+    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
+                                                              target_cost,
+                                                              model_costs,
+                                                              covariance)
+
+    compressed_allocation_expected = np.array([[4, 1]])
+    assert np.array_equal(adjusted_allocation.compressed_allocation,
+                          compressed_allocation_expected)
+
