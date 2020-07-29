@@ -1,6 +1,4 @@
 import numpy as np
-from ..sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
-
 
 class ACVEstimator:
     '''
@@ -27,7 +25,13 @@ class ACVEstimator:
         self._cov_delta_delta, self._cov_q_delta = \
             self._calculate_cov_delta_terms()
         self._alpha = self._calculate_alpha()
-        self.approximate_variance = self._get_approximate_variance()
+        self._approximate_variance = None
+
+    @property
+    def approximate_variance(self):
+        if self._approximate_variance is None:
+            self._approximate_variance = self._get_approximate_variance()
+        return self._approximate_variance
 
     def _validation(self, covariance):
         if len(covariance) != self._num_models:
@@ -43,7 +47,7 @@ class ACVEstimator:
             random inputs prescribed by the optimal sample allocation. Note:
             each output array must correspond exactly to the size/order of the
             random inputs given by the optimal SampleAllocation object.
-        :type allocation: list of np.arrays
+        :type model_outputs: list of np.arrays
 
         :Returns: the expected value estimator (float)
         '''
