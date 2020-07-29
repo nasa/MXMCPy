@@ -65,9 +65,30 @@ python -m pytest tests
 ```
 from the root directory of the repository.
 
-## Usage Examples
-The best place to get started in MXMCPy is by going through example scripts
- in the [examples directory](examples/). 
+## Example Usage
+
+The following code snippet shows the determination of an optimal sample
+allocation for three models with assumed costs and covariance matrix using
+the MFMC algorithm:
+
+```python
+import numpy as np
+from mxmc import Optimizer
+
+model_costs = np.array([1.0, 0.05, 0.001])
+covariance_matrix = np.array([[11.531, 11.523, 12.304],
+                              [11.523, 11.518, 12.350],
+                              [12.304, 12.350, 14.333]])
+                             
+optimizer = Optimizer(model_costs, covariance_matrix)
+opt_result = optimizer.optimize(algorithm="mfmc", target_cost=1000)
+
+print("Optimal variance: ", opt_result.variance)
+print("# samples per model: ", opt_result.allocation.get_number_of_samples_per_model())
+```
+
+For more detailed examples using MXMCPy including end-to-end construction of
+estimators, see the scripts in the [examples directory](examples/). 
 
 ## Contributing
 1. Fork it (<https://github.com/nasa/mxmcpy/fork>)
