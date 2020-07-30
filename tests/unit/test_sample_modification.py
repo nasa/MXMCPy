@@ -7,6 +7,7 @@ from mxmc.util.sample_modification import maximize_sample_allocation_variance
 from mxmc.util.sample_modification import _generate_test_samplings
 from mxmc.util.sample_modification import _get_cost_per_sample_by_group
 from mxmc.util.sample_modification import _get_total_sampling_cost
+from mxmc.util.sample_modification import _get_estimator_variance
 
 
 def test_maximize_sample_allocation_variance_returns_sample_allocation():
@@ -29,10 +30,10 @@ def test_maximize_sample_allocation_variance_increases_samples():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
-    covariance = np.array([[.5, 0.],
-                           [0., .8]])
-    target_cost = 500.
     model_costs = [10., 1.]
+    covariance = np.array([[1., 0.3],
+                           [0.3, 1.]])
+    target_cost = 215
 
     base_allocation = SampleAllocation(compressed_allocation)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
@@ -51,9 +52,10 @@ def test_maximize_sample_allocation_variance_does_not_exceed_target_cost():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
-    covariance = np.identity(2)
-    target_cost = 500.
     model_costs = [10., 1.]
+    covariance = np.array([[1., 0.3],
+                           [0.3, 1.]])
+    target_cost = 215
 
     base_allocation = SampleAllocation(compressed_allocation)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
@@ -71,29 +73,47 @@ def test_maximize_sample_allocation_variance_decreases_variance():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
-    covariance = np.identity(2)
-    target_cost = 500.
     model_costs = [10., 1.]
+    covariance = np.array([[1., 0.3],
+                           [0.3, 1.]])
+    target_cost = 215
 
     base_allocation = SampleAllocation(compressed_allocation)
     base_estimate = Estimator(base_allocation, covariance)
-    base_variance = base_estimate.approximate_variance
+    base_variance = base_estimate._get_approximate_variance()
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               model_costs,
                                                               covariance)
 
     adjusted_estimate = Estimator(adjusted_allocation, covariance)
-    adjusted_variance = adjusted_estimate.approximate_variance
+    adjusted_variance = adjusted_estimate._get_approximate_variance()
 
     assert adjusted_variance < base_variance
 
 
-def test_generate_test_samplings_expected_output():
+@pytest.mark.parametrize("initial_num_samples", [1, 2, 3, 4])
+def test_generate_test_samplings_monte_carlo(initial_num_samples):
+
+    model_costs = np.array([1.])
+    target_cost = 4
+
+    compressed_allocation = np.array([[initial_num_samples, 1]])
+
+    actual_sampling = _generate_test_samplings(compressed_allocation,
+                                               model_costs,
+                                               target_cost)
+    expected_sampling = [x for x in [(2,), (3,), (4,)] if x[0] > initial_num_samples]
+
+    for actual, expected in zip(actual_sampling, expected_sampling):
+        assert actual == expected
+
+
+def test_generate_test_samplings():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
-    target_cost = 310.
+    target_cost = 102.
     model_costs = [10., 1.]
 
     sampling = _generate_test_samplings(compressed_allocation,
@@ -116,7 +136,8 @@ def test_get_cost_per_sample_by_group():
 
     assert np.array_equal(group_sample_costs, expected_group_sample_costs)
 
-@pytest.mark.parametrize("initial_num_samples", [1, 2, 3, 4]) 
+
+@pytest.mark.parametrize("initial_num_samples", [1, 2, 3, 4])
 def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
 
     covariance = np.array([[4.]])
@@ -131,9 +152,8 @@ def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
     N = int(target_cost / model_costs[0])
     compressed_allocation_expected = np.array([[N, 1]])
 
-    assert np.array_equal(adjusted_allocation.compressed_allocation, 
+    assert np.array_equal(adjusted_allocation.compressed_allocation,
                           compressed_allocation_expected)
-    
 
 
 def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
@@ -144,9 +164,9 @@ def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
     model_costs = np.array([DUMMY])
     covariance = np.array([[DUMMY]])
 
-    #forcing algorithm to return # samples = 4 as lowest variance
+    # Forcing algorithm to return # samples = 4 as lowest variance.
     mock_test_samplings = [(2,), (3,), (4,)]
-    mock_variances = [5 , 4., 3., 2.]
+    mock_variances = [5., 4., 3., 2.]
 
     mocker.patch("mxmc.util.sample_modification._generate_test_samplings",
                  return_value=mock_test_samplings)
@@ -162,4 +182,3 @@ def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
     compressed_allocation_expected = np.array([[4, 1]])
     assert np.array_equal(adjusted_allocation.compressed_allocation,
                           compressed_allocation_expected)
-

@@ -90,14 +90,15 @@ def _generate_test_samplings(compressed_allocation, model_costs, target_cost):
 
         for g, group_cost in enumerate(sample_cost_by_group):
 
-            cost_of_adding_sample = (test_sampling[g, 0] + 1) * group_cost
-            if cost_of_adding_sample <= cost_remaining:
+            if 0 < group_cost <= cost_remaining:
 
                 new_sampling = np.copy(test_sampling)
-                new_sampling[g, 0] += 1
-                new_cost_margin = cost_remaining - cost_of_adding_sample
-                sampling_tests.add(tuple(new_sampling[:, 0]))
-                add_test_samplings(new_sampling, new_cost_margin)
+                new_sampling[g] += 1
+                new_cost_remaining = cost_remaining - group_cost
+                sampling_tests.add(tuple(new_sampling))
+
+                if new_cost_remaining > 0.:
+                    add_test_samplings(new_sampling, new_cost_remaining)
 
     sample_cost_by_group = \
         _get_cost_per_sample_by_group(compressed_allocation, model_costs)
@@ -106,5 +107,8 @@ def _generate_test_samplings(compressed_allocation, model_costs, target_cost):
     cost_margin = \
         target_cost - _get_total_sampling_cost(compressed_allocation,
                                                model_costs)
-    add_test_samplings(compressed_allocation, cost_margin)
+
+    if cost_margin > 0:
+        add_test_samplings(compressed_allocation[:, 0], cost_margin)
+
     return sampling_tests
