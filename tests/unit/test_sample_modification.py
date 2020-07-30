@@ -9,7 +9,7 @@ from mxmc.util.sample_modification import _get_cost_per_sample_by_group
 from mxmc.util.sample_modification import _get_total_sampling_cost
 
 
-def test_maximize_sample_allocation_variance_returns_sample_allocation():
+def test_returns_sample_allocation():
 
     compressed_allocation = np.array([[9, 1]])
     covariance = np.identity(1)
@@ -25,7 +25,7 @@ def test_maximize_sample_allocation_variance_returns_sample_allocation():
     assert isinstance(adjusted_allocation, SampleAllocation)
 
 
-def test_maximize_sample_allocation_variance_increases_samples():
+def test_increases_samples():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
@@ -47,7 +47,7 @@ def test_maximize_sample_allocation_variance_increases_samples():
     assert num_base_samples < num_adjusted_samples
 
 
-def test_maximize_sample_allocation_variance_does_not_exceed_target_cost():
+def test_does_not_exceed_target_cost():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
@@ -68,7 +68,7 @@ def test_maximize_sample_allocation_variance_does_not_exceed_target_cost():
     assert adjusted_cost <= target_cost
 
 
-def test_maximize_sample_allocation_variance_decreases_variance():
+def test_decreases_variance():
 
     compressed_allocation = np.array([[10, 1, 1, 1],
                                       [90, 0, 1, 1]])
@@ -139,7 +139,7 @@ def test_get_cost_per_sample_by_group():
 
 
 @pytest.mark.parametrize("initial_num_samples", [1, 2, 3, 4])
-def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
+def test_result_monte_carlo(initial_num_samples):
 
     covariance = np.array([[4.]])
     model_costs = np.array([1.])
@@ -157,7 +157,7 @@ def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
                           compressed_allocation_expected)
 
 
-def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
+def test_result_mocked_generate_test_samplings(mocker):
 
     DUMMY = 1.0
     base_allocation_compressed = np.array([[1, 1]])
