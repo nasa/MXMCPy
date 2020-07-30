@@ -7,7 +7,6 @@ from mxmc.util.sample_modification import maximize_sample_allocation_variance
 from mxmc.util.sample_modification import _generate_test_samplings
 from mxmc.util.sample_modification import _get_cost_per_sample_by_group
 from mxmc.util.sample_modification import _get_total_sampling_cost
-from mxmc.util.sample_modification import _get_estimator_variance
 
 
 def test_maximize_sample_allocation_variance_returns_sample_allocation():
@@ -103,7 +102,9 @@ def test_generate_test_samplings_monte_carlo(initial_num_samples):
     actual_sampling = _generate_test_samplings(compressed_allocation,
                                                model_costs,
                                                target_cost)
-    expected_sampling = [x for x in [(2,), (3,), (4,)] if x[0] > initial_num_samples]
+
+    expected_sampling = [x for x in [(2,), (3,), (4,)]
+                         if x[0] > initial_num_samples]
 
     for actual, expected in zip(actual_sampling, expected_sampling):
         assert actual == expected
@@ -158,7 +159,7 @@ def test_maximize_sample_allocation_for_monte_carlo(initial_num_samples):
 
 def test_maximize_sample_allocation_mocked_generate_test_samplings(mocker):
 
-    DUMMY = 1.0    
+    DUMMY = 1.0
     base_allocation_compressed = np.array([[1, 1]])
     target_cost = DUMMY
     model_costs = np.array([DUMMY])
