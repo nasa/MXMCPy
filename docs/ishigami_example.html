@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Example - Ishigami &mdash; MXMC 1.0 documentation</title>
+    <title>End-to-End Example &mdash; MXMC 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -51,35 +51,38 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="example-ishigami">
-<h1>Example - Ishigami<a class="headerlink" href="#example-ishigami" title="Permalink to this headline">¶</a></h1>
-<p>This example provides a simple demonstration of MXMCPy functionality. The
-example code computes the estimate of three Ishigami models as described in
-&#8220;High-dimensional and higher-order multifidelity Monte Carlo estimators&#8221;
-(Quaglino, 2018). The goal is to estimate the expectation using the below models
-with MXMCPy and compare to an analytically determined solution of E[F(z)],
-which is computed to be 2.5.</p>
+  <div class="section" id="end-to-end-example">
+<h1>End-to-End Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline">¶</a></h1>
+<p>This example provides a simple demonstration of <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> functionality. Here, the high-fidelity model considered is the Ishigami function, which is frequently used to test methods for uncertainty quantification:</p>
 <div class="formula">
 <i>f</i><sup>(1)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  5 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">4</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
 </div>
+<div class="formula">
+<i>with</i>  <i>z</i><sub><i>i</i></sub> ~ <i>U</i>( − <i>π</i>,  <i>π</i>)
+</div>
+<p>The following two correlated functions [1] are treated as low-fidelity models to facilitate the use of multi-model estimators:</p>
 <div class="formula">
 <i>f</i><sup>(2)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  4.75 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">4</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
 </div>
 <div class="formula">
 <i>f</i><sup>(3)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  3 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">9</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">2</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
 </div>
-<div class="formula">
-<i>with</i>  <i>z</i><sub><i>i</i></sub> ~ <i>U</i>( − <i>π</i>,  <i>π</i>)
-</div>
-<p>This example covers each step for utilizing MXMCPy: computing model
-outputs for pilot samples, performing sample allocation optimization,
-generating input samples for each model, computing the outputs, and forming
-the estimator.</p>
-<p>The full source code for this example can be found in the MXMCPy repository:</p>
+<p>Furthermore, the costs associated with evaluating the functions <span class="formula"><i>f</i><sup>(1)</sup></span>
+,  <span class="formula"><i>f</i><sup>(2)</sup></span>
+, and  <span class="formula"><i>f</i><sup>(3)</sup></span>
+ are assumed to be 1.0, 0.05, 0.001 seconds, respectively. The goal is to estimate <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>]</span>
+ using <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> by leveraging all three models and comparing with the analytical solution, <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>] = 2.5</span>
+.</p>
+<p>This example covers each step for utilizing <tt class="docutils literal"><span class="pre">MXMCPy</span></tt>: estimating the covariance of
+model outputs from pilot samples, performing the sample allocation optimization,
+and forming an estimator from outputs generated from each model according to
+the optimal sample allocation.</p>
+<p>The full source code for this example can be found in the <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> repository:</p>
 <p><tt class="docutils literal"><span class="pre">/examples/ishigami/run_ishigami.py</span></tt></p>
 <div class="section" id="step-1-compute-model-outputs-for-pilot-samples">
 <h2>Step 1: Compute model outputs for pilot samples<a class="headerlink" href="#step-1-compute-model-outputs-for-pilot-samples" title="Permalink to this headline">¶</a></h2>
-<p>Begin by importing the necessary Python modules, including MXMCPy classes and Numpy:</p>
+<p>In order to determine the optimal sample allocation across the available models, <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> needs the cost of each model as well as the covariance matrix of the outputs from each model. If the covariance matrix is unknown, it can be estimated from pilot samples, demonstrated here.</p>
+<p>Starting from the beginning, the necessary Python modules are imported, including <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> classes and Numpy:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">mxmc</span> <span class="kn">import</span> <span class="n">Optimizer</span>
@@ -87,11 +90,9 @@ the estimator.</p>
 <span class="kn">from</span> <span class="nn">mxmc</span> <span class="kn">import</span> <span class="n">Estimator</span>
 </pre></div>
 </div>
-<p>Below is the essential setup for the example. The user&#8217;s model class,
-IshigamiModel, is imported. The number of pilot samples to take from each model
-is established, along with the costs of each model. Three IshigamiModels are
-then instantiated per the parameters in the equations in the Quaglino paper and
-stored in a list variable named &#8220;models&#8221;.</p>
+<p>It is assumed that a user-defined class (<tt class="docutils literal"><span class="pre">IshigamiModel</span></tt>) implementing the Ishigami models and function (<tt class="docutils literal"><span class="pre">get_uniform_sample_distribution</span></tt>) for sampling the uniform random inputs are available. Three IshigamiModels are
+then instantiated per the parameters in the equations above and
+stored in a list variable named &#8220;models&#8221;:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ishigami_model</span> <span class="kn">import</span> <span class="n">IshigamiModel</span>
 
 <span class="n">num_pilot_samples</span> <span class="o">=</span> <span class="mi">10</span>
@@ -104,18 +105,14 @@ stored in a list variable named &#8220;models&#8221;.</p>
 <span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">high_fidelity_model</span><span class="p">,</span> <span class="n">medium_fidelity_model</span><span class="p">,</span> <span class="n">low_fidelity_model</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>The pilot samples are then computed using the Ishigami models with inputs
-taken from a uniform distribution on the range <span class="formula">( − <i>π</i>,  <i>π</i>)</span>
-. This task
-does not require MXMCPy.</p>
+<p>Ten pilot samples are computed with each model as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pilot_inputs</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_pilot_samples</span><span class="p">)</span>
 <span class="n">pilot_outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
     <span class="n">pilot_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">pilot_inputs</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>MXMCPy provides a convenient function for computing a covariance matrix from the
-sample outputs via the OutputProcessor class.</p>
+<p>The covariance matrix is then computed using the <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> <tt class="docutils literal"><span class="pre">OutputProcessor</span></tt> class:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">covariance_matrix</span> <span class="o">=</span> <span class="n">OutputProcessor</span><span class="o">.</span><span class="n">compute_covariance_matrix</span><span class="p">(</span><span class="n">pilot_outputs</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -124,15 +121,10 @@ now available: model costs, pilot outputs, and a covariance matrix.</p>
 </div>
 <div class="section" id="step-2-perform-sample-allocation-optimization">
 <h2>Step 2: Perform sample allocation optimization<a class="headerlink" href="#step-2-perform-sample-allocation-optimization" title="Permalink to this headline">¶</a></h2>
-<p>Once the prerequisites for sample allocation optimization have been
-established, the process can be performed by specifying a target cost and
-indicating a specific optimizer.</p>
+<p>The sample allocation optimization with <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> is now performed assuming a computational budget or target cost of 10000 seconds.</p>
 <p>In the below snippet taken from the example code, all available optimization
 algorithms are individually tested to find the method that produces the lowest
-variance given the target cost. The Optimizer.optimize() method returns an
-instance of the SampleAllocation class containing information such as variance
-and sample allocation. The instance of the SampleAllocation class with the
-lowest variance will be used for subsequent steps.</p>
+estimator variance. The Optimizer.optimize() method returns an instance of the <tt class="docutils literal"><span class="pre">OptimizationResult</span></tt> class with attributes for estimatore variance and optimal sample allocation. The sample allocation with the lowest variance will be used to generate an estimator in the subsequent steps.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">target_cost</span> <span class="o">=</span> <span class="mi">10000</span>
 <span class="n">variance_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">sample_allocation_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -154,10 +146,9 @@ lowest variance will be used for subsequent steps.</p>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Best method: &quot;</span><span class="p">,</span> <span class="n">best_method</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The Optimizer class also provides functionality for determining an optimal
+<p>The <tt class="docutils literal"><span class="pre">Optimizer</span></tt> class also provides functionality for determining an optimal
 subset of the models via the boolean parameter auto_model_selection of the
-Optimizer.optimize() method. By default, all provided models are used.</p>
-<p>Note that enabling this option will take considerably longer as every
+Optimizer.optimize() method. By default, all provided models are used. Note that enabling this option could take considerably longer as every
 combination of the models will be tested.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">mxmc_optimizer</span> <span class="o">=</span> <span class="n">Optimizer</span><span class="p">(</span><span class="n">model_costs</span><span class="p">,</span>
                            <span class="n">covariance_matrix</span><span class="p">,</span>
@@ -171,49 +162,43 @@ combination of the models will be tested.</p>
 </div>
 <div class="section" id="step-3-generate-input-samples-for-models">
 <h2>Step 3: Generate input samples for models<a class="headerlink" href="#step-3-generate-input-samples-for-models" title="Permalink to this headline">¶</a></h2>
-<p>Once sample allocation and choice of algorithm are determined, it is up to the
-user to provide appropriate input samples for the models. The task is similar
-to the creation of pilot samples, but uses the sample allocation data
-from the previous step.</p>
+<p>The <tt class="docutils literal"><span class="pre">SampleAllocation</span></tt> class provides functionality for determining how many random input samples are needed and how they are to be allocated across the available models. This is demonstrated below for the optimal sample allocation object found in the previous step:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">num_total_samples</span> <span class="o">=</span> <span class="n">sample_allocation</span><span class="o">.</span><span class="n">num_total_samples</span>
 <span class="n">all_samples</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_total_samples</span><span class="p">)</span> <span class="c"># User code.</span>
 <span class="n">model_input_samples</span> <span class="o">=</span> <span class="n">sample_allocation</span><span class="o">.</span><span class="n">allocate_samples_to_models</span><span class="p">(</span><span class="n">all_samples</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>MXMCPy&#8217;s SampleAllocation class provides tools that aid in this process.
-The num_total_samples property can be referenced for creation of an ndarray of
+<p>The num_total_samples property can be referenced for creation of an ndarray of
 inputs, which can then be provided to the allocate_samples_to_models() method.
 This method will redistribute the ndarray of input samples into a list of
 ndarrays, each containing the prescribed number of samples for each model.</p>
 </div>
 <div class="section" id="step-4-compute-model-outputs-for-prescribed-inputs">
 <h2>Step 4: Compute model outputs for prescribed inputs<a class="headerlink" href="#step-4-compute-model-outputs-for-prescribed-inputs" title="Permalink to this headline">¶</a></h2>
-<p>Now that the input samples for each model have been generated, the outputs
-must be generated. This should be a straightforward process and does not
-require use of MXMCPy classes:</p>
+<p>Now that the input samples for each model have been generated and allocated,
+outputs are generated by evaluating the Ishigami models as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">model_outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">input_sample</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model_input_samples</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
     <span class="n">model_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">input_sample</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>The outputs should be stored in a list of ndarrays corresponding to each model.</p>
+<p>The outputs are stored in a list of ndarrays corresponding to each model.</p>
+<p>Note that for the practical case where evaluating the available models is time consuming and must be done in an <cite>offline</cite> fashion, the <tt class="docutils literal"><span class="pre">SampleAllocation</span></tt> class has functionality to save and load to/from disc. This way, the optimal sample allocation can be saved after Step 2 above and then loaded to generate an estimator in Step 5 next.</p>
 </div>
 <div class="section" id="step-5-form-estimator">
 <h2>Step 5: Form estimator<a class="headerlink" href="#step-5-form-estimator" title="Permalink to this headline">¶</a></h2>
-<p>Lastly, the final estimator is computed using MXMCPy&#8217;s Estimator class and the
-model outputs. A covariance matrix computed from the model outputs
-will be necessary for this task, so the OutputProcessor&#8217;s
-compute_covariance_matrix() method will be useful once again.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">output_cov_matrix</span> <span class="o">=</span> <span class="n">OutputProcessor</span><span class="o">.</span><span class="n">compute_covariance_matrix</span><span class="p">(</span><span class="n">pilot_outputs</span><span class="p">)</span>
-
-<span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">sample_allocation</span><span class="p">,</span> <span class="n">output_cov_matrix</span><span class="p">)</span>
+<p>Finally, an estimator for <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>]</span>
+ is computed using the <tt class="docutils literal"><span class="pre">Estimator</span></tt> class and the model outputs from the previous step:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">sample_allocation</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">)</span>
 <span class="n">estimate</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(</span><span class="n">model_outputs</span><span class="p">)</span>
 
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Estimate = &quot;</span><span class="p">,</span> <span class="n">estimate</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The expectation for the model is 2.5, and is reliably approximated by the
-example code.</p>
+<p>Note that the sample allocation object from Step 2 and the covariance matrix from Step 1 are required here. The covariance matrix could also be updated at this point using the model outputs generated in the previous step. The <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> estimator is close to the true value of 2.5.</p>
+<div class="line-block">
+<div class="line">[1] &#8220;High-dimensional and higher-order multifidelity Monte Carlo estimators&#8221; (Quaglino, 2018)</div>
+</div>
 </div>
 </div>
 
@@ -225,7 +210,7 @@ example code.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Example - Ishigami</a><ul>
+<li><a class="reference internal" href="#">End-to-End Example</a><ul>
 <li><a class="reference internal" href="#step-1-compute-model-outputs-for-pilot-samples">Step 1: Compute model outputs for pilot samples</a></li>
 <li><a class="reference internal" href="#step-2-perform-sample-allocation-optimization">Step 2: Perform sample allocation optimization</a></li>
 <li><a class="reference internal" href="#step-3-generate-input-samples-for-models">Step 3: Generate input samples for models</a></li>

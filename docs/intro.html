@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="MXMC 1.0 documentation" href="index.html" />
-    <link rel="next" title="Example - Ishigami" href="ishigami_example.html" />
+    <link rel="next" title="End-to-End Example" href="ishigami_example.html" />
     <link rel="prev" title="Welcome to MXMC’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="ishigami_example.html" title="Example - Ishigami"
+          <a href="ishigami_example.html" title="End-to-End Example"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to MXMC’s documentation!"
@@ -53,7 +53,15 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>OVERVIEW OF MXMC GOES HERE.</p>
+<p>Multi Model Monte Carlo with Python (<tt class="docutils literal"><span class="pre">MXMCPy</span></tt>) is a software package developed as a general capability for computing the statistics of outputs from an expensive, high-fidelity model by leveraging faster, low-fidelity models for speedup. Several existing methods are currently implemented, including multi-level Monte Carlo (MLMC) [1], multi-fidelity Monte Carlo (MFMC) [2], and approximate control variates (ACV) [3, 4].  Given a fixed computational budget and a collection of models with varying cost/accuracy,  <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> will determine an sample allocation strategy across the models that results in an estimator with optimal variance reduction using any of the available algorithms.</p>
+<p>With <tt class="docutils literal"><span class="pre">MXMCPy</span></tt>, users can easily compare existing methods to determine the best choice for their particular problem, while developers have a basis for implementing and sharing new variance reduction approaches. See the remainder of the documentation for more details of using the code. For additional information, see the report that accompanied the release of <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> [5].</p>
+<div class="line-block">
+<div class="line">[1] Giles, M. B.: Multi-level Monte Carlo path simulation. OPERATIONS RESEARCH , vol. 56, no. 3, 2008, pp. 607–617.</div>
+<div class="line">[2] Peherstorfer, B.; Willcox, K.; and Gunzburger, M.: Optimal Model Management for Multifidelity Monte Carlo Estimation. SIAM Journal on Scientific Computing, vol. 38, 01 2016, pp. A3163–A3194</div>
+<div class="line">[3] Gorodetsky, A.; Geraci, G.; Eldred, M.; and Jakeman, J. D.: A generalized approximate control variate framework for multifidelity uncertainty quantification. Journal of Computational Physics, 2020, p. 109257</div>
+<div class="line">[4] Bomarito, G. F., Leser, P. E., Warner, J. E., and Leser, W. P: On the Optimization of Approximate Control Variates with Parametrically-Defined Estimators. In Preparation.</div>
+<div class="line">[5] Bomarito, G. F., Warner, J. E., Leser, P. E., Leser, W. P., and Morrill, L.: Multi Model Monte Carlo with Python (MXMCPy). NASA/TM–2020–220585. 2020.</div>
+</div>
 </div>
 
 
@@ -67,7 +75,7 @@
                         title="previous chapter">Welcome to MXMC&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="ishigami_example.html"
-                        title="next chapter">Example - Ishigami</a></p>
+                        title="next chapter">End-to-End Example</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/intro.txt"
@@ -97,7 +105,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="ishigami_example.html" title="Example - Ishigami"
+          <a href="ishigami_example.html" title="End-to-End Example"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to MXMC’s documentation!"
