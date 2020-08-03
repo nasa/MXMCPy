@@ -95,20 +95,31 @@ def _generate_test_samplings(compressed_allocation, model_costs, target_cost):
                 new_sampling = np.copy(test_sampling)
                 new_sampling[g] += 1
                 new_cost_remaining = cost_remaining - group_cost
-                sampling_tests.add(tuple(new_sampling))
+
+                if new_cost_remaining < min_group_cost:
+                    sampling_tests.add(tuple(new_sampling))
 
                 if new_cost_remaining > 0.:
                     add_test_samplings(new_sampling, new_cost_remaining)
 
     sample_cost_by_group = \
         _get_cost_per_sample_by_group(compressed_allocation, model_costs)
+    min_group_cost = np.min(sample_cost_by_group)
 
     sampling_tests = set()
-    cost_margin = \
-        target_cost - _get_total_sampling_cost(compressed_allocation,
-                                               model_costs)
+    starting_sampling = compressed_allocation
+    starting_sampling_cost = _get_total_sampling_cost(starting_sampling,
+                                                      model_costs)
+    cost_margin = target_cost - starting_sampling_cost
 
     if cost_margin > 0:
-        add_test_samplings(compressed_allocation[:, 0], cost_margin)
+        try:
+            add_test_samplings(compressed_allocation[:, 0], cost_margin)
+        except RecursionError:
+            print()
+            print("Maximum recursion depth exceeded while determining")
+            print("candidate group samplings. Your target cost may be")
+            print("exceeding the base cost by an excessive margin.\n")
+            raise RecursionError
 
     return sampling_tests
