@@ -159,24 +159,34 @@ def test_gen_test_samplings_output(two_model_compressed_allocation,
 def test_gen_test_samplings_meet_target_cost(two_model_compressed_allocation,
                                              two_model_costs):
 
-    # This allocation and model costs have a total cost of 200.
-    compressed_allocation = np.array([[10, 1, 1, 1],
-                                      [90, 0, 1, 1]])
     target_cost = 220.
-    model_costs = [10., 1.]
-
-    samplings = _generate_test_samplings(compressed_allocation,
-                                         model_costs,
+    samplings = _generate_test_samplings(two_model_compressed_allocation,
+                                         two_model_costs,
                                          target_cost)
 
     assert len(samplings) > 0
     for sampling in samplings:
 
-        altered_allocation = np.copy(compressed_allocation)
+        altered_allocation = np.copy(two_model_compressed_allocation)
         altered_allocation[:, 0] = sampling
-        cost = _get_total_sampling_cost(altered_allocation, model_costs)
+        cost = _get_total_sampling_cost(altered_allocation, two_model_costs)
 
         assert cost <= target_cost
+
+
+def test_gen_test_samplings_recursion_error_catch(one_model_compressed_allocation,
+                                                  one_model_cost,
+                                                  capsys):
+
+    target_cost = 5000.
+    with pytest.raises(RecursionError):
+        _generate_test_samplings(one_model_compressed_allocation,
+                                 one_model_cost,
+                                 target_cost)
+
+    # Ensure we print a useful message to the user when this happens.
+    stdout = capsys.readouterr().out
+    assert "Maximum recursion depth exceeded" in stdout
 
 
 def test_get_cost_per_sample_by_group(two_model_compressed_allocation,
