@@ -1,11 +1,14 @@
 import numpy as np
 
 from mxmc.estimators.acv_estimator import ACVEstimator
+from mxmc.estimators.mblue_estimator import MBLUEEstimator
 from mxmc.estimators.mlmc_estimator import MLMCEstimator
 from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
+from mxmc.sample_allocations.mblue_sample_allocation import MBLUESampleAllocation
 from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 
 ALLOCATION_TO_ESTIMATOR_MAP = {ACVSampleAllocation: ACVEstimator,
+                               MBLUESampleAllocation: MBLUEEstimator,
                                MLMCSampleAllocation: MLMCEstimator}
 
 class Estimator:
