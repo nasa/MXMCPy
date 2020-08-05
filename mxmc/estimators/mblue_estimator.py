@@ -18,8 +18,8 @@ class MBLUEEstimator:
             self._allocation.get_number_of_samples_per_model()
         if covariance is not None:
             self._validation(covariance)
-
         self._approximate_variance = None
+        self._psi_inverse = None
 
     @property
     def approximate_variance(self):
@@ -34,12 +34,84 @@ class MBLUEEstimator:
             raise ValueError("Covariance array must be symmetric")
 
     def get_estimate(self, model_outputs):
-        '''
-        '''
-        pass
+
+        if self._psi_inverse is None:
+            self._psi_inverse = self._get_psi_inverse()
+        output_vector = self._build_y_vector(model_outputs)
+        estimate = np.dot(self._psi_inverse[0, :], output_vector)
+        return estimate
 
     def _get_approximate_variance(self):
-        pass
+        
+        if self._psi_inverse is None:
+            self._psi_inverse = self._get_psi_inverse()
+        return self._psi_inverse[0, 0]
+
+    def _get_psi_inverse(self):
+        psi_matrix = self._build_psi_matrix()
+        psi_inverse = np.linalg.inv(psi_matrix)
+        return psi_inverse
+
+    def _build_psi_matrix(self):
+        #equation 2.6 for psi matrix
+        psi = np.zeros((self._num_models, self._num_models))
+        
+        for row in self._allocation.compressed_allocation:
+            num_samples = row[0]
+            model_indices = row[1:]
+            cov_sub_mat = self._get_covariance_sub_matrix(model_indices)
+            restrict_mat = self._get_restriction_matrix(model_indices)
+            prolong_mat = restrict_mat.T
+            P_k_times_C_k_inv = np.dot(prolong_mat, np.linalg.inv(cov_sub_mat))
+            psi += num_samples * np.dot(P_k_times_C_k_inv, restrict_mat)
+        
+        return psi
+
+    def _build_y_vector(self, model_outputs):
+        #equation 2.6 for y vector
+        y_vector = np.zeros(self._num_models)
+
+        for row in self._allocation.compressed_allocation:
+            num_samples = row[0]
+            model_indices = row[1:]
+
+            cov_sub_mat = self._get_covariance_sub_matrix(model_indices)
+            prolong_mat = self._get_restriction_matrix(model_indices).T
+            output_sum = self._get_summed_outputs_for_model_group(model_outputs,
+                                                                  num_samples,
+                                                                  model_indices)
+            P_k_times_C_k_inv = np.dot(prolong_mat, np.linalg.inv(cov_sub_mat))
+            y_vector += np.dot(P_k_times_C_k_inv, output_sum)
+
+        return y_vector
+
+    def _get_summed_outputs_for_model_group(self, model_outputs, num_samples,
+                                            model_indices):
+
+        #TODO - put something real here for equation 2.6:
+        return np.ones(len(np.where(model_indices==1)[0]))
+
+    def _get_covariance_sub_matrix(self, model_indices):
+
+        one_indices = np.where(model_indices==1)[0]   
+        cov_sub_mat = np.zeros((len(one_indices), len(one_indices)))
+
+        #TODO gotta be a slick way to do this but googling is hard right now:
+        for i, index_i in enumerate(one_indices):
+            for j, index_j in enumerate(one_indices):
+                cov_sub_mat[i,j] = self._covariance[index_i, index_j]
+
+        return cov_sub_mat
+
+    def _get_restriction_matrix(self, model_indices):
+
+        one_indices = np.where(model_indices==1)[0]
+    
+        restrict_mat = np.zeros((len(one_indices), len(model_indices)))
+        for i, one_index in enumerate(one_indices):
+            restrict_mat[i, one_index] = 1.0
+
+        return restrict_mat
 
     def _validate_model_outputs(self, model_outputs):
         if len(model_outputs) != self._num_models:

@@ -56,6 +56,10 @@ def test_get_estimate_two_models(sample_allocation_2models):
 
 def test_approximate_variance_three_models(sample_allocation_3models):
     '''
+    Psi = array([[ 4.73333333, -1.33333333, -0.26666667],
+       [-1.33333333,  4.66666667,  0.        ],
+       [-0.26666667,  0.        ,  1.06666667]])
+
     Psi inverse = array([[0.23333333, 0.06666667, 0.05833333],
        [0.06666667, 0.23333333, 0.01666667],
        [0.05833333, 0.01666667, 0.95208333]])  - variance is [0,0] entry
