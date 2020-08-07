@@ -1,0 +1,72 @@
+
+Available Algorithms
+====================
+
+There are currently 13 optimization algorithms implemented in ``MXMCPy``.  The algorithms are listed below along with some general information.
+
+Multi-level Monte Carlo [1]
+---------------------------
+
++--------+--------------+----------------------+
+| Name   | Optimization | Sampling Strategy    |
++========+==============+======================+
+| MLMC   | Analytic     | Recursive Difference |
++--------+--------------+----------------------+
+
+Multifidelity Monte Carlo [2]
+-----------------------------
+
++--------+--------------+----------------------+
+| Name   | Optimization | Sampling Strategy    |
++========+==============+======================+
+| MFMC   | Analytic     | Multifidelity        |
++--------+--------------+----------------------+
+
+Approximate Control Variates [3]
+--------------------------------
+
++--------+--------------+----------------------+
+| Name   | Optimization | Sampling Strategy    |
++========+==============+======================+
+| WRDIFF | Numerical    | Recursive Difference |
++--------+--------------+----------------------+
+| ACVIS  | Numerical    | Independent Samples  |
++--------+--------------+----------------------+
+| ACVMF  | Numerical    | Multifidelity        |
++--------+--------------+----------------------+
+| ACVKL  | Numerical    | Multifidelity        |
++--------+--------------+----------------------+
+
+Parametrically-defined Approximate Control Variates [4]
+-------------------------------------------------------
+
++--------+--------------+----------------------+
+| Name   | Optimization | Sampling Strategy    |
++========+==============+======================+
+| GRDSR  | Numerical    | Recursive Difference |
++--------+--------------+----------------------+
+| GRDMR  | Numerical    | Recursive Difference |
++--------+--------------+----------------------+
+| GISSR  | Numerical    | Independent Samples  |
++--------+--------------+----------------------+
+| GISMR  | Numerical    | Independent Samples  |
++--------+--------------+----------------------+
+| ACVMFU | Numerical    | Multifidelity        |
++--------+--------------+----------------------+
+| GMFSR  | Numerical    | Multifidelity        |
++--------+--------------+----------------------+
+| GMFMR  | Numerical    | Multifidelity        |
++--------+--------------+----------------------+
+
+
+
+
+
+
+
+
+| [1] Giles, M. B.: Multi-level Monte Carlo path simulation. OPERATIONS RESEARCH , vol. 56, no. 3, 2008, pp. 607–617.
+| [2] Peherstorfer, B.; Willcox, K.; and Gunzburger, M.: Optimal Model Management for Multifidelity Monte Carlo Estimation. SIAM Journal on Scientific Computing, vol. 38, 01 2016, pp. A3163–A3194
+| [3] Gorodetsky, A.; Geraci, G.; Eldred, M.; and Jakeman, J. D.: A generalized approximate control variate framework for multifidelity uncertainty quantification. Journal of Computational Physics, 2020, p. 109257
+| [4] Bomarito, G. F., Leser, P. E., Warner, J. E., and Leser, W. P: On the Optimization of Approximate Control Variates with Parametrically-Defined Estimators. In Preparation.
+| [5] Bomarito, G. F., Warner, J. E., Leser, P. E., Leser, W. P., and Morrill, L.: Multi Model Monte Carlo with Python (MXMCPy). NASA/TM–2020–220585. 2020.

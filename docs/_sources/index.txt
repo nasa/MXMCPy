@@ -9,6 +9,7 @@ Contents:
    :maxdepth: 2
 
    intro
+   available_algorithms
    ishigami_example
    source_code
 
