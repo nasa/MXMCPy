@@ -3,6 +3,7 @@ import pytest
 
 from mxmc.optimizer import Optimizer
 from mxmc.util.testing import assert_opt_result_equal
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 
 @pytest.mark.parametrize("target_cost_multiplier", [1, 4])
@@ -35,6 +36,8 @@ def test_mfmc_with_model_selection_hifi_fastest():
     expected_cost = 30
     expected_variance = 1 / 30
     expected_sample_array = np.array([[30, 1, 0, 0]], dtype=int)
+
+    assert isinstance(opt_result.allocation, ACVSampleAllocation)
     assert_opt_result_equal(opt_result, expected_cost, expected_variance,
                             expected_sample_array)
 
