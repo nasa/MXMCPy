@@ -20,10 +20,9 @@ class SampleAllocationBase:
 
     :ivar num_total_samples: number of total input samples needed across all
         available models
-    :ivar utilized_models: list of indices corresponding to models with samples
+    :ivar _utilized_models: list of indices corresponding to models with samples
         allocated to them
     :ivar num_models: total number of available models
-    :ivar method: name of method used to generate the sample allocation
 
     '''
     def __init__(self, compressed_allocation):
