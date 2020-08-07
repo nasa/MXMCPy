@@ -11,3 +11,7 @@ docs/doc_build/doctrees
 /include/
 /lib/
 /list/
+docs/_sources/
+docs/_static/
+docs/py-modindex.html
+.cache
