@@ -1,12 +1,13 @@
 import numpy as np
 
-from .optimizer_base import OptimizerBase, \
-                            InconsistentModelError
-from mxmc.optimizers.optimization_result import OptimizationResult
-
+from ..sample_allocations.acv_sample_allocation import ACVSampleAllocation
+from .optimizer_base import OptimizerBase, InconsistentModelError,\
+                            OptimizationResult
 
 class MFMC(OptimizerBase):
+
     def __init__(self, model_costs, covariance):
+
         super().__init__(model_costs, covariance)
         stdev = np.sqrt(np.diag(covariance))
         correlations = covariance[0] / stdev[0] / stdev
@@ -17,6 +18,8 @@ class MFMC(OptimizerBase):
         self._ordered_corr = np.append(self._ordered_corr, 0.)
         self._ordered_cost = self._model_costs[self._model_order_map]
         self._ordered_stdev = stdev[self._model_order_map]
+
+        self._alloc_class = ACVSampleAllocation
 
     def optimize(self, target_cost):
         if target_cost < self._model_costs[0]:
@@ -29,7 +32,10 @@ class MFMC(OptimizerBase):
         estimator_variance = \
             self._calculate_estimator_variance(sample_group_sizes)
         actual_cost = np.dot(self._ordered_cost, sample_group_sizes)
-        allocation = self._make_allocation(sample_group_sizes)
+        comp_allocation = self._make_allocation(sample_group_sizes)
+
+        allocation = self._alloc_class(comp_allocation)
+
         return OptimizationResult(actual_cost, estimator_variance, allocation)
 
     def _model_indices_are_consistent(self):

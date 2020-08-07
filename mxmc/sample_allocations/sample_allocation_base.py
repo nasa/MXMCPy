@@ -20,10 +20,9 @@ class SampleAllocationBase:
 
     :ivar num_total_samples: number of total input samples needed across all
         available models
-    :ivar utilized_models: list of indices corresponding to models with samples
+    :ivar _utilized_models: list of indices corresponding to models with samples
         allocated to them
     :ivar num_models: total number of available models
-    :ivar method: name of method used to generate the sample allocation
 
     '''
     def __init__(self, compressed_allocation):
@@ -110,18 +109,14 @@ class SampleAllocationBase:
         return samples_per_col
 
     def save(self, file_path):
-
         h5_file = h5py.File(file_path, 'w')
-        self.write_file_data_set(h5_file, "Compressed_Allocation",
-                                 self.compressed_allocation)
-        h5_file.attrs['Method'] = "ACV"
+        self._write_compressed_alloc(h5_file, file_path)
+        h5_file.attrs['Method'] = self.__module__
         h5_file.close()
 
-    @staticmethod
-    def write_file_data_set(h5file, group_name, dataset):
-        h5file.create_group(group_name)
-        h5file[group_name].create_dataset(name=group_name.lower(),
-                                          data=dataset)
+    def _write_compressed_alloc(self, h5_file, file_path):
+        g = h5_file.create_group("Compressed_Allocation")
+        g.create_dataset(name=g.name.lower(), data=self.compressed_allocation)
 
     @staticmethod
     def _get_ranges_from_samples_and_bool(n_samples, used_by_samples):
