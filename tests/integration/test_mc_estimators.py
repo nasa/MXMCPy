@@ -11,7 +11,7 @@ def num_models(request):
     return request.param
 
 
-@pytest.fixture(params=[1, 2, 3])
+@pytest.fixture(params=[10, 100])
 def num_samples(request):
     return request.param
 
