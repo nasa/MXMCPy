@@ -66,4 +66,3 @@ def test_get_estimate_raises_error_for_multiple_outputs(sample_allocation_mock,
 
     with pytest.raises(ValueError):
         est._validate_model_outputs(model_multi_outputs)
-
