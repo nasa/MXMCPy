@@ -4,15 +4,15 @@ optimization algorithms on two model scenarios.  The model scenarios, as
 originally detailed in [GORODETSKY2019]_, consist of 5 algorithm_comparison models:
 
 +-------------+------------------------+
-|  Model      |      Model Costs       |
-|             +------------------------+
+|    Model    |      Model Costs       |
+|             +-------------+----------+
 |             | No Cost Gap | Cost Gap |
 +=============+=============+==========+
-| M0(x) = x^5 |  10^0       |  10^0    |
-| M1(x) = x^4 |  10^-1      |  10^-2   |
-| M2(x) = x^3 |  10^-2      |  10^-3   |
-| M3(x) = x^2 |  10^-3      |  10^-4   |
-| M4(x) = x^3 |  10^-4      |  10^-5   |
+| M0(x) = x^5 |    10^0     |   10^0   |
+| M1(x) = x^4 |    10^-1    |   10^-2  |
+| M2(x) = x^3 |    10^-2    |   10^-3  |
+| M3(x) = x^2 |    10^-3    |   10^-4  |
+| M4(x) = x^3 |    10^-4    |   10^-5  |
 +-------------+-------------+----------+
 
 A target cost of 20 is used.
