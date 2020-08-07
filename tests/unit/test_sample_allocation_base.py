@@ -93,7 +93,7 @@ def test_get_total_number_of_samples(sample_allocation):
 
 def test_save_allocation(sample_allocation, saved_allocation_path):
     sample_allocation.save(saved_allocation_path)
-    h5 = h5py.File(saved_allocation_path)
+    h5 = h5py.File(saved_allocation_path, 'r')
     assert h5.attrs.get('Method') == SampleAllocationBase.__module__
 
 
