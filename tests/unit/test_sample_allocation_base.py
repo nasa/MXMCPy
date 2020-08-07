@@ -1,10 +1,12 @@
+import h5py
 import os.path
 import warnings
 
 import pytest
 import numpy as np
 
-from mxmc.sample_allocation import SampleAllocation, read_allocation
+from mxmc.sample_allocations.sample_allocation_base import SampleAllocationBase
+
 
 
 @pytest.fixture
@@ -19,14 +21,13 @@ def sample_allocation(compressed_allocation):
     warnings.filterwarnings("ignore",
                             message="Allocation Warning",
                             category=UserWarning)
-    return SampleAllocation(compressed_allocation, 'MFMC')
+    return SampleAllocationBase(compressed_allocation)
 
 
 @pytest.fixture
-def saved_allocation_path(sample_allocation, tmp_path):
-    p = tmp_path / "test_allocation.h5"
+def saved_allocation_path(tmpdir):
+    p = tmpdir / "test_allocation.h5"
     path_str = str(p)
-    sample_allocation.save(path_str)
     return path_str
 
 
@@ -59,13 +60,8 @@ def test_num_models(sample_allocation):
     assert sample_allocation.num_models == 3
 
 
-def test_get_column_names(sample_allocation):
-    assert sample_allocation._get_column_names() == ['0', '1_1', '1_2', '2_1',
-                                                     '2_2']
-
-
 def test_one_model_num_models():
-    test_allocation = SampleAllocation(np.array([[10, 1]]), 'MFMC')
+    test_allocation = SampleAllocationBase(np.array([[10, 1]]))
     assert test_allocation.num_models == 1
 
 
@@ -76,7 +72,7 @@ def test_get_number_of_samples_per_model(sample_allocation):
 
 def test_get_number_of_samples_per_model_MC():
     compressed_allocation = np.array([[10, 1, 0, 0, 0, 0]])
-    sample_allocation = SampleAllocation(compressed_allocation, 'MC')
+    sample_allocation = SampleAllocationBase(compressed_allocation)
     assert np.array_equal(sample_allocation.get_number_of_samples_per_model(),
                           np.array([10, 0, 0]))
 
@@ -95,16 +91,10 @@ def test_get_total_number_of_samples(sample_allocation):
     assert sample_allocation.num_total_samples == 16
 
 
-def test_h5_file_exists(saved_allocation_path):
-    assert os.path.exists(saved_allocation_path)
-
-
-def test_sample_allocation_read(saved_allocation_path, sample_allocation):
-    loaded_allocation = read_allocation(saved_allocation_path)
-    np.testing.assert_array_equal(loaded_allocation.compressed_allocation,
-                                  sample_allocation.compressed_allocation)
-    assert loaded_allocation.num_models == sample_allocation.num_models
-    assert loaded_allocation.method == sample_allocation.method
+def test_save_allocation(sample_allocation, saved_allocation_path):
+    sample_allocation.save(saved_allocation_path)
+    h5 = h5py.File(saved_allocation_path, 'r')
+    assert h5.attrs.get('Method') == SampleAllocationBase.__module__
 
 
 def test_allocate_samples_to_models_not_enough_samples_error(

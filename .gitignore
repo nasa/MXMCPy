@@ -14,3 +14,4 @@ docs/doc_build/doctrees
 docs/_sources/
 docs/_static/
 docs/py-modindex.html
+.cache
