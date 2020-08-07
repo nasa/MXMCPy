@@ -3,6 +3,7 @@ import numpy as np
 from abc import abstractmethod
 
 from ..optimizer_base import OptimizerBase
+from ...sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 
 class NoMatchingCombosError(RuntimeError):
@@ -10,6 +11,10 @@ class NoMatchingCombosError(RuntimeError):
 
 
 class RecursionEnumerator(OptimizerBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._alloc_class = ACVSampleAllocation
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):

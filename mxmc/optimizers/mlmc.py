@@ -7,7 +7,8 @@ import numpy as np
 import warnings
 
 from .optimizer_base import OptimizerBase
-from mxmc.optimizers.optimization_result import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizationResult
+from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 
 
 class MLMC(OptimizerBase):
@@ -33,6 +34,7 @@ class MLMC(OptimizerBase):
         self._level_costs = self._get_level_costs(self._model_costs)
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
+        self._alloc_class = MLMCSampleAllocation
 
     @staticmethod
     def _validate_inputs(model_costs):
@@ -107,9 +109,11 @@ class MLMC(OptimizerBase):
         estimator_variance = np.sum(self._mlmc_variances[nonzero_sample_nums] /
                                     samples_per_level[nonzero_sample_nums])
 
-        allocation = self._get_allocation_array(samples_per_level)
-        return OptimizationResult(actual_cost, estimator_variance, allocation,
-                                  method="mlmc")
+        comp_allocation = self._make_allocation(samples_per_level)
+
+        allocation = self._alloc_class(comp_allocation)
+
+        return OptimizationResult(actual_cost, estimator_variance, allocation)
 
     def _get_num_samples_per_level(self, target_cost):
 
@@ -150,7 +154,7 @@ class MLMC(OptimizerBase):
 
         return samples_per_level
 
-    def _get_allocation_array(self, num_samples_per_level):
+    def _make_allocation(self, num_samples_per_level):
 
         allocation = np.zeros((self._num_models, 2 * self._num_models),
                               dtype=int)
