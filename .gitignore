@@ -4,8 +4,10 @@ __pycache__/
 .idea/
 *.swp
 *.pyc
-test_save.hdf5
 *.css
+*.html
+*.js
+test_save.hdf5
 docs/doc_build/doctrees
 /bin/
 /include/
@@ -13,5 +15,8 @@ docs/doc_build/doctrees
 /list/
 docs/_sources/
 docs/_static/
+docs/_static/*
 docs/py-modindex.html
 .cache
+/doctrees/
+objects.inv
