@@ -8,31 +8,17 @@ Documentation for the core MXMC classes.
 Optimizer Module 
 ------------------------------
 
-.. automodule:: optimizers.optimizer_base
-.. autoclass:: OptimizerBase
+.. automodule:: optimizer
+.. autoclass:: Optimizer
 	:members:
 
 Sample Allocation Module
 -------------------------------
 
-.. automodule:: sample_allocations.sample_allocation_base
+.. module:: sample_allocations
 
-.. autoclass:: SampleAllocationBase
-	:members:
-
-.. automodule:: sample_allocations.acv_sample_allocation
-.. autoclass:: ACVSampleAllocation
-	:members:
-
-.. automodule:: sample_allocations.mlmc_sample_allocation
-.. autoclass:: MLMCSampleAllocation
-	:members:
-
-Estimator Module
-------------------------------
-
-.. automodule:: estimator
-.. autoclass:: Estimator
+.. class:: SampleAllocation
+.. automethod:: sample_allocations.sample_allocation_base.SampleAllocationBase
 	:members:
 
 Output Processor Module 
@@ -42,17 +28,9 @@ Output Processor Module
 .. autoclass:: OutputProcessor
 	:members:
 
-
-Utility Module
+Estimator Module
 ------------------------------
 
-.. automodule:: util.generic_numerical_optimization
-.. autofunction:: perform_slsqp_then_nelder_mead
-.. autofunction:: perform_slsqp
-.. autofunction:: perform_nelder_mead
-
-.. automodule:: util.read_sample_allocation
-.. autofunction:: read_sample_allocation
-
-.. automodule:: util.testing
-.. autofunction:: assert_opt_result_equal
+.. automodule:: estimator
+.. autoclass:: Estimator
+	:members:
