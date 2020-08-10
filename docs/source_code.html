@@ -35,63 +35,144 @@
   <div class="section" id="source-code-documentation">
 <span id="sourcecode-section"></span><h1>Source Code Documentation<a class="headerlink" href="#source-code-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Documentation for the core MXMC classes.</p>
-<div class="section" id="module-optimizer">
-<span id="optimizer-module"></span><h2>Optimizer Module<a class="headerlink" href="#module-optimizer" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-optimizers.optimizer_base">
+<span id="optimizer-module"></span><h2>Optimizer Module<a class="headerlink" href="#module-optimizers.optimizer_base" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="optimizer.Optimizer">
-<em class="property">class </em><code class="sig-prename descclassname">optimizer.</code><code class="sig-name descname">Optimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>User interface for accessing all MXMC variance minimization optimizers for
-computing optimal sample allocations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model_costs</strong> (<em>list of floats</em>) – cost (run time) of all models</p></li>
-<li><p><strong>covariance</strong> (<em>2D np.array</em>) – Covariance matrix defining covariance (of outputs) among
-all available models. Size MxM where M is # models.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="optimizer.Optimizer.get_algorithm">
-<em class="property">static </em><code class="sig-name descname">get_algorithm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algorithm_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.get_algorithm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a reference to a class indicated by the provided name.</p>
+<dt id="optimizers.optimizer_base.OptimizerBase">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.optimizer_base.</code><code class="sig-name descname">OptimizerBase</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">_</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">__</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.optimizer_base.OptimizerBase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.mfmc"></span><dl class="py class">
+<dt id="optimizers.mfmc.MFMC">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.mfmc.</code><code class="sig-name descname">MFMC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.mfmc.MFMC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.mlmc"></span><p>c
+Implementation of an optimizer using the Multi-Level Monte Carlo (MLMC) method
+to find the sample allocation that yields the smallest variance for a target
+cost.</p>
+<dl class="py class">
+<dt id="optimizers.mlmc.MLMC">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.mlmc.</code><code class="sig-name descname">MLMC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.mlmc.MLMC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class that implements the Multi-Level Monte Carlo (MLMC) optimizer for
+determining an optimal sample allocation across models to minimize
+estimator variance.
+NOTE:</p>
+<p>MLMC optimizer assumes that the high-fidelity model corresponds to the
+finest discretization and is therefore the most time consuming, so the
+first entry in the model_costs array must be the maximum.</p>
+<p>mlmc_variances is an array of variances of the differences between
+models on adjacent levels (except the lowest fidelity / fastest model,
+which is just the output variance), this input must be provided while
+the covariance input is not used. The array does not need to be ordered
+from high to low fidelity, but it must be arranged according to the
+model_costs array.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="optimizer.Optimizer.get_algorithm_names">
-<em class="property">static </em><code class="sig-name descname">get_algorithm_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.get_algorithm_names" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of strings containing the names of all available
-optimization algorithms.</p>
-</dd></dl>
+<span class="target" id="module-optimizers.model_selection"></span><dl class="py class">
+<dt id="optimizers.model_selection.AutoModelSelection">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.model_selection.</code><code class="sig-name descname">AutoModelSelection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimizer</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.model_selection.AutoModelSelection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="py method">
-<dt id="optimizer.Optimizer.optimize">
-<code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algorithm</span></em>, <em class="sig-param"><span class="n">target_cost</span></em>, <em class="sig-param"><span class="n">auto_model_selection</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.optimize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs variance minimization optimization to determine the optimal
-sample allocation across available models within a specified target
-computational cost.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>algorithm</strong> (<em>string</em>) – name of method to use for optimization (e.g., “mlmc”,
-“mfmc”, “acvkl”).</p></li>
-<li><p><strong>target_cost</strong> (<em>float</em>) – total target cost constraint so that optimizer
-finds sample allocation that requires less than or equal
-computation time.</p></li>
-<li><p><strong>auto_model_selection</strong> (<em>Boolean</em>) – flag to use automatic model selection in
-optimization to test all subsets of models for best set.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An OptimizationResult namedtuple with entries for cost,
-variance, and sample_array. cost (float) is expected cost of all
-model evaluations prescribed in sample_array (np.array). variance
-is the minimized variance from the optimization.</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="target" id="module-optimizers.approximate_control_variates.acv_constraints"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.acv_constraints.ACVConstraints">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.acv_constraints.</code><code class="sig-name descname">ACVConstraints</code><a class="headerlink" href="#optimizers.approximate_control_variates.acv_constraints.ACVConstraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</dd></dl>
+<span class="target" id="module-optimizers.approximate_control_variates.acv_optimizer"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.acv_optimizer.ACVOptimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.acv_optimizer.</code><code class="sig-name descname">ACVOptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.acv_optimizer.ACVOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.recursion_enumerator"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.recursion_enumerator.RecursionEnumerator">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.recursion_enumerator.</code><code class="sig-name descname">RecursionEnumerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.recursion_enumerator.RecursionEnumerator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer.GISOptimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer.</code><code class="sig-name descname">GISOptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer.GISOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.ACVIS">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.</code><code class="sig-name descname">ACVIS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_cost</span></em>, <em class="sig-param"><span class="n">covariance</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.ACVIS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.GISSR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.</code><code class="sig-name descname">GISSR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.GISSR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.GISMR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.</code><code class="sig-name descname">GISMR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_independent_samples.impl_optimizers.GISMR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_multifidelity.gmf_optimizer"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.gmf_optimizer.GMFOptimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.gmf_optimizer.</code><code class="sig-name descname">GMFOptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.gmf_optimizer.GMFOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered.GMFOrdered">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered.</code><code class="sig-name descname">GMFOrdered</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered.GMFOrdered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered.GMFUnordered">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered.</code><code class="sig-name descname">GMFUnordered</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered.GMFUnordered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVKL">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">ACVKL</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVKL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMFMC">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">ACVMFMC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_cost</span></em>, <em class="sig-param"><span class="n">covariance</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMFMC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMF">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">ACVMF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_cost</span></em>, <em class="sig-param"><span class="n">covariance</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMFU">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">ACVMFU</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_cost</span></em>, <em class="sig-param"><span class="n">covariance</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.ACVMFU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.GMFSR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">GMFSR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.GMFSR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.GMFMR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.</code><code class="sig-name descname">GMFMR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_multifidelity.impl_optimizers.GMFMR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer.GRDOptimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer.</code><code class="sig-name descname">GRDOptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_costs</span></em>, <em class="sig-param"><span class="n">covariance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">recursion_refs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer.GRDOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers"></span><dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.GRDMR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.</code><code class="sig-name descname">GRDMR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.GRDMR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.GRDSR">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.</code><code class="sig-name descname">GRDSR</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.GRDSR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.WRDiff">
+<em class="property">class </em><code class="sig-prename descclassname">optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.</code><code class="sig-name descname">WRDiff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_cost</span></em>, <em class="sig-param"><span class="n">covariance</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizers.approximate_control_variates.generalized_recursive_difference.impl_optimizers.WRDiff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-sample_allocations.sample_allocation_base">
@@ -238,6 +319,44 @@ models being used for estimator. Size MxM where M is # models.</p></li>
 </dd></dl>
 
 </div>
+<div class="section" id="module-util.generic_numerical_optimization">
+<span id="utility-module"></span><h2>Utility Module<a class="headerlink" href="#module-util.generic_numerical_optimization" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="util.generic_numerical_optimization.perform_slsqp_then_nelder_mead">
+<code class="sig-prename descclassname">util.generic_numerical_optimization.</code><code class="sig-name descname">perform_slsqp_then_nelder_mead</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bounds</span></em>, <em class="sig-param"><span class="n">constraints</span></em>, <em class="sig-param"><span class="n">initial_guess</span></em>, <em class="sig-param"><span class="n">obj_func</span></em>, <em class="sig-param"><span class="n">obj_func_and_grad</span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.generic_numerical_optimization.perform_slsqp_then_nelder_mead" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="util.generic_numerical_optimization.perform_slsqp">
+<code class="sig-prename descclassname">util.generic_numerical_optimization.</code><code class="sig-name descname">perform_slsqp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bounds</span></em>, <em class="sig-param"><span class="n">constraints</span></em>, <em class="sig-param"><span class="n">initial_guess</span></em>, <em class="sig-param"><span class="n">obj_func_and_grad</span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.generic_numerical_optimization.perform_slsqp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="util.generic_numerical_optimization.perform_nelder_mead">
+<code class="sig-prename descclassname">util.generic_numerical_optimization.</code><code class="sig-name descname">perform_nelder_mead</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bounds</span></em>, <em class="sig-param"><span class="n">constraints</span></em>, <em class="sig-param"><span class="n">initial_guess</span></em>, <em class="sig-param"><span class="n">obj_func</span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.generic_numerical_optimization.perform_nelder_mead" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<span class="target" id="module-util.read_sample_allocation"></span><dl class="py function">
+<dt id="util.read_sample_allocation.read_sample_allocation">
+<code class="sig-prename descclassname">util.read_sample_allocation.</code><code class="sig-name descname">read_sample_allocation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.read_sample_allocation.read_sample_allocation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read sample allocation from file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>string</em>) – name of hdf5 sample allocation file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>appropriate child of the SampleAllocationBase class based on the
+optimization method stored in the hdf5 file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-util.testing"></span><dl class="py function">
+<dt id="util.testing.assert_opt_result_equal">
+<code class="sig-prename descclassname">util.testing.</code><code class="sig-name descname">assert_opt_result_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt_result</span></em>, <em class="sig-param"><span class="n">cost_ref</span></em>, <em class="sig-param"><span class="n">var_ref</span></em>, <em class="sig-param"><span class="n">sample_array_ref</span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.testing.assert_opt_result_equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 </div>
 
 
@@ -261,10 +380,11 @@ models being used for estimator. Size MxM where M is # models.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ishigami_example.html">End-to-End Example</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Source Code Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-optimizer">Optimizer Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimizers.optimizer_base">Optimizer Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-sample_allocations.sample_allocation_base">Sample Allocation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-output_processor">Output Processor Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-estimator">Estimator Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-util.generic_numerical_optimization">Utility Module</a></li>
 </ul>
 </li>
 </ul>
