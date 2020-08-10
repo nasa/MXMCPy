@@ -15,21 +15,21 @@ Optimizer Module
 Sample Allocation 
 -------------------------------
 
-.. automodule:: mxmc
-.. autofunction:: read_allocation
-
-.. autoclass:: SampleAllocation
+.. automodule:: sample_allocations.sample_allocation_base
+.. autoclass:: SampleAllocationBase
 	:members:
 
 Output Processor Module 
 -------------------------------------
 
+.. automodule:: output_processor
 .. autoclass:: OutputProcessor
 	:members:
 
 Estimator Module 
 ------------------------------
 
+.. automodule:: estimator
 .. autoclass:: Estimator
 	:members:
 
