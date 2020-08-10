@@ -1,126 +1,308 @@
 
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Source Code Documentation &mdash; MXMC 1.0 documentation</title>
-    
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>Source Code Documentation &#8212; MXMC 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MXMC 1.0 documentation" href="index.html" />
-    <link rel="prev" title="End-to-End Example" href="ishigami_example.html" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="ishigami_example.html" title="End-to-End Example"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">MXMC 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="End-to-End Example" href="ishigami_example.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          
+
+          <div class="body" role="main">
             
   <div class="section" id="source-code-documentation">
 <span id="sourcecode-section"></span><h1>Source Code Documentation<a class="headerlink" href="#source-code-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Documentation for the core MXMC classes.</p>
-<div class="section" id="optimizer-module">
-<h2>Optimizer Module<a class="headerlink" href="#optimizer-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-optimizer">
+<span id="optimizer-module"></span><h2>Optimizer Module<a class="headerlink" href="#module-optimizer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="optimizer.Optimizer">
+<em class="property">class </em><code class="sig-prename descclassname">optimizer.</code><code class="sig-name descname">Optimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>User interface for accessing all MXMC variance minimization optimizers for
+computing optimal sample allocations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_costs</strong> (<em>list of floats</em>) – cost (run time) of all models</p></li>
+<li><p><strong>covariance</strong> (<em>2D np.array</em>) – Covariance matrix defining covariance (of outputs) among
+all available models. Size MxM where M is # models.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="optimizer.Optimizer.get_algorithm">
+<em class="property">static </em><code class="sig-name descname">get_algorithm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algorithm_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.get_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a reference to a class indicated by the provided name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="optimizer.Optimizer.get_algorithm_names">
+<em class="property">static </em><code class="sig-name descname">get_algorithm_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.get_algorithm_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of strings containing the names of all available
+optimization algorithms.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="optimizer.Optimizer.optimize">
+<code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">algorithm</span></em>, <em class="sig-param"><span class="n">target_cost</span></em>, <em class="sig-param"><span class="n">auto_model_selection</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#optimizer.Optimizer.optimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs variance minimization optimization to determine the optimal
+sample allocation across available models within a specified target
+computational cost.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> (<em>string</em>) – name of method to use for optimization (e.g., “mlmc”,
+“mfmc”, “acvkl”).</p></li>
+<li><p><strong>target_cost</strong> (<em>float</em>) – total target cost constraint so that optimizer
+finds sample allocation that requires less than or equal
+computation time.</p></li>
+<li><p><strong>auto_model_selection</strong> (<em>Boolean</em>) – flag to use automatic model selection in
+optimization to test all subsets of models for best set.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An OptimizationResult namedtuple with entries for cost,
+variance, and sample_array. cost (float) is expected cost of all
+model evaluations prescribed in sample_array (np.array). variance
+is the minimized variance from the optimization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="sample-allocation">
-<h2>Sample Allocation<a class="headerlink" href="#sample-allocation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-sample_allocations.sample_allocation_base">
+<span id="sample-allocation"></span><h2>Sample Allocation<a class="headerlink" href="#module-sample_allocations.sample_allocation_base" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="sample_allocations.sample_allocation_base.SampleAllocationBase">
+<em class="property">class </em><code class="sig-prename descclassname">sample_allocations.sample_allocation_base.</code><code class="sig-name descname">SampleAllocationBase</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">compressed_allocation</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample_allocations.sample_allocation_base.SampleAllocationBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for managing the allocations of random input samples (model
+evaluations) across available models. Provides a user with number of
+model evaluations required to generate an estimator and how to partition
+input samples to do so, after the sample allocation optimization problem
+is solved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>compressed_allocation</strong> (<em>2D np.array</em>) – a two dimensional array completely
+describing a MXMC sample allocation; returned by each optimizer
+class as the result of sample allocation optimization. See docs
+for a description and example of the format.</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_total_samples</strong> – number of total input samples needed across all
+available models</p></li>
+<li><p><strong>_utilized_models</strong> – list of indices corresponding to models with samples
+allocated to them</p></li>
+<li><p><strong>num_models</strong> – total number of available models</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="sample_allocations.sample_allocation_base.SampleAllocationBase.allocate_samples_to_models">
+<code class="sig-name descname">allocate_samples_to_models</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_samples</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample_allocations.sample_allocation_base.SampleAllocationBase.allocate_samples_to_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocates a given array of all input samples across all available
+models according to the sample allocation determined by an MXMX
+optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>all_samples</strong> (<em>2D np.array</em>) – array of user-generated random input samples with
+length equal to num_total_samples</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>individual arrays of input samples for all available models
+(list of np.arrays with length equal to num_models)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sample_allocations.sample_allocation_base.SampleAllocationBase.get_number_of_samples_per_model">
+<code class="sig-name descname">get_number_of_samples_per_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sample_allocations.sample_allocation_base.SampleAllocationBase.get_number_of_samples_per_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The total number of samples allocated to each available model
+(list of integers)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sample_allocations.sample_allocation_base.SampleAllocationBase.get_sample_indices_for_model">
+<code class="sig-name descname">get_sample_indices_for_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_index</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sample_allocations.sample_allocation_base.SampleAllocationBase.get_sample_indices_for_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model_index</strong> (<em>int</em>) – index of model to return indices for (from 0 to
+#models-1)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>binary array with indices of samples required by the
+specified model (np.array with length of num_total_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="output-processor-module">
-<h2>Output Processor Module<a class="headerlink" href="#output-processor-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-output_processor">
+<span id="output-processor-module"></span><h2>Output Processor Module<a class="headerlink" href="#module-output_processor" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="output_processor.OutputProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">output_processor.</code><code class="sig-name descname">OutputProcessor</code><a class="headerlink" href="#output_processor.OutputProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to estimate covariance matrix from collection of output samples from
+multiple models. Handles the general case where each models’ outputs were
+not computed from the same set of random inputs and pairwise overlaps
+between samples are identified using a SampleAllocation object.</p>
+<dl class="py method">
+<dt id="output_processor.OutputProcessor.compute_covariance_matrix">
+<em class="property">static </em><code class="sig-name descname">compute_covariance_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_outputs</span></em>, <em class="sig-param"><span class="n">sample_allocation</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_processor.OutputProcessor.compute_covariance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate covariance matrix from collection of output samples from
+multiple models. In the simple case, the outputs for each model were
+generated from the same collection of inputs and covariance can be
+straightforwardly computed. In the general case, the outputs were not
+computed from the same inputs and a SampleAllocation object must be
+supplied to identify overlap between samples to compute covariance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_outputs</strong> (<em>list of np.array</em>) – list of arrays of outputs for each model. Each
+array must be the same size unless a sample allocation is provided.</p></li>
+<li><p><strong>sample_allocation</strong> (<em>SampleAllocation object.</em>) – An MXMC sample allocation object defining the
+indices of samples that each model output was generated for, if
+applicable. Default is None indicating that all supplied model
+output arrays are the same size and were generated for the same
+inputs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>covariance matrix among all model outputs (2D np.array with
+size equal to the number of models).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estimator-module">
-<h2>Estimator Module<a class="headerlink" href="#estimator-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estimator">
+<span id="estimator-module"></span><h2>Estimator Module<a class="headerlink" href="#module-estimator" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="estimator.Estimator">
+<em class="property">class </em><code class="sig-prename descclassname">estimator.</code><code class="sig-name descname">Estimator</code><a class="headerlink" href="#estimator.Estimator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to create MXMC estimators given an optimal sample allocation and
+outputs from high &amp; low fidelity models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>allocation</strong> (<em>SampleAllocation object</em>) – SampleAllocation object defining the optimal sample
+allocation using an MXMC optimizer.</p></li>
+<li><p><strong>covariance</strong> (<em>2D np.array</em>) – Covariance matrix defining covariance among all
+models being used for estimator. Size MxM where M is # models.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Source Code Documentation</a><ul>
-<li><a class="reference internal" href="#optimizer-module">Optimizer Module</a></li>
-<li><a class="reference internal" href="#sample-allocation">Sample Allocation</a></li>
-<li><a class="reference internal" href="#output-processor-module">Output Processor Module</a></li>
-<li><a class="reference internal" href="#estimator-module">Estimator Module</a></li>
+<h1 class="logo"><a href="index.html">MXMC</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ishigami_example.html">End-to-End Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Source Code Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimizer">Optimizer Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sample_allocations.sample_allocation_base">Sample Allocation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-output_processor">Output Processor Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-estimator">Estimator Module</a></li>
 </ul>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="ishigami_example.html"
-                        title="previous chapter">End-to-End Example</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/source_code.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="ishigami_example.html" title="previous chapter">End-to-End Example</a></li>
+  </ul></li>
+</ul>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="ishigami_example.html" title="End-to-End Example"
-             >previous</a> |</li>
-        <li><a href="index.html">MXMC 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2020, NASA.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2020, NASA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/source_code.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
+
+    
+
+    
   </body>
 </html>

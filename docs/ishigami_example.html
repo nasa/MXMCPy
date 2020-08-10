@@ -1,102 +1,75 @@
 
+<!DOCTYPE html>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>End-to-End Example &mdash; MXMC 1.0 documentation</title>
-    
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <meta charset="utf-8" />
+    <title>End-to-End Example &#8212; MXMC 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MXMC 1.0 documentation" href="index.html" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Source Code Documentation" href="source_code.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="source_code.html" title="Source Code Documentation"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">MXMC 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+    <link rel="prev" title="Introduction" href="intro.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          
+
+          <div class="body" role="main">
             
   <div class="section" id="end-to-end-example">
 <h1>End-to-End Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline">¶</a></h1>
-<p>This example provides a simple demonstration of <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> functionality. Here, the high-fidelity model considered is the Ishigami function, which is frequently used to test methods for uncertainty quantification:</p>
-<div class="formula">
-<i>f</i><sup>(1)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  5 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">4</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
-</div>
-<div class="formula">
-<i>with</i>  <i>z</i><sub><i>i</i></sub> ~ <i>U</i>( − <i>π</i>,  <i>π</i>)
-</div>
+<p>This example provides a simple demonstration of <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> functionality. Here, the high-fidelity model considered is the Ishigami function, which is frequently used to test methods for uncertainty quantification:</p>
+<div class="math notranslate nohighlight">
+\[f^{(1)}\ =\ sin(z_1)\ +\ 5\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1)\]</div>
+<div class="math notranslate nohighlight">
+\[with\ \ z_i \sim \textit{U} (-\pi,\ \pi)\]</div>
 <p>The following two correlated functions [1] are treated as low-fidelity models to facilitate the use of multi-model estimators:</p>
-<div class="formula">
-<i>f</i><sup>(2)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  4.75 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">4</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
-</div>
-<div class="formula">
-<i>f</i><sup>(3)</sup>  =  <i>sin</i>(<i>z</i><sub>1</sub>)  +  3 <i>sin</i><sup>2</sup>(<i>z</i><sub>2</sub>)  +  <span class="fraction"><span class="ignored">(</span><span class="numerator">9</span><span class="ignored">)/(</span><span class="denominator">10</span><span class="ignored">)</span></span> <i>z</i><span class="scripts"><sup class="script">2</sup><sub class="script">3</sub></span><i>sin</i>(<i>z</i><sub>1</sub>)
-</div>
-<p>Furthermore, the costs associated with evaluating the functions <span class="formula"><i>f</i><sup>(1)</sup></span>
-,  <span class="formula"><i>f</i><sup>(2)</sup></span>
-, and  <span class="formula"><i>f</i><sup>(3)</sup></span>
- are assumed to be 1.0, 0.05, 0.001 seconds, respectively. The goal is to estimate <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>]</span>
- using <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> by leveraging all three models and comparing with the analytical solution, <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>] = 2.5</span>
-.</p>
-<p>This example covers each step for utilizing <tt class="docutils literal"><span class="pre">MXMCPy</span></tt>: estimating the covariance of
+<div class="math notranslate nohighlight">
+\[f^{(2)}\ =\ sin(z_1)\ +\ 4.75\ sin^{2}(z_2)\ +\ \frac{1}{10}\ z_3^{4} sin(z_1)\]</div>
+<div class="math notranslate nohighlight">
+\[f^{(3)}\ =\ sin(z_1)\ +\ 3\ sin^{2}(z_2)\ +\ \frac{9}{10}\ z_3^{2} sin(z_1)\]</div>
+<p>Furthermore, the costs associated with evaluating the functions <span class="math notranslate nohighlight">\(f^{(1)}\)</span>,  <span class="math notranslate nohighlight">\(f^{(2)}\)</span>, and  <span class="math notranslate nohighlight">\(f^{(3)}\)</span> are assumed to be 1.0, 0.05, 0.001 seconds, respectively. The goal is to estimate <span class="math notranslate nohighlight">\(E[f^{(1)}]\)</span> using <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> by leveraging all three models and comparing with the analytical solution, <span class="math notranslate nohighlight">\(E[f^{(1)}] = 2.5\)</span>.</p>
+<p>This example covers each step for utilizing <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code>: estimating the covariance of
 model outputs from pilot samples, performing the sample allocation optimization,
 and forming an estimator from outputs generated from each model according to
 the optimal sample allocation.</p>
-<p>The full source code for this example can be found in the <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> repository:</p>
-<p><tt class="docutils literal"><span class="pre">/examples/ishigami/run_ishigami.py</span></tt></p>
+<p>The full source code for this example can be found in the <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> repository:</p>
+<p><code class="docutils literal notranslate"><span class="pre">/examples/ishigami/run_ishigami.py</span></code></p>
 <div class="section" id="step-1-compute-model-outputs-for-pilot-samples">
 <h2>Step 1: Compute model outputs for pilot samples<a class="headerlink" href="#step-1-compute-model-outputs-for-pilot-samples" title="Permalink to this headline">¶</a></h2>
-<p>In order to determine the optimal sample allocation across the available models, <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> needs the cost of each model as well as the covariance matrix of the outputs from each model. If the covariance matrix is unknown, it can be estimated from pilot samples, demonstrated here.</p>
-<p>Starting from the beginning, the necessary Python modules are imported, including <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> classes and Numpy:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<p>In order to determine the optimal sample allocation across the available models, <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> needs the cost of each model as well as the covariance matrix of the outputs from each model. If the covariance matrix is unknown, it can be estimated from pilot samples, demonstrated here.</p>
+<p>Starting from the beginning, the necessary Python modules are imported, including <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> classes and Numpy:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">mxmc</span> <span class="kn">import</span> <span class="n">Optimizer</span>
 <span class="kn">from</span> <span class="nn">mxmc</span> <span class="kn">import</span> <span class="n">OutputProcessor</span>
 <span class="kn">from</span> <span class="nn">mxmc</span> <span class="kn">import</span> <span class="n">Estimator</span>
 </pre></div>
 </div>
-<p>It is assumed that a user-defined class (<tt class="docutils literal"><span class="pre">IshigamiModel</span></tt>) implementing the Ishigami models and function (<tt class="docutils literal"><span class="pre">get_uniform_sample_distribution</span></tt>) for sampling the uniform random inputs are available. Three IshigamiModels are
+<p>It is assumed that a user-defined class (<code class="docutils literal notranslate"><span class="pre">IshigamiModel</span></code>) implementing the Ishigami models and function (<code class="docutils literal notranslate"><span class="pre">get_uniform_sample_distribution</span></code>) for sampling the uniform random inputs are available. Three IshigamiModels are
 then instantiated per the parameters in the equations above and
-stored in a list variable named &#8220;models&#8221;:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ishigami_model</span> <span class="kn">import</span> <span class="n">IshigamiModel</span>
+stored in a list variable named “models”:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ishigami_model</span> <span class="kn">import</span> <span class="n">IshigamiModel</span>
 
 <span class="n">num_pilot_samples</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">model_costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mo">05</span><span class="p">,</span> <span class="o">.</span><span class="mo">001</span><span class="p">])</span>
+<span class="n">model_costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">05</span><span class="p">,</span> <span class="o">.</span><span class="mi">001</span><span class="p">])</span>
 
 <span class="n">high_fidelity_model</span> <span class="o">=</span>   <span class="n">IshigamiModel</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>   <span class="n">b</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">4.</span><span class="p">)</span>
 <span class="n">medium_fidelity_model</span> <span class="o">=</span> <span class="n">IshigamiModel</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">4.75</span><span class="p">,</span> <span class="n">b</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">4.</span><span class="p">)</span>
@@ -106,14 +79,14 @@ stored in a list variable named &#8220;models&#8221;:</p>
 </pre></div>
 </div>
 <p>Ten pilot samples are computed with each model as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pilot_inputs</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_pilot_samples</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pilot_inputs</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_pilot_samples</span><span class="p">)</span>
 <span class="n">pilot_outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
     <span class="n">pilot_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">pilot_inputs</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>The covariance matrix is then computed using the <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> <tt class="docutils literal"><span class="pre">OutputProcessor</span></tt> class:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">covariance_matrix</span> <span class="o">=</span> <span class="n">OutputProcessor</span><span class="o">.</span><span class="n">compute_covariance_matrix</span><span class="p">(</span><span class="n">pilot_outputs</span><span class="p">)</span>
+<p>The covariance matrix is then computed using the <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> <code class="docutils literal notranslate"><span class="pre">OutputProcessor</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">covariance_matrix</span> <span class="o">=</span> <span class="n">OutputProcessor</span><span class="o">.</span><span class="n">compute_covariance_matrix</span><span class="p">(</span><span class="n">pilot_outputs</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>At this point the necessary elements for computing optimal sample allocation are
@@ -121,11 +94,11 @@ now available: model costs, pilot outputs, and a covariance matrix.</p>
 </div>
 <div class="section" id="step-2-perform-sample-allocation-optimization">
 <h2>Step 2: Perform sample allocation optimization<a class="headerlink" href="#step-2-perform-sample-allocation-optimization" title="Permalink to this headline">¶</a></h2>
-<p>The sample allocation optimization with <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> is now performed assuming a computational budget or target cost of 10000 seconds.</p>
+<p>The sample allocation optimization with <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> is now performed assuming a computational budget or target cost of 10000 seconds.</p>
 <p>In the below snippet taken from the example code, all available optimization
 algorithms are individually tested to find the method that produces the lowest
-estimator variance. The Optimizer.optimize() method returns an instance of the <tt class="docutils literal"><span class="pre">OptimizationResult</span></tt> class with attributes for estimatore variance and optimal sample allocation. The sample allocation with the lowest variance will be used to generate an estimator in the subsequent steps.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">target_cost</span> <span class="o">=</span> <span class="mi">10000</span>
+estimator variance. The Optimizer.optimize() method returns an instance of the <code class="docutils literal notranslate"><span class="pre">OptimizationResult</span></code> class with attributes for estimatore variance and optimal sample allocation. The sample allocation with the lowest variance will be used to generate an estimator in the subsequent steps.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">target_cost</span> <span class="o">=</span> <span class="mi">10000</span>
 <span class="n">variance_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 <span class="n">sample_allocation_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
@@ -138,21 +111,21 @@ estimator variance. The Optimizer.optimize() method returns an instance of the <
     <span class="n">variance_results</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">variance</span>
     <span class="n">sample_allocation_results</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">allocation</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;{} method variance: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">variance</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> method variance: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">variance</span><span class="p">))</span>
 
 <span class="n">best_method</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">variance_results</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">variance_results</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
 <span class="n">sample_allocation</span> <span class="o">=</span> <span class="n">sample_allocation_results</span><span class="p">[</span><span class="n">best_method</span><span class="p">]</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;Best method: &quot;</span><span class="p">,</span> <span class="n">best_method</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best method: &quot;</span><span class="p">,</span> <span class="n">best_method</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">Optimizer</span></tt> class also provides functionality for determining an optimal
+<p>The <code class="docutils literal notranslate"><span class="pre">Optimizer</span></code> class also provides functionality for determining an optimal
 subset of the models via the boolean parameter auto_model_selection of the
 Optimizer.optimize() method. By default, all provided models are used. Note that enabling this option could take considerably longer as every
 combination of the models will be tested.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">mxmc_optimizer</span> <span class="o">=</span> <span class="n">Optimizer</span><span class="p">(</span><span class="n">model_costs</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mxmc_optimizer</span> <span class="o">=</span> <span class="n">Optimizer</span><span class="p">(</span><span class="n">model_costs</span><span class="p">,</span>
                            <span class="n">covariance_matrix</span><span class="p">,</span>
-                           <span class="n">auto_model_selection</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                           <span class="n">auto_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">opt_result</span> <span class="o">=</span> <span class="n">mxmc_optimizer</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">algorithm</span><span class="p">,</span> <span class="n">target_cost</span><span class="p">)</span>
 <span class="n">variance_results</span> <span class="o">=</span> <span class="n">opt_result</span><span class="o">.</span><span class="n">variance</span>
@@ -162,9 +135,9 @@ combination of the models will be tested.</p>
 </div>
 <div class="section" id="step-3-generate-input-samples-for-models">
 <h2>Step 3: Generate input samples for models<a class="headerlink" href="#step-3-generate-input-samples-for-models" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">SampleAllocation</span></tt> class provides functionality for determining how many random input samples are needed and how they are to be allocated across the available models. This is demonstrated below for the optimal sample allocation object found in the previous step:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">num_total_samples</span> <span class="o">=</span> <span class="n">sample_allocation</span><span class="o">.</span><span class="n">num_total_samples</span>
-<span class="n">all_samples</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_total_samples</span><span class="p">)</span> <span class="c"># User code.</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">SampleAllocation</span></code> class provides functionality for determining how many random input samples are needed and how they are to be allocated across the available models. This is demonstrated below for the optimal sample allocation object found in the previous step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">num_total_samples</span> <span class="o">=</span> <span class="n">sample_allocation</span><span class="o">.</span><span class="n">num_total_samples</span>
+<span class="n">all_samples</span> <span class="o">=</span> <span class="n">get_uniform_sample_distribution</span><span class="p">(</span><span class="n">num_total_samples</span><span class="p">)</span> <span class="c1"># User code.</span>
 <span class="n">model_input_samples</span> <span class="o">=</span> <span class="n">sample_allocation</span><span class="o">.</span><span class="n">allocate_samples_to_models</span><span class="p">(</span><span class="n">all_samples</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -177,95 +150,105 @@ ndarrays, each containing the prescribed number of samples for each model.</p>
 <h2>Step 4: Compute model outputs for prescribed inputs<a class="headerlink" href="#step-4-compute-model-outputs-for-prescribed-inputs" title="Permalink to this headline">¶</a></h2>
 <p>Now that the input samples for each model have been generated and allocated,
 outputs are generated by evaluating the Ishigami models as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">model_outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model_outputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">input_sample</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model_input_samples</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
     <span class="n">model_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">input_sample</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The outputs are stored in a list of ndarrays corresponding to each model.</p>
-<p>Note that for the practical case where evaluating the available models is time consuming and must be done in an <cite>offline</cite> fashion, the <tt class="docutils literal"><span class="pre">SampleAllocation</span></tt> class has functionality to save and load to/from disc. This way, the optimal sample allocation can be saved after Step 2 above and then loaded to generate an estimator in Step 5 next.</p>
+<p>Note that for the practical case where evaluating the available models is time consuming and must be done in an <cite>offline</cite> fashion, the <code class="docutils literal notranslate"><span class="pre">SampleAllocation</span></code> class has functionality to save and load to/from disc. This way, the optimal sample allocation can be saved after Step 2 above and then loaded to generate an estimator in Step 5 next.</p>
 </div>
 <div class="section" id="step-5-form-estimator">
 <h2>Step 5: Form estimator<a class="headerlink" href="#step-5-form-estimator" title="Permalink to this headline">¶</a></h2>
-<p>Finally, an estimator for <span class="formula"><i>E</i>[<i>f</i><sup>(1)</sup>]</span>
- is computed using the <tt class="docutils literal"><span class="pre">Estimator</span></tt> class and the model outputs from the previous step:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">sample_allocation</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">)</span>
+<p>Finally, an estimator for <span class="math notranslate nohighlight">\(E[f^{(1)}]\)</span> is computed using the <code class="docutils literal notranslate"><span class="pre">Estimator</span></code> class and the model outputs from the previous step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">sample_allocation</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">)</span>
 <span class="n">estimate</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(</span><span class="n">model_outputs</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;Estimate = &quot;</span><span class="p">,</span> <span class="n">estimate</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estimate = &quot;</span><span class="p">,</span> <span class="n">estimate</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Note that the sample allocation object from Step 2 and the covariance matrix from Step 1 are required here. The covariance matrix could also be updated at this point using the model outputs generated in the previous step. The <tt class="docutils literal"><span class="pre">MXMCPy</span></tt> estimator is close to the true value of 2.5.</p>
+<p>Note that the sample allocation object from Step 2 and the covariance matrix from Step 1 are required here. The covariance matrix could also be updated at this point using the model outputs generated in the previous step. The <code class="docutils literal notranslate"><span class="pre">MXMCPy</span></code> estimator is close to the true value of 2.5.</p>
 <div class="line-block">
-<div class="line">[1] &#8220;High-dimensional and higher-order multifidelity Monte Carlo estimators&#8221; (Quaglino, 2018)</div>
+<div class="line">[1] “High-dimensional and higher-order multifidelity Monte Carlo estimators” (Quaglino, 2018)</div>
 </div>
 </div>
 </div>
 
 
           </div>
+          
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">End-to-End Example</a><ul>
-<li><a class="reference internal" href="#step-1-compute-model-outputs-for-pilot-samples">Step 1: Compute model outputs for pilot samples</a></li>
-<li><a class="reference internal" href="#step-2-perform-sample-allocation-optimization">Step 2: Perform sample allocation optimization</a></li>
-<li><a class="reference internal" href="#step-3-generate-input-samples-for-models">Step 3: Generate input samples for models</a></li>
-<li><a class="reference internal" href="#step-4-compute-model-outputs-for-prescribed-inputs">Step 4: Compute model outputs for prescribed inputs</a></li>
-<li><a class="reference internal" href="#step-5-form-estimator">Step 5: Form estimator</a></li>
+<h1 class="logo"><a href="index.html">MXMC</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">End-to-End Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-compute-model-outputs-for-pilot-samples">Step 1: Compute model outputs for pilot samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-perform-sample-allocation-optimization">Step 2: Perform sample allocation optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-generate-input-samples-for-models">Step 3: Generate input samples for models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-compute-model-outputs-for-prescribed-inputs">Step 4: Compute model outputs for prescribed inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-form-estimator">Step 5: Form estimator</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="source_code.html">Source Code Documentation</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="intro.html"
-                        title="previous chapter">Introduction</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="source_code.html"
-                        title="next chapter">Source Code Documentation</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/ishigami_example.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="intro.html" title="previous chapter">Introduction</a></li>
+      <li>Next: <a href="source_code.html" title="next chapter">Source Code Documentation</a></li>
+  </ul></li>
+</ul>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="source_code.html" title="Source Code Documentation"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="intro.html" title="Introduction"
-             >previous</a> |</li>
-        <li><a href="index.html">MXMC 1.0 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2020, NASA.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2020, NASA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/ishigami_example.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
+
+    
+
+    
   </body>
 </html>
