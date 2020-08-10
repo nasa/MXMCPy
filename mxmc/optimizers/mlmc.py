@@ -133,7 +133,7 @@ class MLMC(OptimizerBase):
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc
 
-    def _get_allocation_array(self, num_samples_per_level):
+    def _make_allocation(self, num_samples_per_level):
 
         allocation = np.zeros((self._num_models, 2 * self._num_models),
                               dtype=int)
