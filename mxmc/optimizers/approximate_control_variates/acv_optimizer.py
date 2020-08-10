@@ -4,10 +4,10 @@ import warnings
 import numpy as np
 import torch
 
-from ...util.generic_numerical_optimization \
+from mxmc.util.generic_numerical_optimization \
     import perform_slsqp_then_nelder_mead
 from .acv_constraints import satisfies_constraints
-from ..optimizer_base import OptimizerBase
+from mxmc.optimizers.optimizer_base import OptimizerBase
 from mxmc.optimizers.optimizer_base import OptimizationResult
 from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 

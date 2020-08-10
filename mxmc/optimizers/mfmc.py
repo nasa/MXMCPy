@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..sample_allocations.acv_sample_allocation import ACVSampleAllocation
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 from .optimizer_base import OptimizerBase, InconsistentModelError,\
                             OptimizationResult
 

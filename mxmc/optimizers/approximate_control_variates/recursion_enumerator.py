@@ -2,8 +2,8 @@ from itertools import combinations
 import numpy as np
 from abc import abstractmethod
 
-from ..optimizer_base import OptimizerBase
-from ...sample_allocations.acv_sample_allocation import ACVSampleAllocation
+from mxmc.optimizers.optimizer_base import OptimizerBase
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 
 class NoMatchingCombosError(RuntimeError):

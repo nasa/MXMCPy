@@ -17,15 +17,17 @@ class MLMC(OptimizerBase):
     determining an optimal sample allocation across models to minimize
     estimator variance.
     NOTE:
-        *MLMC optimizer assumes that the high-fidelity model corresponds to the
-        finest discretization and is therefore the most time consuming, so the
-        first entry in the model_costs array must be the maximum.
-        *mlmc_variances is an array of variances of the differences between
-        models on adjacent levels (except the lowest fidelity / fastest model,
-        which is just the output variance), this input must be provided while
-        the covariance input is not used. The array does not need to be ordered
-        from high to low fidelity, but it must be arranged according to the
-        model_costs array.
+
+    MLMC optimizer assumes that the high-fidelity model corresponds to the
+    finest discretization and is therefore the most time consuming, so the
+    first entry in the model_costs array must be the maximum.
+
+    mlmc_variances is an array of variances of the differences between
+    models on adjacent levels (except the lowest fidelity / fastest model,
+    which is just the output variance), this input must be provided while
+    the covariance input is not used. The array does not need to be ordered
+    from high to low fidelity, but it must be arranged according to the
+    model_costs array.
     """
 
     def __init__(self, model_costs, covariance=None):
