@@ -5,10 +5,11 @@ a model scenario is parameterized by the model covariance matrix, model costs,
 and the target cost.
 
 The LKJ Cholesky Correlation Prior [LEWANDOWSKI2009]_ is used to randomly
-sample a correlation matrix from the distribution over all possible correlation
-matrices. This sampling is implemented in PyMC3, which is a required dependency
-to run this script. Model costs and variances are then sampled from user-defined
-distributions to fully define the model scenario.
+sample a correlation matrix from the uniform distribution over all possible
+correlation matrices. This sampling is implemented in PyMC3, which is a
+required dependency to run this example (pip install pymc3). Model costs and
+variances are then sampled from user-defined distributions to fully define
+the model scenario.
 
 .. [LEWANDOWSKI2009] Lewandowski, Daniel, Dorota Kurowicka, and Harry Joe.
    "Generating random correlation matrices based on vines and extended onion
@@ -17,22 +18,20 @@ distributions to fully define the model scenario.
 """
 
 import numpy as np
-import os
 import pymc3 as pm
-import sys
 
-from copy import copy
-
+from mxmc import Optimizer
+from mxmc.optimizers.optimizer_base import InconsistentModelError
 
 def gen_random_corr(num_models, eta=1):
     model = pm.Model()
     with model:
         packed = pm.LKJCorr('packed_L', n=num_models, eta=eta, transform=None)
         packed_array = packed.random(1)
-    return unpack_upper_triangle(packed_array)
+    return unpack_upper_triangle(packed_array, num_models)
 
 
-def unpack_upper_triangle(packed):
+def unpack_upper_triangle(packed, num_models):
     '''
     Format of packed upper triangle
     [[- 0 1 2 3]
@@ -44,9 +43,8 @@ def unpack_upper_triangle(packed):
     if isinstance(packed, float):
         return np.array([[1, packed], [packed, 1]])
 
-    num_models = int(0.5 + np.sqrt(.25 + 2 * len(packed)))
     corr_matrix = np.eye(num_models)
-    packed_iter = iter(packed)
+    packed_iter = iter(packed[0])
 
     for i in range(num_models - 1):
         for j in range(i + 1, num_models):
@@ -67,7 +65,7 @@ def build_cov_matrix(corr_matrix, var_ratios, hifi_variance):
 
 if __name__ == '__main__':
 
-    num_models = 3
+    num_models = 4
     target_cost = 1
     hifi_variance = 1
     hifi_cost = target_cost / 100.
@@ -96,9 +94,14 @@ if __name__ == '__main__':
     print("----------------------------------------")
     template = "{:^11s} {:^10.2e} {:^17.2e}"
     for algorithm in algorithms_to_compare:
-        opt_result = optimizer.optimize(algorithm, target_cost,
-                                        auto_model_selection=False)
-        opt_result_ams = optimizer.optimize(algorithm, target_cost,
-                                            auto_model_selection=True)
-        print(template.format(algorithm, opt_result.variance,
-                              opt_result_ams.variance))
+        variance = []
+        for ams in [True, False]:
+            try:
+                var = optimizer.optimize(algorithm, target_cost, ams).variance
+
+            except InconsistentModelError:
+                var = np.nan
+
+            variance.append(var)
+
+        print(template.format(algorithm, variance[0], variance[1]))
