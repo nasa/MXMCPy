@@ -4,6 +4,7 @@ import warnings
 
 from mxmc.optimizer import Optimizer
 from mxmc.util.testing import assert_opt_result_equal
+from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 
 dummy_var = 999
 
@@ -42,6 +43,8 @@ def test_optimize_works_for_simple_two_model_ex(optimizer_two_model,
 
     opt_result = optimizer_two_model.optimize(algorithm="mlmc",
                                               target_cost=target_cost)
+
+    assert isinstance(opt_result.allocation, MLMCSampleAllocation)
     assert_opt_result_equal(opt_result, cost_expected, variance_expected,
                             sample_array_expected)
 

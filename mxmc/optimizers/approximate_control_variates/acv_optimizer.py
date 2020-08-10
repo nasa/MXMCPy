@@ -4,11 +4,12 @@ import warnings
 import numpy as np
 import torch
 
-from ...util.generic_numerical_optimization \
+from mxmc.util.generic_numerical_optimization \
     import perform_slsqp_then_nelder_mead
 from .acv_constraints import satisfies_constraints
-from ..optimizer_base import OptimizerBase
-from mxmc.optimizers.optimization_result import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizerBase
+from mxmc.optimizers.optimizer_base import OptimizationResult
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 TORCHDTYPE = torch.double
 
@@ -25,6 +26,8 @@ class ACVOptimizer(OptimizerBase):
             recursion_refs = [0] * (self._num_models - 1)
         self._recursion_refs = recursion_refs
 
+        self._alloc_class = ACVSampleAllocation
+
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
             return self._get_invalid_result()
@@ -39,7 +42,10 @@ class ACVOptimizer(OptimizerBase):
 
         variance = self._compute_variance_from_sample_nums(sample_nums)
         actual_cost = self._compute_total_cost_from_sample_nums(sample_nums)
-        allocation = self._make_allocation(sample_nums)
+
+        comp_allocation = self._make_allocation(sample_nums)
+
+        allocation = self._alloc_class(comp_allocation)
 
         return OptimizationResult(actual_cost, variance, allocation)
 
