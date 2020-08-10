@@ -16,7 +16,16 @@ Sample Allocation
 -------------------------------
 
 .. automodule:: sample_allocations.sample_allocation_base
+
 .. autoclass:: SampleAllocationBase
+	:members:
+
+.. automodule:: sample_allocations.acv_sample_allocation
+.. autoclass:: ACVSampleAllocation
+	:members:
+
+.. automodule:: sample_allocations.mlmc_sample_allocation
+.. autoclass:: MLMCSampleAllocation
 	:members:
 
 Output Processor Module 
