@@ -3,8 +3,8 @@ import numpy as np
 from mxmc.estimator import Estimator
 
 
-def maximize_sample_allocation_variance(sample_allocation, target_cost,
-                                        model_costs, covariance):
+def adjust_sample_allocation_to_cost(sample_allocation, target_cost,
+                                     model_costs, covariance):
     '''
     Tests all possible increases to sample counts per group and returns
     sample allocation with the lowest variance while limiting

@@ -3,7 +3,7 @@ import pytest
 
 from mxmc.estimator import Estimator
 from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
-from mxmc.util.sample_modification import maximize_sample_allocation_variance
+from mxmc.util.sample_modification import adjust_sample_allocation_to_cost
 from mxmc.util.sample_modification import _generate_test_samplings
 from mxmc.util.sample_modification import _get_cost_per_sample_by_group
 from mxmc.util.sample_modification import _get_total_sampling_cost
@@ -53,10 +53,10 @@ def test_returns_sample_allocation(one_model_compressed_allocation,
     target_cost = 11.
 
     base_allocation = MLMCSampleAllocation(one_model_compressed_allocation)
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              one_model_cost,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           one_model_cost,
+                                                           covariance)
 
     assert isinstance(adjusted_allocation, MLMCSampleAllocation)
 
@@ -69,10 +69,10 @@ def test_increases_samples(two_model_compressed_allocation,
     target_cost = 215
 
     base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              two_model_costs,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           two_model_costs,
+                                                           covariance)
     adjusted_sampling = adjusted_allocation.compressed_allocation[:, 0]
 
     num_base_samples = np.sum(two_model_compressed_allocation[:, 0])
@@ -89,10 +89,10 @@ def test_does_not_exceed_target_cost(two_model_compressed_allocation,
     target_cost = 215
 
     base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              two_model_costs,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           two_model_costs,
+                                                           covariance)
     adjusted_cost = \
         _get_total_sampling_cost(adjusted_allocation.compressed_allocation,
                                  two_model_costs)
@@ -111,10 +111,10 @@ def test_decreases_variance(two_model_compressed_allocation,
     base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
     base_estimate = Estimator(base_allocation, covariance)
     base_variance = base_estimate._get_approximate_variance()
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              two_model_costs,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           two_model_costs,
+                                                           covariance)
 
     adjusted_estimate = Estimator(adjusted_allocation, covariance)
     adjusted_variance = adjusted_estimate._get_approximate_variance()
@@ -208,10 +208,10 @@ def test_result_monte_carlo(initial_num_samples):
     target_cost = 4
 
     base_allocation = MLMCSampleAllocation(np.array([[initial_num_samples, 1]]))
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              model_costs,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           model_costs,
+                                                           covariance)
     N = int(target_cost / model_costs[0])
     compressed_allocation_expected = np.array([[N, 1]])
 
@@ -237,10 +237,10 @@ def test_result_mocked_generate_test_samplings(mocker):
                  side_effect=mock_variances)
 
     base_allocation = MLMCSampleAllocation(base_allocation_compressed)
-    adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
-                                                              target_cost,
-                                                              model_costs,
-                                                              covariance)
+    adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
+                                                           target_cost,
+                                                           model_costs,
+                                                           covariance)
 
     compressed_allocation_expected = np.array([[4, 1]])
     assert np.array_equal(adjusted_allocation.compressed_allocation,
