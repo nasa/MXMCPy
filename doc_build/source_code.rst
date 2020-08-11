@@ -18,8 +18,12 @@ Sample Allocation Module
 .. module:: sample_allocations
 
 .. class:: SampleAllocation
-.. automethod:: sample_allocations.sample_allocation_base.SampleAllocationBase
-	:members:
+
+.. module:: sample_allocations.sample_allocation_base
+.. automethod:: SampleAllocationBase.__init__
+.. automethod:: SampleAllocationBase.get_number_of_samples_per_model
+.. automethod:: SampleAllocationBase.get_sample_indices_for_model
+.. automethod:: SampleAllocationBase.allocate_samples_to_models
 
 Output Processor Module 
 -------------------------------------
