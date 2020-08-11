@@ -66,6 +66,9 @@ def test_returns_sample_allocation(one_model_compressed_allocation,
 def test_increases_samples(two_model_compressed_allocation,
                            two_model_costs):
 
+    # Ignore warning regarding variance in BaseSampleAllocation.
+    warnings.filterwarnings(action="ignore", category=UserWarning)
+
     covariance = np.array([[1., 0.3],
                            [0.3, 1.]])
     target_cost = 215
@@ -85,6 +88,9 @@ def test_increases_samples(two_model_compressed_allocation,
 
 def test_does_not_exceed_target_cost(two_model_compressed_allocation,
                                      two_model_costs):
+
+    # Ignore warning regarding variance in BaseSampleAllocation.
+    warnings.filterwarnings(action="ignore", category=UserWarning)
 
     covariance = np.array([[1., 0.3],
                            [0.3, 1.]])
