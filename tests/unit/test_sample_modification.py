@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pytest
 
@@ -102,6 +104,9 @@ def test_does_not_exceed_target_cost(two_model_compressed_allocation,
 
 def test_decreases_variance(two_model_compressed_allocation,
                             two_model_costs):
+
+    # Ignore warning regarding variance in BaseSampleAllocation.
+    warnings.filterwarnings(action="ignore", category=UserWarning)
 
     # This allocation and model costs have a total cost of 200.
     covariance = np.array([[1., 0.3],
