@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from mxmc.estimator import Estimator
-from mxmc.sample_allocation import SampleAllocation
+from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 from mxmc.util.sample_modification import maximize_sample_allocation_variance
 from mxmc.util.sample_modification import _generate_test_samplings
 from mxmc.util.sample_modification import _get_cost_per_sample_by_group
@@ -24,7 +24,7 @@ def one_model_cost():
 @pytest.fixture
 def one_model_sample_allocation(one_model_compressed_allocation):
 
-    return SampleAllocation(one_model_compressed_allocation)
+    return MLMCSampleAllocation(one_model_compressed_allocation)
 
 
 # The two model allocation and model costs have a total cost of 200.
@@ -43,7 +43,7 @@ def two_model_costs():
 @pytest.fixture
 def two_model_sample_allocation(two_model_compressed_allocation):
 
-    return SampleAllocation(two_model_compressed_allocation)
+    return MLMCSampleAllocation(two_model_compressed_allocation)
 
 
 def test_returns_sample_allocation(one_model_compressed_allocation,
@@ -52,13 +52,13 @@ def test_returns_sample_allocation(one_model_compressed_allocation,
     covariance = np.identity(1)
     target_cost = 11.
 
-    base_allocation = SampleAllocation(one_model_compressed_allocation)
+    base_allocation = MLMCSampleAllocation(one_model_compressed_allocation)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               one_model_cost,
                                                               covariance)
 
-    assert isinstance(adjusted_allocation, SampleAllocation)
+    assert isinstance(adjusted_allocation, MLMCSampleAllocation)
 
 
 def test_increases_samples(two_model_compressed_allocation,
@@ -68,7 +68,7 @@ def test_increases_samples(two_model_compressed_allocation,
                            [0.3, 1.]])
     target_cost = 215
 
-    base_allocation = SampleAllocation(two_model_compressed_allocation)
+    base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               two_model_costs,
@@ -88,7 +88,7 @@ def test_does_not_exceed_target_cost(two_model_compressed_allocation,
                            [0.3, 1.]])
     target_cost = 215
 
-    base_allocation = SampleAllocation(two_model_compressed_allocation)
+    base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               two_model_costs,
@@ -108,7 +108,7 @@ def test_decreases_variance(two_model_compressed_allocation,
                            [0.3, 1.]])
     target_cost = 215
 
-    base_allocation = SampleAllocation(two_model_compressed_allocation)
+    base_allocation = MLMCSampleAllocation(two_model_compressed_allocation)
     base_estimate = Estimator(base_allocation, covariance)
     base_variance = base_estimate._get_approximate_variance()
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
@@ -207,7 +207,7 @@ def test_result_monte_carlo(initial_num_samples):
     model_costs = np.array([1.])
     target_cost = 4
 
-    base_allocation = SampleAllocation(np.array([[initial_num_samples, 1]]))
+    base_allocation = MLMCSampleAllocation(np.array([[initial_num_samples, 1]]))
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               model_costs,
@@ -236,7 +236,7 @@ def test_result_mocked_generate_test_samplings(mocker):
     mocker.patch("mxmc.util.sample_modification._get_estimator_variance",
                  side_effect=mock_variances)
 
-    base_allocation = SampleAllocation(base_allocation_compressed)
+    base_allocation = MLMCSampleAllocation(base_allocation_compressed)
     adjusted_allocation = maximize_sample_allocation_variance(base_allocation,
                                                               target_cost,
                                                               model_costs,

@@ -1,7 +1,6 @@
 import numpy as np
 
 from mxmc.estimator import Estimator
-from mxmc.sample_allocation import SampleAllocation
 
 
 def maximize_sample_allocation_variance(sample_allocation, target_cost,
@@ -16,7 +15,8 @@ def maximize_sample_allocation_variance(sample_allocation, target_cost,
         test = np.copy(base_compressed_allocation)
         test[:, 0] = sampling
 
-        allocation = SampleAllocation(test, sample_allocation.method)
+        allocation_class = sample_allocation.__class__
+        allocation = allocation_class(test)
         variance = _get_estimator_variance(allocation, covariance)
 
         return variance, allocation
