@@ -12,7 +12,7 @@ authors = [
 ]
 
 setuptools.setup(
-    name="mxmc",
+    name="mxmcpy",
     version="1.0",
     author=", ".join(authors),
     author_email="",
