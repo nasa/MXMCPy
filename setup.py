@@ -29,7 +29,6 @@ setuptools.setup(
     ],
     python_requires='>=3.7',
     install_requires=['numpy',
-                      'pandas',
                       'scipy',
                       'torch',
                       'h5py']
