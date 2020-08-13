@@ -1,0 +1,17 @@
+language: python
+
+jobs:
+  include:
+    - stage: "test"
+      name: "tests"
+      install:
+        - pip install pytest pytest-cov pytest-mock
+        - pip install coveralls
+        - pip install -r requirements.txt
+      before_script:
+        - export PYTHONPATH=$PYTHONPATH:$PWD
+      script:
+        - python -c "import bingo"
+        - pytest --cov=mxmc --cov-report=term-missing tests/
+      after_script:
+        - coveralls
