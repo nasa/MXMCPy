@@ -2,7 +2,21 @@ language: python
 
 jobs:
   include:
-    - stage: "test"
+    - stage: "Static Analysis"
+      name: "pylint"
+      install:
+        - pip install -r requirements.txt
+        - pip install pylint
+      script:
+        - pylint mxmc --exit-zero
+
+    - name: "flake8"
+      install:
+        - pip install flake8
+      script:
+        - flake8 mxmc/
+
+    - stage: "Test"
       name: "tests"
       install:
         - pip install pytest pytest-cov pytest-mock
@@ -11,7 +25,6 @@ jobs:
       before_script:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:
-        - python -c "import bingo"
         - pytest --cov=mxmc --cov-report=term-missing tests/
       after_script:
         - coveralls
