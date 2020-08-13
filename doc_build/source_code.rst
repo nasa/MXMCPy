@@ -82,13 +82,13 @@ Estimator Module
 Utilities Module
 ------------------------------
 
-.. module:: util.generic_numerical_optimization
-.. method:: perform_slsqp_then_nelder_mead
-.. method:: perform_slsqp
-.. method:: perform_nelder_mead
+.. automodule:: util.generic_numerical_optimization
+.. automethod:: util.generic_numerical_optimization.perform_slsqp_then_nelder_mead
+.. automethod:: util.generic_numerical_optimization.perform_slsqp
+.. automethod:: util.generic_numerical_optimization.perform_nelder_mead
 
-.. module:: util.read_sample_allocation
-.. method:: read_sample_allocation
+.. automodule:: util.read_sample_allocation
+.. automethod:: util.read_sample_allocation.read_sample_allocation
 
-.. module:: util.sample_modification
-.. method:: adjust_sample_allocation_to_cost
+.. automodule:: util.sample_modification
+.. automethod:: util.sample_modification.adjust_sample_allocation_to_cost
