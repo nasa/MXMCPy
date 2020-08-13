@@ -2,7 +2,8 @@ from itertools import combinations
 import numpy as np
 from abc import abstractmethod
 
-from ..optimizer_base import OptimizerBase
+from mxmc.optimizers.optimizer_base import OptimizerBase
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 
 
 class NoMatchingCombosError(RuntimeError):
@@ -10,6 +11,10 @@ class NoMatchingCombosError(RuntimeError):
 
 
 class RecursionEnumerator(OptimizerBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._alloc_class = ACVSampleAllocation
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
@@ -50,8 +55,9 @@ class KLEnumerator(RecursionEnumerator):
                 recursion_refs = [0] * k
                 yield recursion_refs
             else:
-                for l in range(1, k + 1):
-                    recursion_refs = [0] * k + [l] * (self._num_models - k - 1)
+                for l_param in range(1, k + 1):
+                    recursion_refs = [0] * k + [l_param] * \
+                                     (self._num_models - k - 1)
                     yield recursion_refs
 
 

@@ -2,14 +2,14 @@ import numpy as np
 import pytest
 
 from mxmc.estimator import Estimator
-from mxmc.optimizer import Optimizer, ALGORITHM_MAP
+from mxmc.optimizer import Optimizer
 from mxmc.optimizers.approximate_control_variates.recursion_enumerator import MREnumerator  # noqa: E501
 from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_unordered import GMFUnordered  # noqa: E501
 from mxmc.optimizers.approximate_control_variates.generalized_multifidelity.gmf_ordered import GMFOrdered  # noqa: E501
 from mxmc.optimizers.approximate_control_variates.generalized_independent_samples.gis_optimizer import GISOptimizer  # noqa: E501
 from mxmc.optimizers.approximate_control_variates.generalized_recursive_difference.grd_optimizer import GRDOptimizer  # noqa: E501
 
-ALGORITHMS = ALGORITHM_MAP.keys()
+ALGORITHMS = Optimizer.get_algorithm_names()
 
 
 def _monomial_model_covariance(powers):
@@ -104,8 +104,8 @@ def test_basic_acv_optimizers_give_consistent_output(acv_optimizer, mocker):
     covariance = _monomial_model_covariance(exponents)
     model_costs = _monomial_model_costs(exponents)
     target_cost = 10
-    optimizer = ALGORITHM_MAP[acv_optimizer](model_costs,
-                                             covariance=covariance)
+    optimizer = Optimizer.get_algorithm(acv_optimizer)(model_costs,
+                                                       covariance=covariance)
 
     constraints = optimizer._get_constraints(target_cost)
 
@@ -114,7 +114,8 @@ def test_basic_acv_optimizers_give_consistent_output(acv_optimizer, mocker):
         valid_ratios = \
             _generate_random_ratios_fulfilling_constraints(constraints,
                                                            model_costs)
-        mocker.patch.object(ALGORITHM_MAP[acv_optimizer], '_solve_opt_problem',
+        mocker.patch.object(Optimizer.get_algorithm(acv_optimizer),
+                            '_solve_opt_problem',
                             return_value=valid_ratios)
 
         opt_result = optimizer.optimize(target_cost)

@@ -1,8 +1,11 @@
 from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import numpy as np
 
-from mxmc.optimizers.optimization_result import OptimizationResult
+
+OptimizationResult = namedtuple('OptResult',
+                                ['cost', 'variance', 'allocation'])
 
 
 class InconsistentModelError(Exception):
@@ -10,6 +13,7 @@ class InconsistentModelError(Exception):
 
 
 class OptimizerBase(metaclass=ABCMeta):
+
     def __init__(self, model_costs, covariance=None, *_, **__):
         self._model_costs = np.array(model_costs)
         self._num_models = len(self._model_costs)
@@ -17,6 +21,8 @@ class OptimizerBase(metaclass=ABCMeta):
 
         if covariance is not None:
             self._validate_covariance_matrix(covariance)
+
+        self._alloc_class = None
 
     def _validate_covariance_matrix(self, matrix):
         if len(matrix) != self._num_models:
@@ -48,7 +54,7 @@ class OptimizerBase(metaclass=ABCMeta):
     def _get_invalid_result(self):
         allocation = np.zeros((1, 2 * self._num_models), dtype=int)
         allocation[0, :2] = 1
-        return OptimizationResult(0, np.inf, allocation)
+        return OptimizationResult(0, np.inf, self._alloc_class(allocation))
 
     def _get_monte_carlo_result(self, target_cost):
         sample_nums = np.floor(np.array([target_cost / self._model_costs[0]]))
@@ -57,4 +63,5 @@ class OptimizerBase(metaclass=ABCMeta):
         allocation = np.zeros((1, 2 * self._num_models), dtype=int)
         allocation[0, 0] = sample_nums[0]
         allocation[0, 1] = 1
-        return OptimizationResult(cost, variance, allocation)
+        return OptimizationResult(cost, variance,
+                                  self._alloc_class(allocation))

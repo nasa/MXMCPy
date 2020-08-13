@@ -3,10 +3,11 @@ from itertools import combinations
 import numpy as np
 
 from .optimizer_base import InconsistentModelError
-from mxmc.optimizers.optimization_result import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizationResult
 
 
 class AutoModelSelection:
+
     def __init__(self, optimizer):
         self._optimizer = optimizer
 
@@ -30,8 +31,9 @@ class AutoModelSelection:
         estimator_variance = best_result.variance
         actual_cost = best_result.cost
 
-        return OptimizationResult(actual_cost, estimator_variance,
-                                  sample_array)
+        allocation = best_result.allocation.__class__(sample_array)
+
+        return OptimizationResult(actual_cost, estimator_variance, allocation)
 
     def _test_candidate_optimizer(self, target_cost, indices,
                                   best_result, best_indices):

@@ -13,13 +13,13 @@ authors = [
 
 setuptools.setup(
     name="mxmc",
-    version="0.1.0",
+    version="1.0",
     author=", ".join(authors),
     author_email="",
     description="Multi Model Monte Carlo with Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/nasa/mxmc",
+    url="https://github.com/nasa/MXMCPy",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

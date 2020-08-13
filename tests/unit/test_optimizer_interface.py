@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from mxmc.optimizer import Optimizer, ALGORITHM_MAP
+from mxmc.optimizer import Optimizer
 from mxmc.util.testing import assert_opt_result_equal
 
-ALGORITHMS = ALGORITHM_MAP.keys()
+ALGORITHMS = Optimizer.get_algorithm_names()
 DUMMY_VAR = 999
 
 
