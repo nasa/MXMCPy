@@ -55,8 +55,9 @@ class KLEnumerator(RecursionEnumerator):
                 recursion_refs = [0] * k
                 yield recursion_refs
             else:
-                for l in range(1, k + 1):
-                    recursion_refs = [0] * k + [l] * (self._num_models - k - 1)
+                for l_param in range(1, k + 1):
+                    recursion_refs = [0] * k + [l_param] * \
+                                     (self._num_models - k - 1)
                     yield recursion_refs
 
 
