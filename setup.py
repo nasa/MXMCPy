@@ -27,5 +27,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research"
     ],
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    install_requires=['numpy',
+                      'pandas',
+                      'scipy',
+                      'torch',
+                      'h5py']
 )
