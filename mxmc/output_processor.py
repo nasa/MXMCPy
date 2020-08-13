@@ -37,69 +37,51 @@ class OutputProcessor:
         :Returns: covariance matrix among all model outputs (2D np.array with
             size equal to the number of models).
         '''
-        output_df = OutputProcessor._build_output_dataframe(model_outputs,
-                                                            sample_allocation)
 
-        cov_matrix = OutputProcessor. \
-            _initialize_matrix_diagonal_with_variances(output_df)
-        cov_matrix = OutputProcessor. \
-            _compute_offdiagonal_elements(cov_matrix, output_df)
-
-        return cov_matrix
+        output_array = OutputProcessor._build_output_array(model_outputs,
+                                                           sample_allocation)
+        cov_matrix = OutputProcessor._compute_cov_elements(output_array)
+        return np.array(cov_matrix)
 
     @staticmethod
-    def _build_output_dataframe(model_outputs, sample_allocation):
-
+    def _build_output_array(model_outputs, sample_allocation):
         if sample_allocation is None:
-            output_df = pd.DataFrame(model_outputs)
+            model_inds = [list(range(len(out))) for out in model_outputs]
+
         else:
-            output_df = \
-                OutputProcessor. \
-                _build_output_df_from_allocation(model_outputs,
-                                                 sample_allocation)
-        return output_df
+            model_inds = [sample_allocation.get_sample_indices_for_model(i)
+                          for i in range(len(model_outputs))]
+
+        return OutputProcessor._make_output_array_from_indices(
+            model_inds, model_outputs)
 
     @staticmethod
-    def _initialize_matrix_diagonal_with_variances(output_df):
+    def _make_output_array_from_indices(model_inds, model_outputs):
+        max_model_inds = [max(i) for i in model_inds if i]
 
-        return np.diag([np.var(row, ddof=1)
-                        for _, row in output_df.iterrows()])
+        if not max_model_inds:
+            return np.empty((0, 0))
 
-    @staticmethod
-    def _build_output_df_from_allocation(model_outputs, sample_alloc):
+        max_ind = max(max_model_inds)
+        output_array = np.full((len(model_outputs), max_ind + 1), np.nan)
 
-        sub_dfs = []
-        for model_index, outputs in enumerate(model_outputs):
-
-            alloc = sample_alloc.get_sample_indices_for_model(model_index)
-            sub_dfs.append(pd.DataFrame({model_index: outputs,
-                                         'alloc_indices': alloc}))
-
-        def merge_func(x, y):
-            return x.merge(y, how='outer')
-
-        output_df = reduce(merge_func, sub_dfs).set_index('alloc_indices')
-        output_df.sort_index(inplace=True)
-        return output_df.T
+        for i, (inds, out) in enumerate(zip(model_inds, model_outputs)):
+            output_array[i, inds] = out
+        return output_array
 
     @staticmethod
-    def _compute_offdiagonal_elements(matrix, output_df):
-
-        num_models = output_df.shape[0]
-        for i in range(num_models - 1):
-
-            for j in range(i + 1, num_models):
-
-                model_out_pair = output_df.loc[[i, j]].dropna(axis=1)
-
-                model_out_i = model_out_pair.loc[i].values
-                model_out_j = model_out_pair.loc[j].values
-
-                if len(model_out_i) <= 1:
-                    element_matrix = np.nan
-                else:
-                    element_matrix = np.cov(model_out_i, model_out_j)[0, 1]
-
+    def _compute_cov_elements(output_array):
+        num_models = output_array.shape[0]
+        matrix = np.full((num_models, num_models), np.nan)
+        for i in range(num_models):
+            for j in range(i, num_models):
+                filter_ = np.logical_and(~np.isnan(output_array[i]),
+                                         ~np.isnan(output_array[j]))
+                if len(output_array[i, filter_]) <= 1:
+                    continue
+                element_matrix = np.cov(output_array[i, filter_],
+                                        output_array[j, filter_],
+                                        ddof=1)[0, 1]
                 matrix[i, j] = element_matrix
                 matrix[j, i] = element_matrix
 
