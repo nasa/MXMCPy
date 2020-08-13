@@ -20,3 +20,6 @@ doc_build/doctrees
 docs/py-modindex.html
 .cache
 objects.inv
+/build/
+/dist/
+/mxmc.egg-info/
