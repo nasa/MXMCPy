@@ -55,11 +55,14 @@ class EstimatorBase(metaclass=ABCMeta):
         raise NotImplementedError
 
     def _validate_model_outputs(self, model_outputs):
+
         if len(model_outputs) != self._allocation.num_models:
             raise ValueError("Number of models in model output did not match "
                              "the number in sample allocation")
-        for outputs, num_samps in zip(model_outputs,
-                self._allocation.get_number_of_samples_per_model()):
+
+        samples_per_model = self._allocation.get_number_of_samples_per_model()
+        for outputs, num_samps in zip(model_outputs, samples_per_model):
+
             if len(outputs) != num_samps:
                 raise ValueError("Number of outputs per model does not match "
                                  "the sample allocation")

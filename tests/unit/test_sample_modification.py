@@ -185,9 +185,8 @@ def test_gen_test_samplings_meet_target_cost(two_model_compressed_allocation,
         assert cost <= target_cost
 
 
-def test_gen_test_samplings_recursion_error_catch(one_model_compressed_allocation,
-                                                  one_model_cost,
-                                                  capsys):
+def test_gen_test_samplings_recursion_error_catch(
+        one_model_compressed_allocation, one_model_cost, capsys):
 
     target_cost = 5000.
     with pytest.raises(RecursionError):
@@ -218,7 +217,8 @@ def test_result_monte_carlo(initial_num_samples):
     model_costs = np.array([1.])
     target_cost = 4
 
-    base_allocation = MLMCSampleAllocation(np.array([[initial_num_samples, 1]]))
+    compress_allocation = np.array([[initial_num_samples, 1]])
+    base_allocation = MLMCSampleAllocation(compress_allocation)
     adjusted_allocation = adjust_sample_allocation_to_cost(base_allocation,
                                                            target_cost,
                                                            model_costs,

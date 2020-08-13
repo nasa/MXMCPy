@@ -4,7 +4,8 @@ from collections import namedtuple
 import numpy as np
 
 
-OptimizationResult = namedtuple('OptResult', ['cost', 'variance', 'allocation'])
+OptimizationResult = namedtuple('OptResult',
+                                ['cost', 'variance', 'allocation'])
 
 
 class InconsistentModelError(Exception):
@@ -62,4 +63,5 @@ class OptimizerBase(metaclass=ABCMeta):
         allocation = np.zeros((1, 2 * self._num_models), dtype=int)
         allocation[0, 0] = sample_nums[0]
         allocation[0, 1] = 1
-        return OptimizationResult(cost, variance, self._alloc_class(allocation))
+        return OptimizationResult(cost, variance,
+                                  self._alloc_class(allocation))

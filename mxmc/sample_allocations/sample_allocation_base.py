@@ -20,8 +20,8 @@ class SampleAllocationBase:
 
     :ivar num_total_samples: number of total input samples needed across all
         available models
-    :ivar _utilized_models: list of indices corresponding to models with samples
-        allocated to them
+    :ivar _utilized_models: list of indices corresponding to models with
+        samples allocated to them
     :ivar num_models: total number of available models
 
     '''

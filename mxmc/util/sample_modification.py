@@ -5,11 +5,11 @@ from mxmc.estimator import Estimator
 
 def adjust_sample_allocation_to_cost(sample_allocation, target_cost,
                                      model_costs, covariance):
-    """"
+    '''
     Tests all possible increases to sample counts per group and returns
     sample allocation with the lowest variance while limiting
     total cost to be within the specified target_cost.
-    """
+    '''
     def _test_sampling(sampling):
 
         test = np.copy(base_compressed_allocation)
