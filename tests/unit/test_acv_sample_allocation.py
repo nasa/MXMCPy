@@ -1,12 +1,9 @@
-import os.path
 import warnings
 
 import pytest
 import numpy as np
 
 from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
-from mxmc.util.read_sample_allocation import read_sample_allocation
-
 
 
 @pytest.fixture

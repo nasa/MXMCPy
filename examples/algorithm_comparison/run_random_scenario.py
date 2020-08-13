@@ -1,8 +1,8 @@
 """
 This example compares the performance of several sample allocation
-optimization algorithms on a randomly generated model scenario. In this context,
-a model scenario is parameterized by the model covariance matrix, model costs,
-and the target cost.
+optimization algorithms on a randomly generated model scenario. In this
+context, a model scenario is parameterized by the model covariance matrix,
+model costs, and the target cost.
 
 The LKJ Cholesky Correlation Prior [LEWANDOWSKI2009]_ is used to randomly
 sample a correlation matrix from the uniform distribution over all possible
@@ -22,6 +22,7 @@ import pymc3 as pm
 
 from mxmc import Optimizer
 from mxmc.optimizers.optimizer_base import InconsistentModelError
+
 
 def gen_random_corr(num_models, eta=1):
     model = pm.Model()
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     hifi_cost = target_cost / 100.
     min_cost_ratio = -6
     var_ratio_bnds = (0.1, 1.5)
-    eta = 1 # uniform sampling over correlation matrix space
+    eta = 1  # uniform sampling over correlation matrix space
 
     algorithms_to_compare = ["mlmc", "wrdiff",  "grdmr", "acvis", "gismr",
                              "mfmc", "acvmf", "acvkl", "acvmfu", "gmfmr"]
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     cost_ratios = 10 ** np.random.uniform(-6, 0, num_models)
     cost_ratios[0] = 1
     var_ratios = np.random.uniform(var_ratio_bnds[0], var_ratio_bnds[1],
-                 num_models)
+                                   num_models)
     var_ratios[0] = 1
 
     costs = cost_ratios * hifi_cost

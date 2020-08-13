@@ -14,6 +14,7 @@ docs/doc_build/doctrees
 /include/
 /lib/
 /list/
+/venv/
 doc_build/docs
 doc_build/doctrees
 docs/py-modindex.html

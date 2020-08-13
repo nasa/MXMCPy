@@ -1,12 +1,10 @@
 import h5py
-import os.path
 import warnings
 
 import pytest
 import numpy as np
 
 from mxmc.sample_allocations.sample_allocation_base import SampleAllocationBase
-
 
 
 @pytest.fixture

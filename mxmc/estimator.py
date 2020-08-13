@@ -24,4 +24,3 @@ class Estimator:
 
         estimator_type = ALLOCATION_TO_ESTIMATOR_MAP[allocation.__class__]
         return estimator_type(allocation, covariance)
-

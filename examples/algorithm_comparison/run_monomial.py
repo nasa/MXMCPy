@@ -1,7 +1,8 @@
 """
 This example compares the performance of several sample allocation
 optimization algorithms on two model scenarios.  The model scenarios, as
-originally detailed in [GORODETSKY2019]_, consist of 5 algorithm_comparison models:
+originally detailed in [GORODETSKY2019]_, consist of 5
+algorithm_comparison models:
 
 +-------------+------------------------+
 |    Model    |      Model Costs       |
@@ -73,5 +74,3 @@ for algorithm in algorithms_to_compare:
                                                  auto_model_selection=True)
     print(template.format(algorithm, opt_result.variance,
                           opt_result_ams.variance))
-
-

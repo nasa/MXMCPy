@@ -41,8 +41,9 @@ def test_mfmc_with_model_selection_hifi_fastest():
     assert_opt_result_equal(opt_result, expected_cost, expected_variance,
                             expected_sample_array)
 
+
 def test_mfmc_with_model_selection_no_best_result(mocker):
-    mocker.patch('mxmc.optimizer.AutoModelSelection.' + \
+    mocker.patch('mxmc.optimizer.AutoModelSelection.' +
                  '_get_subsets_of_model_indices', return_value=[])
 
     covariance = np.array([[1, 0.0], [0.0, 1]])
@@ -55,5 +56,3 @@ def test_mfmc_with_model_selection_no_best_result(mocker):
     expected_sample_array = np.array([[1, 1, 0, 0]], dtype=int)
     assert_opt_result_equal(opt_result, expected_cost, expected_variance,
                             expected_sample_array)
-
-

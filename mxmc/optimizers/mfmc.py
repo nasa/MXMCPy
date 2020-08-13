@@ -4,6 +4,7 @@ from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
 from .optimizer_base import OptimizerBase, InconsistentModelError,\
                             OptimizationResult
 
+
 class MFMC(OptimizerBase):
 
     def __init__(self, model_costs, covariance):
