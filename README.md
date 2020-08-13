@@ -52,9 +52,7 @@ conda install --yes --file requirements.txt
 ```
 
 ### Documentation
-Sphynx is used for automatically generating API documentation for MXMCPy. The 
-most recent build of the documentation can be found in the repository at: 
-`doc/index.html`
+See the [MXMCPy Read the Docs page](https://mxmcpy.readthedocs.io/).
 
 ## Running Tests
 An extensive unit test suite is included with MXMCPy to help ensure proper 
@@ -88,7 +86,9 @@ print("# samples per model: ", opt_result.allocation.get_number_of_samples_per_m
 ```
 
 For more detailed examples using MXMCPy including end-to-end construction of
-estimators, see the scripts in the [examples directory](examples/). 
+estimators, see the scripts in the [examples directory](examples/) or the 
+[end-to-end example](https://mxmcpy.readthedocs.io/en/main/ishigami_example.html)
+in the documentation. 
 
 ## Contributing
 1. Fork it (<https://github.com/nasa/mxmcpy/fork>)
