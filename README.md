@@ -1,6 +1,13 @@
-# MXMC
-[![pipeline status](https://gitlab.larc.nasa.gov/gbomarit/mxmc/badges/master/pipeline.svg)](https://gitlab.larc.nasa.gov/gbomarit/mxmc/commits/master)
-[![coverage report](https://gitlab.larc.nasa.gov/gbomarit/mxmc/badges/master/coverage.svg)](https://gitlab.larc.nasa.gov/gbomarit/mxmc/commits/master)
+# MXMCPy
+main: 
+[![Build Status](https://travis-ci.com/nasa/MXMCPy.svg?branch=main)](https://travis-ci.com/nasa/MXMCPy) 
+[![Coverage Status](https://coveralls.io/repos/github/nasa/MXMCPy/badge.svg?branch=main)](https://coveralls.io/github/nasa/MXMCPy?branch=main) 
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/nasa/MXMCPy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/MXMCPy/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nasa/MXMCPy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nasa/MXMCPy/context:python)
+
+develop: 
+[![Build Status](https://travis-ci.com/nasa/MXMCPy.svg?branch=develop)](https://travis-ci.com/nasa/MXMCPy) 
+[![Coverage Status](https://coveralls.io/repos/github/nasa/MXMCPy/badge.svg?branch=develop)](https://coveralls.io/github/nasa/MXMCPy?branch=develop) 
 
 ## General
 MXMCPy is an open source package that implements many existing multi-model 

@@ -12,7 +12,7 @@ authors = [
 ]
 
 setuptools.setup(
-    name="mxmc",
+    name="mxmcpy",
     version="1.0",
     author=", ".join(authors),
     author_email="",
@@ -27,5 +27,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research"
     ],
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    install_requires=['numpy',
+                      'scipy',
+                      'torch',
+                      'h5py']
 )

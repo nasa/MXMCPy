@@ -1,16 +1,12 @@
-# Reference image with Python 3.7.
-FROM debian:stable
+# Reference image with Python 3.7 and Pip preinstalled.
+FROM python:3.7.8-slim
 
 # Set up working directory with all mxmc files.
 COPY ./ /mxmc/
 WORKDIR /mxmc/
 
-# Install Pip.
-RUN apt update && apt install -y python3-pip
-
-# Install dependencies.
+# Install MXMC dependencies.
 RUN pip3 install -r requirements.txt
 	
-# Install mxmc.
+# Install MXMC.
 RUN pip3 install .
-
