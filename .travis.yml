@@ -19,7 +19,7 @@ jobs:
     - stage: "Test"
       name: "tests"
       install:
-        - pip install pytest pytest-cov pytest-mock
+        - pip install pytest pytest-cov pytest-mock docker docker-compose
         - pip install coveralls
         - pip install -r requirements.txt
       before_script:
@@ -28,3 +28,5 @@ jobs:
         - pytest --cov=mxmc --cov-report=term-missing tests/
       after_script:
         - coveralls
+    - if: branch = main
+        tests/deployment/run.py
