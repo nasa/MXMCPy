@@ -100,8 +100,13 @@ estimators, see the scripts in the [examples directory](examples/).
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
 
-## Versioning
+## Citing 
 
+If you use MXMCPy for your work, please cite the following reference:
+
+`
+Bomarito, G. F., Warner, J. E., Leser, P. E., Leser, W. P., and Morrill, L.: Multi Model Monte Carlo with Python (MXMCPy). NASA/TM–2020–220585. 2020.
+`
 
 ## Authors
   * Geoffrey Bomarito
