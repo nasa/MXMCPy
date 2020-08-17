@@ -18,7 +18,7 @@ def test_compute_cov_matrix_return_empty_array_if_no_outputs():
 
 
 def test_compute_covariance_matrix_one_number_is_nan_array():
-    covariance = OutputProcessor.compute_covariance_matrix([np.array(1)])
+    covariance = OutputProcessor.compute_covariance_matrix([np.array([1])])
     assert np.isnan(covariance)
 
 
