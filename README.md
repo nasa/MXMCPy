@@ -22,10 +22,6 @@ MXMCPy can be easily installed using pip:
 ```shell
 pip install mxmcpy
 ```
-or conda:
-```shell
-conda install mxmcpy
-```
 
 Alternatively, the MXMCPy repository can be cloned:
 ```shell
