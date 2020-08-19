@@ -1,10 +1,5 @@
 h5py
 pandas
 numpy
-pytest
-pytest-cov
-pytest-mock
 torch
 scipy
-matplotlib
-sphinx
