@@ -29,4 +29,4 @@ jobs:
       after_script:
         - coveralls
     - if: branch = main
-        tests/deployment/run.py
+        tests/deployment/run.sh
