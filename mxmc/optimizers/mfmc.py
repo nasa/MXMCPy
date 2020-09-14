@@ -10,17 +10,11 @@ class MFMC(OptimizerBase):
     def __init__(self, model_costs, covariance):
 
         super().__init__(model_costs, covariance)
-        if self._covariance.ndim == 2:
-            self._covariance = self._covariance[:, :, None]
-        stdev = []
-        for i in range(self._covariance.shape[2]):
-            stdev.append(np.sqrt(np.diag(self._covariance[:, :, i])))
-        stdev = np.array(stdev).T
+        self._update_covariance_dimension()
+        stdev = self._calculate_stdevs()
         correlations = covariance[0] / stdev[0] / stdev
-
-        aggregate_correlations = np.sqrt(
-                np.sum(correlations**2 * stdev**2, axis=1)
-                / np.sum(stdev**2, axis=1))
+        aggregate_correlations = self._aggregate_correlations(correlations,
+                                                              stdev)
 
         self._model_order_map = list(range(self._num_models))
         self._model_order_map.sort(
@@ -36,6 +30,23 @@ class MFMC(OptimizerBase):
         self._ordered_stdev = stdev[self._model_order_map]
 
         self._alloc_class = ACVSampleAllocation
+
+    def _update_covariance_dimension(self):
+        if self._covariance.ndim == 2:
+            self._covariance = self._covariance[:, :, None]
+
+    def _calculate_stdevs(self):
+        stdev = []
+        for i in range(self._covariance.shape[2]):
+            stdev.append(np.sqrt(np.diag(self._covariance[:, :, i])))
+        return np.array(stdev).T
+
+    @staticmethod
+    def _aggregate_correlations(correlations, stdev):
+        aggregate_correlations = np.sqrt(
+                np.sum(correlations ** 2 * stdev ** 2, axis=1)
+                / np.sum(stdev ** 2, axis=1))
+        return aggregate_correlations
 
     def optimize(self, target_cost):
         if target_cost < self._model_costs[0]:
@@ -89,15 +100,11 @@ class MFMC(OptimizerBase):
 
     def _calculate_estimator_variance(self, sample_group_sizes):
         alphas = self._calculate_optimal_alphas()
-        print(alphas)
         estimator_variance = self._ordered_stdev[0] ** 2 \
             / sample_group_sizes[0]
-        print(alphas[1:].shape, self._ordered_stdev[1:].shape,
-              alphas[1:].shape, self._ordered_corr[1:-1].shape,
-              self._ordered_stdev[0].shape, self._ordered_stdev[1:])
         if self._num_models > 1:
             estimator_variance += np.sum((1 / sample_group_sizes[:-1][:, None]
-                                          - 1 / sample_group_sizes[1:][:, None])
+                                          - 1 /sample_group_sizes[1:][:, None])
                                          * (alphas[1:] ** 2
                                             * self._ordered_stdev[1:] ** 2
                                             + 2 * alphas[1:]
