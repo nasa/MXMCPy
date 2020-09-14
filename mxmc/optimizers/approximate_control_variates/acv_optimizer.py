@@ -18,8 +18,8 @@ class ACVOptimizer(OptimizerBase):
 
     def __init__(self, model_costs, covariance=None, recursion_refs=None):
         super().__init__(model_costs, covariance)
-        self._covariance_tensor = torch.tensor(self._covariance,
-                                               dtype=TORCHDTYPE)
+        self._covariance_tensor = self._create_covariance_tensor()
+
         self._model_costs_tensor = torch.tensor(self._model_costs,
                                                 dtype=TORCHDTYPE)
         if recursion_refs is None:
@@ -27,6 +27,16 @@ class ACVOptimizer(OptimizerBase):
         self._recursion_refs = recursion_refs
 
         self._alloc_class = ACVSampleAllocation
+
+    def _create_covariance_tensor(self):
+        covariance = torch.tensor(self._covariance, dtype=TORCHDTYPE)
+        ndim = covariance.ndimension()
+        if ndim == 2:
+            return covariance.unsqueeze(0)
+        if ndim == 3:
+            return covariance.permute([2, 0, 1])
+        raise RuntimeError("Invalid Covariance matrix encountered with "
+                           "dimension =", str(ndim))
 
     def optimize(self, target_cost):
         if target_cost < np.sum(self._model_costs):
@@ -65,9 +75,6 @@ class ACVOptimizer(OptimizerBase):
         ratios = perform_slsqp_then_nelder_mead(bounds, constraints,
                                                 initial_guess, obj_func,
                                                 obj_func_and_grad)
-
-        # ratios = perform_nelder_mead(bounds, constraints,  initial_guess,
-        #                              obj_func)
 
         return ratios
 
@@ -122,6 +129,7 @@ class ACVOptimizer(OptimizerBase):
             variance = \
                 self._compute_acv_estimator_variance(self._covariance_tensor,
                                                      ratios_tensor, N)
+            variance = variance.sum()
         except RuntimeError:
             variance = 9e99*torch.dot(ratios_tensor, ratios_tensor)
 
@@ -144,15 +152,17 @@ class ACVOptimizer(OptimizerBase):
         return N
 
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
-        big_C = covariance[1:, 1:]
-        c_bar = covariance[0, 1:] / torch.sqrt(covariance[0, 0])
+        big_C = covariance[:, 1:, 1:]
+        c_bar = covariance[:, 0, 1:] \
+                / torch.sqrt(covariance[:, 0, 0]).unsqueeze(1)
 
         F, F0 = self._compute_acv_F_and_F0(ratios)
-        a = (F0 * c_bar).reshape((-1, 1))
+        a = (F0.unsqueeze(0) * c_bar)
 
-        alpha, _ = torch.solve(a, big_C * F)
-        R_squared = torch.dot(a.flatten(), alpha.flatten())
-        variance = covariance[0, 0] / N * (1 - R_squared)
+        alpha, _ = torch.solve(a.unsqueeze(2), big_C * F)
+        R_squared = (a.unsqueeze(2) * alpha).sum(1).sum(1)
+        variance = covariance[:, 0, 0] / N * (1 - R_squared)
+
         return variance
 
     def _compute_sample_nums_from_ratios(self, ratios, target_cost):
@@ -166,7 +176,10 @@ class ACVOptimizer(OptimizerBase):
         ratios_tensor = torch.tensor(ratios, dtype=TORCHDTYPE)
         variance = self._compute_acv_estimator_variance(
             self._covariance_tensor, ratios_tensor, N)
-        return variance.detach().numpy()
+        variance = variance.detach().numpy()
+        if len(variance) == 1:
+            return variance[0]
+        return variance
 
     def _compute_total_cost_from_sample_nums(self, sample_nums):
         N = sample_nums[0]

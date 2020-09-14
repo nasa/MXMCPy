@@ -5,6 +5,7 @@ from mxmc.optimizer import Optimizer
 from mxmc.util.testing import assert_opt_result_equal
 
 ALGORITHMS = Optimizer.get_algorithm_names()
+NUMERICAL_ALGORITHMS = list(set(ALGORITHMS) - {"mlmc", "mfmc"})
 DUMMY_VAR = 999
 
 
@@ -109,3 +110,23 @@ def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
     assert np.isclose(variance_ref, opt_result.variance)
     assert np.isclose(cost_ref, opt_result.cost)
     assert N_ref == opt_sample_array[0, 0]
+
+
+@pytest.mark.parametrize("algorithm", ALGORITHMS)
+@pytest.mark.parametrize("qoi_dim", [2, 4])
+def test_optimizer_runs_for_vector_qois(algorithm, qoi_dim):
+    model_costs = np.array([100, 10, 1])
+    covariance = np.ones((3, 3, qoi_dim))
+    covariance[0, 1:, :] = 0.9
+    covariance[1:, 0, :] = 0.9
+    covariance[1, 2, :] = 0.8
+    covariance[2, 1, :] = 0.8
+    target_cost = 1000
+
+    optimizer = Optimizer(model_costs, covariance=covariance)
+    result = optimizer.optimize(algorithm=algorithm, target_cost=target_cost,
+                                auto_model_selection=True)
+    variance = result.variance
+    assert len(variance) == qoi_dim
+    np.testing.assert_array_almost_equal(variance, np.full_like(variance,
+                                                                variance[0]))

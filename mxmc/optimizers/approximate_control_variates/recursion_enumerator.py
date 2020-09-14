@@ -30,7 +30,8 @@ class RecursionEnumerator(OptimizerBase):
 
             sub_opt_result = sub_opt.optimize(target_cost)
             if best_result is None \
-                    or sub_opt_result.variance < best_result.variance:
+                    or (np.array(sub_opt_result.variance).sum()
+                        < np.array(best_result.variance).sum()):
                 best_result = sub_opt_result
 
         if best_result is None:
