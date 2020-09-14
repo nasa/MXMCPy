@@ -117,10 +117,10 @@ def test_optimizer_returns_monte_carlo_result_for_one_model(algorithm):
 def test_optimizer_runs_for_vector_qois(algorithm, qoi_dim):
     model_costs = np.array([100, 10, 1])
     covariance = np.ones((3, 3, qoi_dim))
-    covariance[0, 1:, :] = 0.9
-    covariance[1:, 0, :] = 0.9
-    covariance[1, 2, :] = 0.8
-    covariance[2, 1, :] = 0.8
+    for i in range(qoi_dim):
+        covariance[:, :, i] = np.array([[1.0, 0.9, 0.8],
+                                        [0.9, 1.6, 0.7],
+                                        [0.8, 0.7, 2.5]])
     target_cost = 1000
 
     optimizer = Optimizer(model_costs, covariance=covariance)
