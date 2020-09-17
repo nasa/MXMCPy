@@ -12,9 +12,9 @@ class MFMC(OptimizerBase):
         super().__init__(model_costs, covariance)
         self._update_covariance_dimension()
         stdev = self._calculate_stdevs()
-        correlations = covariance[0] / stdev[0] / stdev
-        aggregate_correlations = self._aggregate_correlations(correlations,
-                                                              stdev)
+        correlations = (covariance[0] / stdev[0]).reshape((-1, 1)) / stdev
+        aggregate_correlations = \
+            self._calc_aggregate_correlations(correlations, stdev)
 
         self._model_order_map = list(range(self._num_models))
         self._model_order_map.sort(
@@ -42,7 +42,7 @@ class MFMC(OptimizerBase):
         return np.array(stdev).T
 
     @staticmethod
-    def _aggregate_correlations(correlations, stdev):
+    def _calc_aggregate_correlations(correlations, stdev):
         aggregate_correlations = np.sqrt(
                 np.sum(correlations ** 2 * stdev ** 2, axis=1)
                 / np.sum(stdev ** 2, axis=1))
@@ -104,7 +104,7 @@ class MFMC(OptimizerBase):
             / sample_group_sizes[0]
         if self._num_models > 1:
             estimator_variance += np.sum((1 / sample_group_sizes[:-1][:, None]
-                                          - 1 /sample_group_sizes[1:][:, None])
+                                          -1 / sample_group_sizes[1:][:, None])
                                          * (alphas[1:] ** 2
                                             * self._ordered_stdev[1:] ** 2
                                             + 2 * alphas[1:]
