@@ -13,8 +13,12 @@ class MFMC(OptimizerBase):
         self._update_covariance_dimension()
         stdev = self._calculate_stdevs()
         correlations = (covariance[0] / stdev[0]).reshape(stdev.shape) / stdev
+        # print("correlations")
+        # print(correlations)
         aggregate_correlations = \
             self._calc_aggregate_correlations(correlations, stdev)
+        # print("agg correlations")
+        # print(aggregate_correlations)
 
         self._model_order_map = list(range(self._num_models))
         self._model_order_map.sort(
@@ -110,7 +114,7 @@ class MFMC(OptimizerBase):
                                             + 2 * alphas[1:]
                                             * self._ordered_corr[1:-1]
                                             * self._ordered_stdev[0]
-                                            * self._ordered_stdev[1:]))
+                                            * self._ordered_stdev[1:]), axis=0)
 
         return estimator_variance
 
