@@ -23,8 +23,11 @@ class Optimizer:
     :param model_costs: cost (run time) of all models
     :type model_costs: list of floats
     :param covariance: Covariance matrix defining covariance (of outputs) among
-        all available models. Size MxM where M is # models.
-    :type covariance: 2D np.array
+        all available models. Size MxM where M is # models.  The covariance
+        matrix can also be supplied for multiple quantities of interest in the
+        form of an MxMxN array, where N is the number of quantities of
+        interest.
+    :type covariance: 2D np.array or 3D np.array
 
     '''
     def __init__(self, *args, **kwargs):
@@ -70,7 +73,9 @@ class Optimizer:
         :Returns: An OptimizationResult namedtuple with entries for cost,
             variance, and sample_array. cost (float) is expected cost of all
             model evaluations prescribed in sample_array (np.array). variance
-            is the minimized variance from the optimization.
+            is the variance of the quantity of interest from the optimization.
+            If more than one quantity of interest is optimized, then the
+            variance will be a vector containing the variance of each quantity.
         '''
         optimizer = ALGORITHM_MAP[algorithm.lower()](*self._args,
                                                      **self._kwargs)
