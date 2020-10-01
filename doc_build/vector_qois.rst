@@ -18,7 +18,7 @@ Performing this type of vector-valued sample allocation optimization is easy in 
     mxmc_optimizer = Optimizer(model_costs, covariance)
     optimization_result = mxmc_optimizer.optimize(algorithm, target_cost)
 
-The optimization result of a vector-valued optimization will contain an ``approximate_variance`` array which indicates the approximate variances for each of the QOIs.
+The optimization result of a vector-valued optimization will contain a ``variance`` array which indicates the variances for each of the QOIs.
 
 
 | [1] Quaglino, A., Pezzuto, S., & Krause, R. (2019). High-dimensional and higher-order multifidelity Monte Carlo estimators. Journal of Computational Physics, 388, 300-315.
