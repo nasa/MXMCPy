@@ -105,7 +105,7 @@ class MFMC(OptimizerBase):
     def _calculate_estimator_variance(self, sample_grp_sizes):
         alphas = self._calculate_optimal_alphas()
         estimator_variance = self._ordered_stdev[0] ** 2 \
-                             / sample_grp_sizes[0]
+            / sample_grp_sizes[0]
         if self._num_models > 1:
             estimator_variance += np.sum((1 / sample_grp_sizes[:-1][:, None]
                                           - 1 / sample_grp_sizes[1:][:, None])
