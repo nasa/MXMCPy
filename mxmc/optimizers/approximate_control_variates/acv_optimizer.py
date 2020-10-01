@@ -131,7 +131,7 @@ class ACVOptimizer(OptimizerBase):
                                                      ratios_tensor, N)
             variance = variance.sum()
         except RuntimeError:
-            variance = 9e99*torch.dot(ratios_tensor, ratios_tensor)
+            variance = 9e99 * torch.dot(ratios_tensor, ratios_tensor)
 
         if not gradient:
             return variance.detach().numpy()
@@ -154,7 +154,7 @@ class ACVOptimizer(OptimizerBase):
     def _compute_acv_estimator_variance(self, covariance, ratios, N):
         big_C = covariance[:, 1:, 1:]
         c_bar = covariance[:, 0, 1:] \
-                / torch.sqrt(covariance[:, 0, 0]).unsqueeze(1)
+            / torch.sqrt(covariance[:, 0, 0]).unsqueeze(1)
 
         F, F0 = self._compute_acv_F_and_F0(ratios)
         a = (F0.unsqueeze(0) * c_bar)
@@ -175,7 +175,7 @@ class ACVOptimizer(OptimizerBase):
         ratios = sample_nums[1:] / N
         ratios_tensor = torch.tensor(ratios, dtype=TORCHDTYPE)
         variance = self._compute_acv_estimator_variance(
-            self._covariance_tensor, ratios_tensor, N)
+                self._covariance_tensor, ratios_tensor, N)
         variance = variance.detach().numpy()
         if len(variance) == 1:
             return variance[0]
