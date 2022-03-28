@@ -4,7 +4,7 @@ numpy
 pytest
 pytest-cov
 pytest-mock
-torch
+torch>=1.9
 scipy
 matplotlib
 sphinx

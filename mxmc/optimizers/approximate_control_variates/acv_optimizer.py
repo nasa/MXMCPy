@@ -144,7 +144,7 @@ class ACVOptimizer(OptimizerBase):
         F, F0 = self._compute_acv_F_and_F0(ratios)
         a = (F0 * c_bar).reshape((-1, 1))
 
-        alpha, _ = torch.solve(a, big_C * F)
+        alpha = torch.linalg.solve(big_C * F, a)
         R_squared = torch.dot(a.flatten(), alpha.flatten())
         variance = covariance[0, 0] / N * (1 - R_squared)
         return variance

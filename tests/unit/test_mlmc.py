@@ -214,7 +214,7 @@ def test_adjust_samples_per_level(num_levels, random_seed):
     mlmc._level_costs = level_costs
 
     samples = np.sort(np.random.rand(num_levels)*10)
-    int_samples = samples.astype(np.int)
+    int_samples = samples.astype(int)
     max_samples = int_samples + 1
 
     min_cost = np.dot(int_samples, level_costs)
