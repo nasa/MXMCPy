@@ -1,6 +1,6 @@
-.. MXMC documentation master file.
+.. MXMCPy documentation master file.
 
-Welcome to MXMC's documentation!
+Welcome to MXMCPy's documentation!
 ==================================
 
 Contents:

@@ -49,7 +49,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'MXMC'
+project = u'MXMCPy'
 copyright = u'2020, NASA'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -175,7 +175,7 @@ html_static_path = []
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'MXMCdoc'
+htmlhelp_basename = 'MXMCPydoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -194,8 +194,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'mxmc.tex', u'MXMC Documentation',
-   u'James Warner', 'manual'),
+  ('index', 'mxmcpy.tex', u'MXMCPy Documentation',
+   u'UQCoE', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -224,8 +224,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'mxmc', u'MXMC Documentation',
-     [u'James Warner, UQ Center of Excellence, NASA'], 1)
+    ('index', 'mxmcpy', u'MXMCPy Documentation',
+     [u'UQ CoE, NASA'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -238,9 +238,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'MLMCPy', u'MLMCPy Documentation',
-   u'James Warner',
-   'MXMC',
+  ('index', 'MXMCPy', u'MXMCPy Documentation',
+   u'UQCoE',
+   'MXMCPy',
    'Implementation of Multi-Model Monte Carlo (MXMC) methods in Python.',
    'Miscellaneous'),
 ]
