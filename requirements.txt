@@ -1,5 +1,5 @@
 h5py
 pandas
 numpy
-torch
+torch>=1.9
 scipy
