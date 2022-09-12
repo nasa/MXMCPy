@@ -20,6 +20,12 @@ def compressed_allocation_3models():
                      [2, 0, 1, 1],
                      [1, 1, 1, 1]])
 
+@pytest.fixture
+def compressed_allocation_3models_3groups():
+        return np.array([[6, 0, 0, 1],
+                         [2, 1, 1, 0],
+                         [4, 0, 1, 1]])
+
 @pytest.mark.parametrize("M", range(4))
 def test_num_models_for_M_models(M):
     DUMMY = 5
@@ -97,4 +103,24 @@ def test_get_number_of_samples_per_model_with_three_models(
     allocation = MBLUESampleAllocation(compressed_allocation_3models)
     assert np.array_equal(allocation.get_number_of_samples_per_model(),
                           np.array([15, 13, 11]))
+
+@pytest.mark.parametrize("model_index, expected_indices",
+    [(0, np.array([6,7])),
+     (1, np.arange(6,12)),
+     (2, np.concatenate((np.arange(0, 6), np.arange(8, 12))))])
+def test_get_sample_indices_for_model_with_three_models_three_groups(
+                                         model_index,
+                                         expected_indices,
+                                         compressed_allocation_3models_3groups):
+
+    allocation = MBLUESampleAllocation(compressed_allocation_3models_3groups)
+    computed_indices = allocation.get_sample_indices_for_model(model_index)
+    np.testing.assert_array_equal(computed_indices, expected_indices)
+
+def test_get_number_of_samples_per_model_with_three_models_three_groups(
+                                    compressed_allocation_3models_3groups):
+    allocation = MBLUESampleAllocation(compressed_allocation_3models_3groups)
+    assert np.array_equal(allocation.get_number_of_samples_per_model(),
+                          np.array([2, 6, 10]))
+
 
