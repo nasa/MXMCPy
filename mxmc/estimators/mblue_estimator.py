@@ -70,26 +70,36 @@ class MBLUEEstimator:
     def _build_y_vector(self, model_outputs):
         #equation 2.6 for y vector
         y_vector = np.zeros(self._num_models)
-
+        summed_inds = np.zeros(self._num_models, dtype=int)
         for row in self._allocation.compressed_allocation:
             num_samples = row[0]
-            model_indices = row[1:]
-
-            cov_sub_mat = self._get_covariance_sub_matrix(model_indices)
-            prolong_mat = self._get_restriction_matrix(model_indices).T
+            if num_samples == 0:
+                continue
+            model_inds = row[1:]
+            cov_sub_mat = self._get_covariance_sub_matrix(model_inds)
+            prolong_mat = self._get_restriction_matrix(model_inds).T
             output_sum = self._get_summed_outputs_for_model_group(model_outputs,
                                                                   num_samples,
-                                                                  model_indices)
+                                                                  model_inds,
+                                                                  summed_inds)
+            summed_inds += model_inds*num_samples
             P_k_times_C_k_inv = np.dot(prolong_mat, np.linalg.inv(cov_sub_mat))
             y_vector += np.dot(P_k_times_C_k_inv, output_sum)
 
         return y_vector
 
     def _get_summed_outputs_for_model_group(self, model_outputs, num_samples,
-                                            model_indices):
+                                            model_inds, start_inds):
+        end_inds = start_inds + model_inds*num_samples
+        models_in_group = np.nonzero(start_inds-end_inds)[0]
+        summed_outputs = np.zeros(len(models_in_group))
 
-        #TODO - put something real here for equation 2.6:
-        return np.ones(len(np.where(model_indices==1)[0]))
+        for i, model_ind in enumerate(models_in_group):
+            start = start_inds[model_ind]
+            end = end_inds[model_ind]
+            summed_outputs[i] = np.sum(model_outputs[model_ind][start:end])
+
+        return summed_outputs
 
     def _get_covariance_sub_matrix(self, model_indices):
 
