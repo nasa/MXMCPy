@@ -33,16 +33,22 @@ class Optimizer:
 
     @staticmethod
     def get_algorithm_names():
+        '''
+        Returns a list of strings containing the names of all available
+        optimization algorithms.
+        '''
         return ALGORITHM_MAP.keys()
 
     @staticmethod
     def get_algorithm(algorithm_name):
-
-        if algorithm_name not in ALGORITHM_MAP.keys():
+        '''
+        Returns a reference to a class indicated by the provided name.
+        '''
+        if algorithm_name.lower() not in ALGORITHM_MAP.keys():
             message = "Algorithm {} not available.".format(algorithm_name)
             raise KeyError(message)
 
-        return ALGORITHM_MAP[algorithm_name]
+        return ALGORITHM_MAP[algorithm_name.lower()]
 
     def optimize(self, algorithm, target_cost, auto_model_selection=False):
         '''
@@ -66,7 +72,8 @@ class Optimizer:
             model evaluations prescribed in sample_array (np.array). variance
             is the minimized variance from the optimization.
         '''
-        optimizer = ALGORITHM_MAP[algorithm](*self._args, **self._kwargs)
+        optimizer = ALGORITHM_MAP[algorithm.lower()](*self._args,
+                                                     **self._kwargs)
         if auto_model_selection:
             optimizer = AutoModelSelection(optimizer)
         return optimizer.optimize(target_cost=target_cost)

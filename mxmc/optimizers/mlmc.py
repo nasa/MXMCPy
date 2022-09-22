@@ -7,7 +7,8 @@ import numpy as np
 import warnings
 
 from .optimizer_base import OptimizerBase
-from mxmc.optimizers.optimization_result import OptimizationResult
+from mxmc.optimizers.optimizer_base import OptimizationResult
+from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
 
 
 class MLMC(OptimizerBase):
@@ -16,15 +17,17 @@ class MLMC(OptimizerBase):
     determining an optimal sample allocation across models to minimize
     estimator variance.
     NOTE:
-        *MLMC optimizer assumes that the high-fidelity model corresponds to the
-        finest discretization and is therefore the most time consuming, so the
-        first entry in the model_costs array must be the maximum.
-        *mlmc_variances is an array of variances of the differences between
-        models on adjacent levels (except the lowest fidelity / fastest model,
-        which is just the output variance), this input must be provided while
-        the covariance input is not used. The array does not need to be ordered
-        from high to low fidelity, but it must be arranged according to the
-        model_costs array.
+
+    MLMC optimizer assumes that the high-fidelity model corresponds to the
+    finest discretization and is therefore the most time consuming, so the
+    first entry in the model_costs array must be the maximum.
+
+    mlmc_variances is an array of variances of the differences between
+    models on adjacent levels (except the lowest fidelity / fastest model,
+    which is just the output variance), this input must be provided while
+    the covariance input is not used. The array does not need to be ordered
+    from high to low fidelity, but it must be arranged according to the
+    model_costs array.
     """
 
     def __init__(self, model_costs, covariance=None):
@@ -33,6 +36,7 @@ class MLMC(OptimizerBase):
         self._level_costs = self._get_level_costs(self._model_costs)
         sorted_cov = self._sort_covariance_by_cost(covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
+        self._alloc_class = MLMCSampleAllocation
 
     @staticmethod
     def _validate_inputs(model_costs):
@@ -107,9 +111,11 @@ class MLMC(OptimizerBase):
         estimator_variance = np.sum(self._mlmc_variances[nonzero_sample_nums] /
                                     samples_per_level[nonzero_sample_nums])
 
-        allocation = self._get_allocation_array(samples_per_level)
-        return OptimizationResult(actual_cost, estimator_variance, allocation,
-                                  method="mlmc")
+        comp_allocation = self._make_allocation(samples_per_level)
+
+        allocation = self._alloc_class(comp_allocation)
+
+        return OptimizationResult(actual_cost, estimator_variance, allocation)
 
     def _get_num_samples_per_level(self, target_cost):
 
@@ -117,9 +123,7 @@ class MLMC(OptimizerBase):
         var_to_cost_ratios = self._mlmc_variances / self._level_costs
         samples_per_level = mu_mlmc * np.sqrt(var_to_cost_ratios)
 
-        samples_per_level_ints = \
-            self._adjust_samples_per_level(target_cost, samples_per_level)
-        return samples_per_level_ints
+        return samples_per_level.astype(int)
 
     def _calculate_mlmc_mu(self, target_cost):
 
@@ -129,28 +133,7 @@ class MLMC(OptimizerBase):
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc
 
-    def _adjust_samples_per_level(self, target_cost, base_samples_per_level):
-
-        samples_per_level = np.array(base_samples_per_level, dtype=int)
-        remaining_cost = target_cost - \
-            np.dot(samples_per_level, self._level_costs)
-
-        sample_size_remainders = base_samples_per_level - samples_per_level
-        sample_priority_indices = np.flip(np.argsort(sample_size_remainders))
-
-        for sample_index in sample_priority_indices:
-
-            level_cost = self._level_costs[sample_index]
-            remainder = sample_size_remainders[sample_index]
-
-            if level_cost <= remaining_cost and remainder > 0.:
-
-                samples_per_level[sample_index] += 1
-                remaining_cost -= self._level_costs[sample_index]
-
-        return samples_per_level
-
-    def _get_allocation_array(self, num_samples_per_level):
+    def _make_allocation(self, num_samples_per_level):
 
         allocation = np.zeros((self._num_models, 2 * self._num_models),
                               dtype=int)

@@ -1,0 +1,17 @@
+version: '3.4'  # docker-compose standard to use
+
+services:
+    mxmc_deploy_test:
+        container_name: mxmc_testing_container
+        image: mxmc_testing
+        build:
+            dockerfile: deployment/Dockerfile
+            context: ..
+            network: host
+        working_dir: '/'
+        command: python -m pytest /tests
+        network_mode: "host"
+        tty: true
+        stdin_open: true
+        volumes:
+            - ..:/tests  # Mount volume with test files at /tests

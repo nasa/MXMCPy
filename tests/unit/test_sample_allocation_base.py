@@ -1,11 +1,10 @@
-import os.path
+import h5py
 import warnings
 
 import pytest
 import numpy as np
 
 from mxmc.sample_allocations.sample_allocation_base import SampleAllocationBase
-
 
 
 @pytest.fixture
@@ -24,10 +23,9 @@ def sample_allocation(compressed_allocation):
 
 
 @pytest.fixture
-def saved_allocation_path(sample_allocation, tmp_path):
-    p = tmp_path / "test_allocation.h5"
+def saved_allocation_path(tmpdir):
+    p = tmpdir / "test_allocation.h5"
     path_str = str(p)
-    sample_allocation.save(path_str)
     return path_str
 
 
@@ -91,8 +89,10 @@ def test_get_total_number_of_samples(sample_allocation):
     assert sample_allocation.num_total_samples == 16
 
 
-def test_h5_file_exists(saved_allocation_path):
-    assert os.path.exists(saved_allocation_path)
+def test_save_allocation(sample_allocation, saved_allocation_path):
+    sample_allocation.save(saved_allocation_path)
+    h5 = h5py.File(saved_allocation_path, 'r')
+    assert h5.attrs.get('Method') == SampleAllocationBase.__module__
 
 
 def test_allocate_samples_to_models_not_enough_samples_error(

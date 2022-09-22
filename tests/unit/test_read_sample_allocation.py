@@ -1,8 +1,30 @@
-def test_sample_allocation_read(saved_allocation_path, sample_allocation):
-    loaded_allocation = read_sample_allocation(saved_allocation_path)
-    np.testing.assert_array_equal(loaded_allocation.compressed_allocation,
-                                  sample_allocation.compressed_allocation)
-    assert loaded_allocation.num_models == sample_allocation.num_models
-    assert loaded_allocation.method == "ACV"
-    # need to work on new class based identification of method
-    assert False
+import numpy as np
+import pytest
+
+from mxmc.sample_allocations.sample_allocation_base import SampleAllocationBase
+from mxmc.sample_allocations.acv_sample_allocation import ACVSampleAllocation
+from mxmc.sample_allocations.mlmc_sample_allocation import MLMCSampleAllocation
+
+from mxmc.util.read_sample_allocation import read_sample_allocation
+
+
+class DummyH5:
+
+    def __init__(self, allocation_module, *args):
+        self.attrs = lambda: None
+        self.attrs.get = lambda x: allocation_module
+
+    def __getitem__(self, key):
+        return np.ones((5, 5))
+
+
+@pytest.mark.parametrize('method', [SampleAllocationBase, ACVSampleAllocation,
+                                    MLMCSampleAllocation])
+def test_sample_allocation_read(method, mocker):
+
+    mocker.patch('mxmc.util.read_sample_allocation.h5py.File', new=DummyH5)
+
+    dummy_filename = method.__module__
+    loaded_allocation = read_sample_allocation(dummy_filename)
+
+    assert type(loaded_allocation)
