@@ -32,16 +32,22 @@ class MLMC(OptimizerBase):
 
     def __init__(self, model_costs, covariance=None):
         super().__init__(model_costs, covariance)
+        self._update_covariance_dimension()
         self._validate_inputs(model_costs)
         self._level_costs = self._get_level_costs(self._model_costs)
-        sorted_cov = self._sort_covariance_by_cost(covariance)
+        sorted_cov = self._sort_covariance_by_cost(self._covariance)
         self._mlmc_variances = self._get_variances_from_covariance(sorted_cov)
+        self._max_mlmc_variances = np.max(self._mlmc_variances, axis=1)
         self._alloc_class = MLMCSampleAllocation
 
     @staticmethod
     def _validate_inputs(model_costs):
         if model_costs[0] != np.max(model_costs):
             raise ValueError("First model must have highest cost for MLMC")
+
+    def _update_covariance_dimension(self):
+        if self._covariance.ndim == 2:
+            self._covariance = self._covariance[:, :, None]
 
     def _get_level_costs(self, model_costs):
 
@@ -58,16 +64,15 @@ class MLMC(OptimizerBase):
         return cov_matrix_sorted
 
     def _get_variances_from_covariance(self, cov_matrix):
-        vars_ = []
+        vars_ = np.empty((cov_matrix.shape[0], cov_matrix.shape[2]))
         for i in range(0, cov_matrix.shape[0] - 1):
-            var = cov_matrix[i, i] + \
-                  cov_matrix[i+1, i+1] - \
-                  2 * cov_matrix[i, i+1]
-            vars_.append(var)
-        vars_.append(cov_matrix[-1, -1])
+            vars_[i] = cov_matrix[i, i, :] + \
+                       cov_matrix[i+1, i+1, :] - \
+                       2 * cov_matrix[i, i+1, :]
+        vars_[-1] = cov_matrix[-1, -1, :]
 
         sort_indices = self._cost_sort_indices.argsort()
-        return np.array(vars_)[sort_indices]
+        return vars_[sort_indices]
 
     @staticmethod
     def _sort_model_costs(model_costs):
@@ -108,8 +113,10 @@ class MLMC(OptimizerBase):
         actual_cost = np.dot(samples_per_level, self._level_costs)
 
         nonzero_sample_nums = np.where(samples_per_level != 0)
-        estimator_variance = np.sum(self._mlmc_variances[nonzero_sample_nums] /
-                                    samples_per_level[nonzero_sample_nums])
+        estimator_variance = \
+            np.sum(self._mlmc_variances[nonzero_sample_nums] /
+                   samples_per_level[nonzero_sample_nums].reshape((-1, 1)),
+                   axis=0)
 
         comp_allocation = self._make_allocation(samples_per_level)
 
@@ -120,7 +127,7 @@ class MLMC(OptimizerBase):
     def _get_num_samples_per_level(self, target_cost):
 
         mu_mlmc = self._calculate_mlmc_mu(target_cost)
-        var_to_cost_ratios = self._mlmc_variances / self._level_costs
+        var_to_cost_ratios = self._max_mlmc_variances / self._level_costs
         samples_per_level = mu_mlmc * np.sqrt(var_to_cost_ratios)
 
         return samples_per_level.astype(int)
@@ -128,7 +135,7 @@ class MLMC(OptimizerBase):
     def _calculate_mlmc_mu(self, target_cost):
 
         mu_mlmc = 0.
-        for var_k, cost_k in zip(self._mlmc_variances, self._level_costs):
+        for var_k, cost_k in zip(self._max_mlmc_variances, self._level_costs):
             mu_mlmc += np.sqrt(var_k * cost_k)
         mu_mlmc = target_cost / mu_mlmc
         return mu_mlmc

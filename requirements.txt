@@ -1,5 +1,9 @@
-h5py
-pandas
-numpy
-torch>=1.9
-scipy
+h5py~=3.6.0
+pandas~=1.4.1
+numpy~=1.21.2
+torch~=1.10.2
+scipy~=1.7.3
+
+pytest~=6.2.5
+pytest-mock~=3.6.1
+setuptools~=58.0.4

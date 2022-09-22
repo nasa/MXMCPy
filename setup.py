@@ -27,7 +27,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research"
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     install_requires=['numpy',
                       'scipy',
                       'torch',

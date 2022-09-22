@@ -28,7 +28,9 @@ class OptimizerBase(metaclass=ABCMeta):
         if len(matrix) != self._num_models:
             error_msg = "Covariance matrix and model cost dims must match"
             raise ValueError(error_msg)
-        if not np.allclose(matrix.transpose(), matrix):
+
+        matrix_t = matrix.transpose([1, 0] + list(range(2, matrix.ndim)))
+        if not np.allclose(matrix_t, matrix):
             error_msg = "Covariance matrix array must be symmetric"
             raise ValueError(error_msg)
 

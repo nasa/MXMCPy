@@ -11,6 +11,7 @@ Contents:
    intro
    available_algorithms
    ishigami_example
+   vector_qois
    source_code
 
 

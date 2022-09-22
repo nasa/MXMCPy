@@ -44,7 +44,8 @@ class AutoModelSelection:
         except InconsistentModelError:
             return best_result, best_indices
 
-        if opt_result.variance < best_result.variance:
+        if np.array(opt_result.variance).sum() \
+                < np.array(best_result.variance).sum():
             return opt_result, indices
 
         return best_result, best_indices
