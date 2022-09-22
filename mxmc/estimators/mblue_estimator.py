@@ -102,21 +102,13 @@ class MBLUEEstimator:
         return summed_outputs
 
     def _get_covariance_sub_matrix(self, model_indices):
-
         one_indices = np.where(model_indices==1)[0]   
-        cov_sub_mat = np.zeros((len(one_indices), len(one_indices)))
-
-        #TODO gotta be a slick way to do this but googling is hard right now:
-        for i, index_i in enumerate(one_indices):
-            for j, index_j in enumerate(one_indices):
-                cov_sub_mat[i,j] = self._covariance[index_i, index_j]
-
+        cov_sub_mat = self._covariance[np.ix_(one_indices, one_indices)]
         return cov_sub_mat
 
     def _get_restriction_matrix(self, model_indices):
 
         one_indices = np.where(model_indices==1)[0]
-    
         restrict_mat = np.zeros((len(one_indices), len(model_indices)))
         for i, one_index in enumerate(one_indices):
             restrict_mat[i, one_index] = 1.0
