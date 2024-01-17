@@ -83,6 +83,20 @@ def test_opt_result_variance_and_cost_match_allocation(algorithm):
     _assert_opt_result_is_consistent(covariance, model_costs, opt_result)
 
 
+@pytest.mark.parametrize("algorithm", ALGORITHMS)
+def test_opt_result_variance_and_cost_match_allocation_auto_model_selection(algorithm):
+    model_costs = np.array([1.0, 0.1, 0.1])
+    small_cov = 10**(-6)
+    covariance = np.array([[1.0, 0.9, small_cov],
+                           [0.9, 1.6, small_cov],
+                           [small_cov, small_cov, 2.5]])
+    target_cost = 10
+    optimizer = Optimizer(model_costs, covariance=covariance)
+
+    opt_result = optimizer.optimize(algorithm, target_cost, auto_model_selection=True)
+    _assert_opt_result_is_consistent(covariance, model_costs, opt_result)
+
+
 def test_mfmc_and_acvmfmc_have_about_equal_variance():
     exponents = [4, 3, 2, 1]
     covariance = _monomial_model_covariance(exponents)

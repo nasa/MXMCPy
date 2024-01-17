@@ -18,7 +18,7 @@ class ACVSampleAllocation(SampleAllocationBase):
     def get_k0_matrix(self):
 
         k_indices = [i - 1 for i in self.utilized_models if i != 0]
-        k_0 = np.empty(self.num_models - 1)
+        k_0 = np.zeros(self.num_models - 1)
         n = self._get_num_samples_per_column()
 
         for i in k_indices:
