@@ -15,10 +15,12 @@ class ACVEstimator(EstimatorBase):
             models being used for estimator. Size MxM where M is # models.
     :type covariance: 2D np.array
     """
+
     def __init__(self, allocation, covariance):
         super().__init__(allocation, covariance)
-        self._cov_delta_delta, self._cov_q_delta = \
-            self._calculate_cov_delta_terms()
+        self._cov_delta_delta, self._cov_q_delta = self._calculate_cov_delta_terms(
+            self._covariance
+        )
         self._alpha = self._calculate_alpha()
 
     def get_estimate(self, model_outputs):
@@ -35,20 +37,22 @@ class ACVEstimator(EstimatorBase):
 
         return q
 
-    def _calculate_cov_delta_terms(self):
+    def _calculate_cov_delta_terms(self, covariance):
         k_0 = self._allocation.get_k0_matrix()
         k = self._allocation.get_k_matrix()
-        cov_q_delta = k_0 * self._covariance[0, 1:]
-        cov_delta_delta = k * self._covariance[1:, 1:]
+        cov_q_delta = k_0 * covariance[0, 1:]
+        cov_delta_delta = k * covariance[1:, 1:]
         return cov_delta_delta, cov_q_delta
 
     def _get_approximate_variance(self):
         n_0 = self._allocation.get_number_of_samples_per_model()[0]
         var_q0 = self._covariance[0, 0]
 
-        variance = var_q0 / n_0 \
-            + self._alpha.dot(self._cov_delta_delta.dot(self._alpha)) \
+        variance = (
+            var_q0 / n_0
+            + self._alpha.dot(self._cov_delta_delta.dot(self._alpha))
             + 2 * self._alpha.dot(self._cov_q_delta)
+        )
 
         return variance
 
@@ -57,6 +61,19 @@ class ACVEstimator(EstimatorBase):
         temp_cov_delta_delta = self._cov_delta_delta[k_indices][:, k_indices]
         temp_cov_q_delta = self._cov_q_delta[k_indices]
         alpha = np.zeros(self._allocation.num_models - 1)
-        alpha[k_indices] = - np.linalg.solve(temp_cov_delta_delta,
-                                             temp_cov_q_delta)
+        alpha[k_indices] = -np.linalg.solve(temp_cov_delta_delta, temp_cov_q_delta)
         return alpha
+
+    def get_theoretical_variance(self, true_cov):
+        n_0 = self._allocation.get_number_of_samples_per_model()[0]
+        var_q0 = true_cov[0, 0]
+
+        cov_delta_delta, cov_q_delta = self._calculate_cov_delta_terms(true_cov)
+
+        variance = (
+            var_q0 / n_0
+            + self._alpha.dot(cov_delta_delta.dot(self._alpha))
+            + 2 * self._alpha.dot(cov_q_delta)
+        )
+
+        return variance
