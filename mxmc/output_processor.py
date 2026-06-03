@@ -37,29 +37,28 @@ class OutputProcessor:
 
         output_array = OutputProcessor._build_output_array(model_outputs,
                                                            sample_allocation)
-        cov_matrix = OutputProcessor._compute_cov_elements(output_array)
-        return np.array(cov_matrix)
+        return OutputProcessor._compute_cov_elements(output_array)
 
     @staticmethod
     def _build_output_array(model_outputs, sample_allocation):
         if sample_allocation is None:
-            model_inds = [list(range(len(out))) for out in model_outputs]
+            model_inds = (np.arange(len(out)) for out in model_outputs)
 
         else:
-            model_inds = [sample_allocation.get_sample_indices_for_model(i)
-                          for i in range(len(model_outputs))]
+            model_inds = (sample_allocation.get_sample_indices_for_model(i)
+                          for i in range(len(model_outputs)))
 
         return OutputProcessor._make_output_array_from_indices(
-            model_inds, model_outputs)
+            np.array(model_inds), model_outputs)
 
     @staticmethod
     def _make_output_array_from_indices(model_inds, model_outputs):
-        max_model_inds = [max(i) for i in model_inds if i]
+        max_model_inds = [np.max(i) for i in model_inds if len(i) > 0]
 
         if not max_model_inds:
             return np.empty((0, 0))
 
-        max_ind = max(max_model_inds)
+        max_ind = np.max(max_model_inds)
         output_array = np.full((len(model_outputs), max_ind + 1), np.nan)
 
         for i, (inds, out) in enumerate(zip(model_inds, model_outputs)):
@@ -70,16 +69,19 @@ class OutputProcessor:
     def _compute_cov_elements(output_array):
         num_models = output_array.shape[0]
         matrix = np.full((num_models, num_models), np.nan)
+        valid = ~np.isnan(output_array)
+
         for i in range(num_models):
+            xi = output_array[i]
+            vi = valid[i]
+
             for j in range(i, num_models):
-                filter_ = np.logical_and(~np.isnan(output_array[i]),
-                                         ~np.isnan(output_array[j]))
-                if len(output_array[i, filter_]) <= 1:
-                    continue
-                element_matrix = np.cov(output_array[i, filter_],
-                                        output_array[j, filter_],
-                                        ddof=1)[0, 1]
-                matrix[i, j] = element_matrix
-                matrix[j, i] = element_matrix
+                mask = vi & valid[j]
+
+                if np.count_nonzero(mask) > 1:
+                    cov = np.cov(xi[mask], output_array[j, mask], ddof=1)[0, 1]
+
+                    matrix[i, j] = cov
+                    matrix[j, i] = cov
 
         return matrix
