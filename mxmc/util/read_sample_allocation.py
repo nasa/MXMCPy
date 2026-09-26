@@ -23,7 +23,12 @@ def read_sample_allocation(filename):
     '''
     allocation_file = h5py.File(filename, 'r')
     compressed_key = 'Compressed_Allocation/compressed_allocation'
-    compressed_allocation = np.array(allocation_file[compressed_key])
+    try:
+        dataset = allocation_file[compressed_key]
+    except KeyError:
+        # Earlier writers placed the dataset at the file root.
+        dataset = allocation_file['compressed_allocation']
+    compressed_allocation = np.array(dataset)
     method = allocation_file.attrs.get('Method')
 
     return ALLOC_MAP[method](compressed_allocation)

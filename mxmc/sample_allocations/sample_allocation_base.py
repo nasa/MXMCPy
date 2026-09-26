@@ -116,7 +116,8 @@ class SampleAllocationBase:
 
     def _write_compressed_alloc(self, h5_file, file_path):
         g = h5_file.create_group("Compressed_Allocation")
-        g.create_dataset(name=g.name.lower(), data=self.compressed_allocation)
+        g.create_dataset(name="compressed_allocation",
+                         data=self.compressed_allocation)
 
     @staticmethod
     def _get_ranges_from_samples_and_bool(n_samples, used_by_samples):
