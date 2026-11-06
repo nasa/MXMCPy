@@ -8,7 +8,7 @@ authors = [
     "James E. Warner",
     "Patrick E. Leser",
     "William P. Leser",
-    "Luke Morrill"
+    "Luke Morrill",
 ]
 
 setuptools.setup(
@@ -25,11 +25,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
-        "Intended Audience :: Science/Research"
+        "Intended Audience :: Science/Research",
     ],
-    python_requires='>=3.6',
-    install_requires=['numpy',
-                      'scipy',
-                      'torch',
-                      'h5py']
+    python_requires=">=3.7.8",
+    install_requires=["numpy", "scipy", "torch", "h5py"],
 )
