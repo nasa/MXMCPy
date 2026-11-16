@@ -42,14 +42,14 @@ class OutputProcessor:
     @staticmethod
     def _build_output_array(model_outputs, sample_allocation):
         if sample_allocation is None:
-            model_inds = (np.arange(len(out)) for out in model_outputs)
+            model_inds = [np.arange(len(out)) for out in model_outputs]
 
         else:
-            model_inds = (sample_allocation.get_sample_indices_for_model(i)
-                          for i in range(len(model_outputs)))
+            model_inds = [sample_allocation.get_sample_indices_for_model(i)
+                          for i in range(len(model_outputs))]
 
         return OutputProcessor._make_output_array_from_indices(
-            np.array(model_inds), model_outputs)
+            model_inds, model_outputs)
 
     @staticmethod
     def _make_output_array_from_indices(model_inds, model_outputs):
